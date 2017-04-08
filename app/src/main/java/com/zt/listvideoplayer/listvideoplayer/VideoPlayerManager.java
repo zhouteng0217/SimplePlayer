@@ -153,7 +153,7 @@ public class VideoPlayerManager {
         if (currentVideoPlayer == null) {
             currentVideoPlayer = new ListVideoPlayerStandard(listView.getContext());
         }
-        View curPosView = listView.getChildAt(position - listView.getFirstVisiblePosition());
+        View curPosView = listView.getChildAt(position + listView.getHeaderViewsCount() - listView.getFirstVisiblePosition());
         ViewGroup containerView = null;
         if (curPosView != null) {
             containerView = (ViewGroup) curPosView.findViewById(containerId);
