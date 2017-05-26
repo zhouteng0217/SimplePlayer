@@ -143,7 +143,7 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
         } else if (v.getId() == R.id.fullscreen) {
             VideoPlayerManager.getInstance().handleFullScreen(getContext());
         } else if (v.getId() == R.id.back) {
-            VideoPlayerManager.getInstance().exitFullScreen(getContext());
+            VideoPlayerManager.getInstance().handleFullScreen(getContext());
         } else if (v.getId() == R.id.surface_container && currentState == CURRENT_STATE_ERROR) {
             prepareMediaPlayer();
         }
