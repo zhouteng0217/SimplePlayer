@@ -181,7 +181,7 @@ public class VideoPlayerManager {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (currPos >= firstVisibleItem + visibleItemCount || currPos < firstVisibleItem) {
+                if (currPos >= firstVisibleItem - listView.getHeaderViewsCount() + visibleItemCount || currPos < firstVisibleItem - listView.getHeaderViewsCount()) {
                     release();
                 }
             }
