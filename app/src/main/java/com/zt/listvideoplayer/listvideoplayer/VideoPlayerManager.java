@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 /**
  * Created by zhouteng on 2017/4/8.
  */
@@ -31,11 +32,18 @@ public class VideoPlayerManager {
     private ListView listView;
     private int containerId;
 
+    private boolean isToggleFullScreen = false;
     public static VideoPlayerManager getInstance() {
         if (instance == null) {
             instance = new VideoPlayerManager();
         }
         return instance;
+    }
+    public int getCurrPos() {
+        return currPos;
+    }
+    public void setCurrPos(int currPos) {
+        this.currPos = currPos;
     }
 
     public ListVideoPlayer getCurrentVideoPlayer() {
@@ -59,8 +67,14 @@ public class VideoPlayerManager {
         }
     }
 
+    public void destory() {
+        release();
+        currentVideoPlayer = null;
+    }
     private void release() {
+        if (currentVideoPlayer != null) {
         currentVideoPlayer.onCompletion();
+        }
         MediaManager.instance().releaseMediaPlayer();
         removePlayerFromParent();
     }
@@ -75,12 +89,16 @@ public class VideoPlayerManager {
     }
 
     public void exitFullScreen(Context context) {
+        isToggleFullScreen = false;
+        currentVideoPlayer.setBackButtonVisibility(View.GONE);
         Activity activity = ListVideoUtils.getActivity(context);
         if (fullVideoDialog != null) {
             fullVideoDialog.dismiss();
         }
         toggledFullscreen(activity, false);
-        listView.setSelection(currPos);
+        currentVideoPlayer.post(new Runnable() {
+            @Override
+            public void run() {
         View curPosView = listView.getChildAt(currPos + listView.getHeaderViewsCount() - listView.getFirstVisiblePosition());
         ViewGroup containerView = null;
         if (curPosView != null) {
@@ -91,10 +109,15 @@ public class VideoPlayerManager {
             removePlayerFromParent();
             containerView.addView(currentVideoPlayer);
         }
+                listView.setSelection(currPos);
+            }
+        });
     }
 
     public void startFullScreen(final Context context) {
 
+        isToggleFullScreen = true;
+        currentVideoPlayer.setBackButtonVisibility(View.VISIBLE);
         Activity activity = ListVideoUtils.getActivity(context);
 
         removePlayerFromParent();
@@ -146,7 +169,7 @@ public class VideoPlayerManager {
 
     }
 
-    public void listVideoPlayer(ListView listView, int containerId, int position, String url, String title) {
+    public void listVideoPlayer(ListView listView, int containerId, int position, String url, String title, String thumb, ImageLoader imageLoader) {
         if (listView == null) {
             return;
         }
@@ -164,6 +187,9 @@ public class VideoPlayerManager {
             containerView.removeAllViews();
             containerView.addView(currentVideoPlayer);
             currentVideoPlayer.setUp(url, title);
+            if(thumb != null && thumb.length() > 0) {
+                imageLoader.displayImage(thumb,currentVideoPlayer.thumbImageView);
+            }
             currentVideoPlayer.startButton.performClick();
         }
         this.listView = listView;
@@ -181,10 +207,23 @@ public class VideoPlayerManager {
 
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-                if (currPos >= firstVisibleItem - listView.getHeaderViewsCount() + visibleItemCount || currPos < firstVisibleItem - listView.getHeaderViewsCount()) {
+                if ((currPos >= firstVisibleItem - listView.getHeaderViewsCount() + visibleItemCount
+                        || currPos < firstVisibleItem - listView.getHeaderViewsCount()) && !isToggleFullScreen) {
                     release();
                 }
             }
         });
+    }
+    public void onPause() {
+        if (currentVideoPlayer != null) {
+            currentVideoPlayer.onPause();
+        }
+    }
+
+    public int getCurrentPosition() {
+        if (currentVideoPlayer != null) {
+            return currentVideoPlayer.getCurrentPositionWhenPlaying();
+        }
+        return 0;
     }
 }
