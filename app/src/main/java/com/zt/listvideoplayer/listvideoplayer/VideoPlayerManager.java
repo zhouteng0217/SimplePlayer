@@ -13,6 +13,7 @@ import android.widget.AbsListView;
 import android.widget.ListView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 /**
  * Created by zhouteng on 2017/4/8.
  */
@@ -194,12 +195,12 @@ public class VideoPlayerManager {
         }
         this.listView = listView;
         this.containerId = containerId;
-        listViewOnScroll();
+        listViewOnScroll(imageLoader);
     }
 
-    private void listViewOnScroll() {
+    private void listViewOnScroll(ImageLoader imageLoader) {
 
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
+        listView.setOnScrollListener(new PauseOnScrollListener(imageLoader, true, true,new AbsListView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(AbsListView view, int scrollState) {
 
@@ -212,7 +213,7 @@ public class VideoPlayerManager {
                     release();
                 }
             }
-        });
+        }));
     }
     public void onPause() {
         if (currentVideoPlayer != null) {
