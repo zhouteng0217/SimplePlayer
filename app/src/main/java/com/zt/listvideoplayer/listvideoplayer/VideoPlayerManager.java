@@ -97,7 +97,7 @@ public class VideoPlayerManager {
             fullVideoDialog.dismiss();
         }
         toggledFullscreen(activity, false);
-        currentVideoPlayer.post(new Runnable() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
         View curPosView = listView.getChildAt(currPos + listView.getHeaderViewsCount() - listView.getFirstVisiblePosition());
