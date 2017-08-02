@@ -72,13 +72,17 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
     private ImageView backButton;
     protected ImageView thumbImageView;
 
+
     private Handler mHandler;
     protected String url = "";
 
     protected int currentState = -1;
 
     private int seekToInAdvance = 0;
+
     protected boolean isLive = false;
+
+    protected boolean isPrepared = false;
 
     public ListVideoPlayer(Context context) {
         super(context);
@@ -104,6 +108,7 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
         backButton = (ImageView) findViewById(R.id.back);
 
         backButton.setVisibility(View.GONE);
+
         backButton.setOnClickListener(this);
         startButton.setOnClickListener(this);
         fullscreenButton.setOnClickListener(this);
@@ -122,7 +127,8 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
     }
 
     public abstract int getLayoutId();
-    public void setBackButtonVisibility(int visibility){
+
+    public void setBackButtonVisibility(int visibility) {
         backButton.setVisibility(visibility);
     }
 
@@ -218,7 +224,7 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
     }
 
     private void startProgressTimer() {
-        if(isLive) {
+        if (isLive) {
             return;
         }
         cancelProgressTimer();
@@ -240,6 +246,8 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
 
         Log.i(TAG, "onPrepared " + " [" + this.hashCode() + "] ");
 
+        isPrepared = true;
+
         if (currentState != CURRENT_STATE_PREPARING) return;
         if (seekToInAdvance != 0) {
             MediaManager.instance().mediaPlayer.seekTo(seekToInAdvance);
@@ -250,7 +258,7 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
                 MediaManager.instance().mediaPlayer.seekTo(position);
             }
         }
-        if(getDuration() < 0) {
+        if (getDuration() <= 0) {
             isLive = true;
         } else {
             isLive = false;
@@ -355,6 +363,7 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
         totalTimeTextView.setVisibility(isLive ? View.INVISIBLE : View.VISIBLE);
         progressBar.setVisibility(isLive ? View.INVISIBLE : View.VISIBLE);
     }
+
     protected void resetProgressAndTime() {
         progressBar.setProgress(0);
         progressBar.setSecondaryProgress(0);
@@ -386,6 +395,10 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
     }
 
     public void onAutoCompletion() {
+        if (!isPrepared) {
+            return;
+        }
+        isPrepared = false;
         Runtime.getRuntime().gc();
         dismissProgressDialog();
         onStateAction(CURRENT_STATE_AUTO_COMPLETE);
@@ -435,8 +448,8 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
         Log.e(TAG, "onError " + what + " - " + extra + " [" + this.hashCode() + "] ");
         if (what != 38 && what != -38) {
             onStateAction(CURRENT_STATE_ERROR);
-            MediaManager.instance().releaseMediaPlayer();
-            Toast.makeText(getContext(),R.string.unavailable_resource,Toast.LENGTH_LONG).show();
+            VideoPlayerManager.getInstance().release();
+            Toast.makeText(getContext(), R.string.unavailable_resource, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -514,4 +527,7 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
         ListVideoPlayer.clearSavedProgress(context, url);
     }
 
+    public void setPrepared(boolean prepared) {
+        isPrepared = prepared;
+    }
 }

@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +16,8 @@ import android.widget.ListView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
+
+
 /**
  * Created by zhouteng on 2017/4/8.
  */
@@ -34,15 +38,18 @@ public class VideoPlayerManager {
     private int containerId;
 
     private boolean isToggleFullScreen = false;
+
     public static VideoPlayerManager getInstance() {
         if (instance == null) {
             instance = new VideoPlayerManager();
         }
         return instance;
     }
+
     public int getCurrPos() {
         return currPos;
     }
+
     public void setCurrPos(int currPos) {
         this.currPos = currPos;
     }
@@ -72,9 +79,11 @@ public class VideoPlayerManager {
         release();
         currentVideoPlayer = null;
     }
-    private void release() {
+
+    public void release() {
         if (currentVideoPlayer != null) {
-        currentVideoPlayer.onCompletion();
+            currentVideoPlayer.onCompletion();
+            currentVideoPlayer.setPrepared(false);
         }
         MediaManager.instance().releaseMediaPlayer();
         removePlayerFromParent();
@@ -90,7 +99,9 @@ public class VideoPlayerManager {
     }
 
     public void exitFullScreen(Context context) {
+
         isToggleFullScreen = false;
+
         currentVideoPlayer.setBackButtonVisibility(View.GONE);
         Activity activity = ListVideoUtils.getActivity(context);
         if (fullVideoDialog != null) {
@@ -100,16 +111,16 @@ public class VideoPlayerManager {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-        View curPosView = listView.getChildAt(currPos + listView.getHeaderViewsCount() - listView.getFirstVisiblePosition());
-        ViewGroup containerView = null;
-        if (curPosView != null) {
-            containerView = (ViewGroup) curPosView.findViewById(containerId);
-        }
-        if (containerView != null) {
-            containerView.removeAllViews();
-            removePlayerFromParent();
-            containerView.addView(currentVideoPlayer);
-        }
+                View curPosView = listView.getChildAt(currPos + listView.getHeaderViewsCount() - listView.getFirstVisiblePosition());
+                ViewGroup containerView = null;
+                if (curPosView != null) {
+                    containerView = (ViewGroup) curPosView.findViewById(containerId);
+                }
+                if (containerView != null) {
+                    containerView.removeAllViews();
+                    removePlayerFromParent();
+                    containerView.addView(currentVideoPlayer);
+                }
                 listView.setSelection(currPos);
             }
         });
@@ -118,6 +129,7 @@ public class VideoPlayerManager {
     public void startFullScreen(final Context context) {
 
         isToggleFullScreen = true;
+
         currentVideoPlayer.setBackButtonVisibility(View.VISIBLE);
         Activity activity = ListVideoUtils.getActivity(context);
 
@@ -177,6 +189,7 @@ public class VideoPlayerManager {
         if (currentVideoPlayer == null) {
             currentVideoPlayer = new ListVideoPlayerStandard(listView.getContext());
         }
+        currentVideoPlayer.setPrepared(false);
         View curPosView = listView.getChildAt(position + listView.getHeaderViewsCount() - listView.getFirstVisiblePosition());
         ViewGroup containerView = null;
         if (curPosView != null) {
@@ -215,12 +228,18 @@ public class VideoPlayerManager {
             }
         }));
     }
+
     public void onPause() {
         if (currentVideoPlayer != null) {
             currentVideoPlayer.onPause();
         }
     }
 
+    /**
+     * 获取视频播放的时长
+     *
+     * @return
+     */
     public int getCurrentPosition() {
         if (currentVideoPlayer != null) {
             return currentVideoPlayer.getCurrentPositionWhenPlaying();
