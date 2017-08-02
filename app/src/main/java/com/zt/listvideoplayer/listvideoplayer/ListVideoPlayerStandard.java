@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zt.listvideoplayer.R;
@@ -24,10 +23,7 @@ public class ListVideoPlayerStandard extends ListVideoPlayer {
     protected Timer dismissControlViewTimer;
     protected DismissControlViewTimerTask mDismissControlViewTimerTask;
 
-    private ImageView backButton;
     private ProgressBar bottomProgressBar, loadingProgressBar;
-
-    private ImageView thumbImageView;
 
     public ListVideoPlayerStandard(Context context) {
         super(context);
@@ -41,12 +37,10 @@ public class ListVideoPlayerStandard extends ListVideoPlayer {
     public void init(Context context) {
         super.init(context);
         bottomProgressBar = (ProgressBar) findViewById(R.id.bottom_progressbar);
-        backButton = (ImageView) findViewById(R.id.back);
         thumbImageView = (ImageView) findViewById(R.id.thumb);
+        thumbImageView.setOnClickListener(this);
         loadingProgressBar = (ProgressBar) findViewById(R.id.loading);
 
-        thumbImageView.setOnClickListener(this);
-        backButton.setOnClickListener(this);
     }
 
     @Override
