@@ -75,7 +75,7 @@ public class ListVideoPlayerStandard extends ListVideoPlayer {
     @Override
     public void showWifiDialog() {
         super.showWifiDialog();
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(getResources().getString(R.string.tips_not_wifi));
         builder.setPositiveButton(getResources().getString(R.string.tips_not_wifi_confirm), new DialogInterface.OnClickListener() {
             @Override

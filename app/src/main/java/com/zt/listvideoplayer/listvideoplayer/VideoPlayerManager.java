@@ -111,6 +111,9 @@ public class VideoPlayerManager {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
+                if (currentVideoPlayer == null){
+                    return;
+                }
                 View curPosView = listView.getChildAt(currPos + listView.getHeaderViewsCount() - listView.getFirstVisiblePosition());
                 ViewGroup containerView = null;
                 if (curPosView != null) {
@@ -236,7 +239,7 @@ public class VideoPlayerManager {
     }
 
     /**
-     * »ñÈ¡ÊÓÆµ²¥·ÅµÄÊ±³¤
+     * è·å–è§†é¢‘æ’­æ”¾çš„æ—¶é•¿
      *
      * @return
      */
