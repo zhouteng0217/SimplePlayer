@@ -323,14 +323,14 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
         return position;
     }
 
-    public static AudioManager.OnAudioFocusChangeListener onAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+    public AudioManager.OnAudioFocusChangeListener onAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
         @Override
         public void onAudioFocusChange(int focusChange) {
             switch (focusChange) {
                 case AudioManager.AUDIOFOCUS_GAIN:
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS:
-                    releaseAllVideos();
+                    onPause();
                     Log.d(TAG, "AUDIOFOCUS_LOSS [" + this.hashCode() + "]");
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
@@ -470,6 +470,9 @@ public abstract class ListVideoPlayer extends FrameLayout implements View.OnClic
     }
 
     public void onVideoSizeChanged() {
+        if (MediaManager.textureView == null){
+            return;
+        }
         Log.i(TAG, "onVideoSizeChanged " + " [" + this.hashCode() + "] ");
         MediaManager.textureView.setVideoSize(MediaManager.instance().getVideoSize());
     }
