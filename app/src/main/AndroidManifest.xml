@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zt.listvideoplayer" >
+    package="com.zt.listvideoplayer">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -10,16 +10,35 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
-        <activity android:name=".MainActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize|locale"
-            >
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|locale">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ListVideoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|locale"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+            android:name=".NormalVideoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|locale"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
+
+        <activity
+            android:name=".RecyclerViewVideoActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize|locale"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light" />
+
     </application>
 
 </manifest>
