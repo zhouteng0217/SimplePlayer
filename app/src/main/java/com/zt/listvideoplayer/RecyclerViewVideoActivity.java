@@ -95,7 +95,8 @@ public class RecyclerViewVideoActivity extends AppCompatActivity {
             int lastVisiblePosition = linearLayoutManager.findLastVisibleItemPosition();
             int curPos = ListVideoManager.getInstance().getCurPos();
 
-            if (curPos < firstVisiblePosition || curPos > lastVisiblePosition) {
+            if ((curPos < firstVisiblePosition || curPos > lastVisiblePosition)
+                    && !ListVideoManager.getInstance().isFullScreen()) {
                 ListVideoManager.getInstance().release();
             }
         }

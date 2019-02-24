@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -118,7 +117,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     @Override
     public void onStateChange(int state) {
-        Log.d("zhouteng", "state=" + state);
         switch (state) {
             case BasePlayer.STATE_IDLE:
                 changeUIWithIdle();
