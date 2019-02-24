@@ -3,6 +3,10 @@ package com.zt.listvideo;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.view.Surface;
 import android.view.TextureView;
 
@@ -11,6 +15,9 @@ import android.view.TextureView;
  */
 
 public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnVideoSizeChangedListener, TextureView.SurfaceTextureListener {
+
+    private static final int MSG_RELEASE = 101;
+    private static final int MSG_DESTORY = 102;
 
     public static final int STATE_ERROR = -1;
     public static final int STATE_IDLE = 0;
@@ -35,6 +42,40 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     private TextureView textureView;
 
     protected int bufferedPercentage;
+
+    private MediaPlayerHandler mediaPlayerHandler; //用于处理mediaplayer的release等耗时操作
+
+    private Handler mainHandler;  //主线程handler，用于更新UI
+
+    private class MediaPlayerHandler extends Handler {
+        private MediaPlayerHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (mediaPlayer == null) {
+                return;
+            }
+            switch (msg.what) {
+                case MSG_RELEASE:
+                    mediaPlayer.release();
+                    break;
+                case MSG_DESTORY:
+                    mediaPlayer.release();
+                    resetSurface();
+                    mediaPlayer = null;
+                    break;
+            }
+        }
+    }
+
+    public BasePlayer() {
+        HandlerThread handlerThread = new HandlerThread(this.getClass().getName());
+        handlerThread.start();
+        mediaPlayerHandler = new MediaPlayerHandler(handlerThread.getLooper());
+        mainHandler = new Handler(Looper.getMainLooper());
+    }
 
     public void setVideoPath(String url) {
         this.url = url;
@@ -72,16 +113,17 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     }
 
     public void destroy() {
-        release();
-        mediaPlayer = null;
-        resetSurface();
+        onStateChange(STATE_IDLE);
+        Message message = Message.obtain();
+        message.what = MSG_DESTORY;
+        mediaPlayerHandler.sendMessage(message);
     }
 
     public void release() {
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-            onStateChange(STATE_IDLE);
-        }
+        onStateChange(STATE_IDLE);
+        Message message = Message.obtain();
+        message.what = MSG_RELEASE;
+        mediaPlayerHandler.sendMessage(message);
     }
 
     public void resetSurface() {
