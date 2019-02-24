@@ -17,9 +17,11 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     public static final int STATE_PREPARING = 1;
     public static final int STATE_PREPARED = 2;
     public static final int STATE_BUFFERING = 3;  //缓冲中
-    public static final int STATE_PLAYING = 4;
-    public static final int STATE_PAUSED = 5;
-    public static final int STATE_COMPLETED = 6;
+    public static final int STATE_BUFFERING_START = 4; //暂停播放开始缓冲更多数据
+    public static final int STATE_BUFFERING_END = 5; //缓冲了足够的数据重新开始播放
+    public static final int STATE_PLAYING = 6;
+    public static final int STATE_PAUSED = 7;
+    public static final int STATE_COMPLETED = 8;
 
     private int currentState = BasePlayer.STATE_IDLE;
 
@@ -99,8 +101,8 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
-        onStateChange(STATE_BUFFERING);
         bufferedPercentage = percent;
+        onStateChange(STATE_BUFFERING);
         if (bufferingUpdateListener != null) {
             bufferingUpdateListener.onBufferingUpdate(mp, percent);
         }
@@ -121,6 +123,14 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     @Override
     public boolean onInfo(MediaPlayer mp, int what, int extra) {
+        switch (what) {
+            case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                onStateChange(STATE_BUFFERING_START);
+                break;
+            case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                onStateChange(STATE_BUFFERING_END);
+                break;
+        }
         return false;
     }
 
@@ -146,7 +156,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        return  savedSurfaceTexture == null;
+        return savedSurfaceTexture == null;
     }
 
     @Override

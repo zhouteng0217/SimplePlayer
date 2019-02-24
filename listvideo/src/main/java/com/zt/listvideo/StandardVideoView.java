@@ -118,7 +118,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     @Override
     public void onStateChange(int state) {
-        Log.d("zhouteng","state=" + state);
+        Log.d("zhouteng", "state=" + state);
         switch (state) {
             case BasePlayer.STATE_IDLE:
                 changeUIWithIdle();
@@ -141,7 +141,21 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             case BasePlayer.STATE_ERROR:
                 changeUIWithError();
                 break;
+            case BasePlayer.STATE_BUFFERING_START:
+                changeUiWithBufferingStart();
+                break;
+            case BasePlayer.STATE_BUFFERING_END:
+                changeUiWithBufferingEnd();
+                break;
         }
+    }
+
+    protected void changeUiWithBufferingStart() {
+        setViewsVisible(View.VISIBLE, View.GONE, View.GONE, View.VISIBLE, View.GONE, View.GONE);
+    }
+
+    protected void changeUiWithBufferingEnd() {
+        setViewsVisible(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithPlaying() {
