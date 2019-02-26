@@ -45,6 +45,8 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     protected AudioManager audioManager;
 
+    protected Context context;
+
     private class MediaPlayerHandler extends Handler {
         private MediaPlayerHandler(Looper looper) {
             super(looper);
@@ -69,6 +71,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     }
 
     public BasePlayer(Context context) {
+        this.context = context;
         HandlerThread handlerThread = new HandlerThread(this.getClass().getName());
         handlerThread.start();
         mediaPlayerHandler = new MediaPlayerHandler(handlerThread.getLooper());
@@ -139,6 +142,8 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     }
 
     public void destroy() {
+        abandonAudioFocus();
+        VideoUtils.removeScreenOn(context);
         onStateChange(STATE_IDLE);
         Message message = Message.obtain();
         message.what = MSG_DESTORY;
@@ -147,6 +152,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     public void release() {
         abandonAudioFocus();
+        VideoUtils.removeScreenOn(context);
         onStateChange(STATE_IDLE);
         Message message = Message.obtain();
         message.what = MSG_RELEASE;
@@ -165,7 +171,8 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        audioManager.abandonAudioFocus(onAudioFocusChangeListener);
+        abandonAudioFocus();
+        VideoUtils.removeScreenOn(context);
         onStateChange(STATE_COMPLETED);
     }
 
@@ -231,11 +238,13 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     public void play() {
         requestAudioFocus();
+        VideoUtils.keepScreenOn(context);
         mediaPlayer.start();
         onStateChange(STATE_PLAYING);
     }
 
     public void pause() {
+        VideoUtils.removeScreenOn(context);
         mediaPlayer.pause();
         onStateChange(STATE_PAUSED);
     }
