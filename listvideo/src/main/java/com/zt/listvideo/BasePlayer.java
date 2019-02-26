@@ -1,5 +1,6 @@
 package com.zt.listvideo;
 
+import android.content.Context;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -33,9 +34,6 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     private int currentState = BasePlayer.STATE_IDLE;
 
     private StateCallback stateCallback;
-    private MediaPlayer.OnBufferingUpdateListener bufferingUpdateListener;
-    private MediaPlayer.OnSeekCompleteListener seekCompleteListener;
-
     private MediaPlayer mediaPlayer;
     private String url;
     private SurfaceTexture savedSurfaceTexture;
@@ -45,7 +43,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     private MediaPlayerHandler mediaPlayerHandler; //用于处理mediaplayer的release等耗时操作
 
-    private Handler mainHandler;  //主线程handler，用于更新UI
+    protected AudioManager audioManager;
 
     private class MediaPlayerHandler extends Handler {
         private MediaPlayerHandler(Looper looper) {
@@ -70,11 +68,11 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
         }
     }
 
-    public BasePlayer() {
+    public BasePlayer(Context context) {
         HandlerThread handlerThread = new HandlerThread(this.getClass().getName());
         handlerThread.start();
         mediaPlayerHandler = new MediaPlayerHandler(handlerThread.getLooper());
-        mainHandler = new Handler(Looper.getMainLooper());
+        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
     public void setVideoPath(String url) {
@@ -85,6 +83,34 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
         this.textureView = textureView;
         textureView.setSurfaceTextureListener(this);
     }
+
+    //region audio focus
+    private void requestAudioFocus() {
+        audioManager.requestAudioFocus(onAudioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
+    }
+
+    private void abandonAudioFocus() {
+        audioManager.abandonAudioFocus(onAudioFocusChangeListener);
+    }
+
+    private AudioManager.OnAudioFocusChangeListener onAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            switch (focusChange) {
+                case AudioManager.AUDIOFOCUS_GAIN:
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS:
+                    pause();
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                    pause();
+                    break;
+                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                    break;
+            }
+        }
+    };
+    //endregion
 
     private void prepare() {
         try {
@@ -120,6 +146,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     }
 
     public void release() {
+        abandonAudioFocus();
         onStateChange(STATE_IDLE);
         Message message = Message.obtain();
         message.what = MSG_RELEASE;
@@ -138,6 +165,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        audioManager.abandonAudioFocus(onAudioFocusChangeListener);
         onStateChange(STATE_COMPLETED);
     }
 
@@ -145,16 +173,11 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
         bufferedPercentage = percent;
         onStateChange(STATE_BUFFERING);
-        if (bufferingUpdateListener != null) {
-            bufferingUpdateListener.onBufferingUpdate(mp, percent);
-        }
     }
 
     @Override
     public void onSeekComplete(MediaPlayer mp) {
-        if (seekCompleteListener != null) {
-            seekCompleteListener.onSeekComplete(mp);
-        }
+
     }
 
     @Override
@@ -207,6 +230,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     }
 
     public void play() {
+        requestAudioFocus();
         mediaPlayer.start();
         onStateChange(STATE_PLAYING);
     }
@@ -265,14 +289,6 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     public void setStateCallback(StateCallback stateCallback) {
         this.stateCallback = stateCallback;
-    }
-
-    public void setBufferingUpdateListener(MediaPlayer.OnBufferingUpdateListener bufferingUpdateListener) {
-        this.bufferingUpdateListener = bufferingUpdateListener;
-    }
-
-    public void setSeekCompleteListener(MediaPlayer.OnSeekCompleteListener seekCompleteListener) {
-        this.seekCompleteListener = seekCompleteListener;
     }
 
     public int getCurrentState() {
