@@ -29,7 +29,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
 
     private void init(Context context) {
         LayoutInflater.from(context).inflate(getLayoutId(), this);
-        player = new BasePlayer();
+        player = new BasePlayer(context);
         player.setStateCallback(this);
     }
 
