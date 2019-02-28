@@ -1,4 +1,4 @@
-package com.zt.listvideo;
+package com.zt.listvideo.base;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,6 +9,8 @@ import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import com.zt.listvideo.listener.StateCallback;
 
 public abstract class BaseVideoView extends FrameLayout implements StateCallback {
 

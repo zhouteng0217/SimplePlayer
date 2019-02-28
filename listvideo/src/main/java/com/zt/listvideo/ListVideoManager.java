@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.zt.listvideo.view.ListVideoView;
+
 public class ListVideoManager {
 
     private static ListVideoManager instance;

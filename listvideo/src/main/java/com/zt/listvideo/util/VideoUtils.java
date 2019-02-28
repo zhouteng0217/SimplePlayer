@@ -1,4 +1,4 @@
-package com.zt.listvideo;
+package com.zt.listvideo.util;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,9 +6,14 @@ import android.content.ContextWrapper;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ContextThemeWrapper;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
+import android.view.Display;
+import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 
@@ -141,4 +146,76 @@ public class VideoUtils {
         getActivity(context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    //是否是横屏
+    public static boolean isScreenLand(Context context) {
+        Activity activity = getActivity(context);
+        return activity.getWindowManager().getDefaultDisplay().getRotation() == Surface.ROTATION_90 ||
+                activity.getWindowManager().getDefaultDisplay().getRotation() == Surface.ROTATION_270;
+
+    }
+
+    /**
+     * 获取屏幕宽度
+     *
+     * @param context
+     * @return
+     */
+    public static int getScreenWidth(Context context) {
+        WindowManager wm = (WindowManager) context
+                .getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(displayMetrics);
+        return displayMetrics.widthPixels;
+    }
+
+    /**
+     * 获取屏幕高度
+     *
+     * @param context
+     * @return
+     */
+    public static int getScreenHeight(Context context) {
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        DisplayMetrics dm = new DisplayMetrics();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            display.getRealMetrics(dm);
+        } else {
+            display.getMetrics(dm);
+        }
+        int realHeight = dm.heightPixels;
+        return realHeight;
+    }
+
+    public static int dp2px(Context context, int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, context.getResources().getDisplayMetrics());
+    }
+
+    public static float getScreenBrightness(Context context) {
+        float brightness = getActivity(context).getWindow().getAttributes().screenBrightness;
+
+        //如果是默认的系统亮度，则取系统屏幕亮度
+        if (brightness == WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE) {
+            return getSystemBrightness(context);
+        }
+        return brightness;
+    }
+
+    public static void setScreenBrightness(Context context, float screenBrightness) {
+        Activity activity = getActivity(context);
+        WindowManager.LayoutParams layoutParams = activity.getWindow().getAttributes();
+        layoutParams.screenBrightness = screenBrightness;
+        activity.getWindow().setAttributes(layoutParams);
+    }
+
+    //获取手动亮度模式下，系统的屏幕亮度，并转化成0.0f - 1.0f区间的数值
+    public static float getSystemBrightness(Context context) {
+        int brightness = 0;
+        try {
+            brightness = Settings.System.getInt(context.getContentResolver(), Settings.System.SCREEN_BRIGHTNESS);
+        } catch (Settings.SettingNotFoundException e) {
+            e.printStackTrace();
+        }
+        return (float) brightness / 255;
+    }
 }

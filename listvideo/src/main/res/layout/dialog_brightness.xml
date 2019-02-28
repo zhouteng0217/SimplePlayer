@@ -2,23 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="200dp"
     android:layout_height="100dp"
-    android:background="@drawable/shape_volume_bg"
+    android:background="@drawable/shape_volume_brightness_bg"
     android:gravity="center"
     android:orientation="vertical">
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_volume" />
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:src="@drawable/ic_brightness" />
 
     <ProgressBar
-        android:id="@+id/volumn_progress_bar"
-        android:layout_width="180dp"
+        android:id="@+id/brightness_progress_bar"
+        android:layout_width="match_parent"
         android:layout_height="4dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="15dp"
         android:indeterminateOnly="false"
         android:max="100"
-        android:progressDrawable="@drawable/shape_volume_progress_bg" />
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:progressDrawable="@drawable/shape_volume_brightness_progress_bg" />
 
 
 </LinearLayout>
