@@ -4,7 +4,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
-import com.zt.listvideo.StandardVideoView;
+import com.zt.listvideo.view.StandardVideoView;
 
 public class NormalVideoActivity extends AppCompatActivity {
 

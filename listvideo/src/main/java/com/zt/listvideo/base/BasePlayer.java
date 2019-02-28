@@ -1,4 +1,4 @@
-package com.zt.listvideo;
+package com.zt.listvideo.base;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -10,6 +10,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.view.Surface;
 import android.view.TextureView;
+
+import com.zt.listvideo.listener.StateCallback;
+import com.zt.listvideo.util.VideoUtils;
 
 /**
  * 原生mediaplayer实现的封装的播放器
@@ -87,7 +90,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
         textureView.setSurfaceTextureListener(this);
     }
 
-    //region audio focus
+    //region audiomanager
     private void requestAudioFocus() {
         audioManager.requestAudioFocus(onAudioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
     }
@@ -113,6 +116,19 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
             }
         }
     };
+
+    public int getStreamMaxVolume() {
+        return audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+    }
+
+    public int getStreamVolume() {
+        return audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+    }
+
+    public void setStreamVolume(int value) {
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value,0);
+    }
+
     //endregion
 
     private void prepare() {

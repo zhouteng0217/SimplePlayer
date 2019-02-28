@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@android:id/background">
         <shape>
@@ -8,9 +7,7 @@
         </shape>
     </item>
     <item android:id="@android:id/progress">
-        <clip
-            android:clipOrientation="vertical"
-            android:gravity="bottom">
+        <clip android:clipOrientation="horizontal">
             <shape>
                 <solid android:color="#ff4a90e2" />
                 <corners android:radius="2dp" />

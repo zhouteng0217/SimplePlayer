@@ -1,4 +1,4 @@
-package com.zt.listvideo;
+package com.zt.listvideo.view;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -9,15 +9,23 @@ import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.zt.listvideo.listener.OnFullScreenChangeListener;
+import com.zt.listvideo.R;
+import com.zt.listvideo.util.VideoUtils;
+import com.zt.listvideo.base.BasePlayer;
+import com.zt.listvideo.base.BaseVideoView;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -26,7 +34,7 @@ import java.util.TimerTask;
  * 标准的视频播放控件
  */
 
-public class StandardVideoView extends BaseVideoView implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
+public class StandardVideoView extends BaseVideoView implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
 
     private boolean isShowMobileDataDialog = false;
 
@@ -78,6 +86,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     protected void initView() {
         surfaceContainer = findViewById(R.id.surface_container);
         surfaceContainer.setOnClickListener(this);
+        surfaceContainer.setOnTouchListener(this);
 
         thumbView = findViewById(R.id.thumb);
         bottomLayout = findViewById(R.id.bottom_layout);
@@ -521,14 +530,14 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         int position = player.getCurrentPosition();
         int duration = player.getDuration();
         int progress = position * 100 / (duration == 0 ? 1 : duration);
-        if (progress != 0) {
+        if (progress != 0 && !touchScreen) {
             seekBar.setProgress(progress);
         }
         currentTimeText.setText(VideoUtils.stringForTime(position));
         totalTimeText.setText(VideoUtils.stringForTime(duration));
     }
 
-    protected void setTitle(String titleText) {
+    public void setTitle(String titleText) {
         title.setText(titleText);
     }
 
@@ -560,4 +569,137 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     public boolean isFullScreen() {
         return isFullScreen;
     }
+
+    //region 音量，亮度，进度调整
+
+    protected boolean isSupportVolume = true;
+    protected boolean isSupportBrightness = true;
+    protected boolean isSupportSeek;
+
+    protected VolumeDialog volumeDialog;
+    protected BrightnessDialog brightnessDialog;
+
+    protected boolean touchScreen;
+
+    private float downX;
+    private float downY;
+
+    private int downVolume;  //触摸屏幕时的当前音量
+    private float downBrightness;  //触摸屏幕时的当前亮度
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (player == null || !player.isInPlaybackState()) {
+            return false;
+        }
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                touchScreen = true;
+                downX = event.getX();
+                downY = event.getY();
+                downVolume = player.getStreamVolume();
+                downBrightness = VideoUtils.getScreenBrightness(getContext());
+                break;
+            case MotionEvent.ACTION_MOVE:
+                float dx = event.getX() - downX;
+                float dy = event.getY() - downY;
+                touchMove(dx, dy, event.getX());
+                break;
+            case MotionEvent.ACTION_UP:
+                touchScreen = false;
+                hideVolumeDialog();
+                hideBrightnewssDialog();
+                break;
+        }
+        return false;
+    }
+
+    private void touchMove(float dx, float dy, float x) {
+
+        float absDx = Math.abs(dx);
+        float absDy = Math.abs(dy);
+
+        if (isSupportSeek && absDx > absDy) {
+            changeProgress(dx);
+            return;
+        }
+
+        int distance = getWidth();
+
+        if (isSupportBrightness && absDy > absDx && x <= distance / 2) {
+            changeBrightness(dy);
+            return;
+        }
+
+        if (isSupportVolume && absDy > absDx && x > distance / 2) {
+            changeVolume(dy);
+        }
+    }
+
+    private void changeProgress(float dx) {
+        int distance = getWidth();
+        String currentText = VideoUtils.stringForTime(player.getCurrentPosition() + (int) (dx / distance * player.getDuration()));
+    }
+
+    private void changeBrightness(float dy) {
+        //屏幕亮度区间0.0 ~ 1.0
+        int distance = getHeight();
+
+        float newBrightness = downBrightness - dy / distance;
+        if (newBrightness < 0.0f) {
+            newBrightness = 0.0f;
+        }
+        if (newBrightness > 1.0f) {
+            newBrightness = 1.0f;
+        }
+        VideoUtils.setScreenBrightness(getContext(), newBrightness);
+        showBrightnewssDialog((int) (newBrightness * 100));
+    }
+
+    private void showBrightnewssDialog(int volumeProgress) {
+        if (brightnessDialog == null) {
+            brightnessDialog = new BrightnessDialog(getContext(), R.style.volume_brightness_theme);
+        }
+        brightnessDialog.showBrightnewssDialog(volumeProgress, this);
+    }
+
+    private void hideBrightnewssDialog() {
+        if (brightnessDialog != null) {
+            brightnessDialog.dismiss();
+        }
+    }
+
+    private void changeVolume(float dy) {
+
+        int maxVolume = player.getStreamMaxVolume();
+
+        int distance = getHeight();
+
+        float newVolume = downVolume - dy / distance * maxVolume;
+
+        if (newVolume < 0) {
+            newVolume = 0;
+        }
+        if (newVolume > maxVolume) {
+            newVolume = maxVolume;
+        }
+
+        player.setStreamVolume((int) newVolume);
+
+        showVolumeDialog((int) (newVolume / maxVolume * 100));
+    }
+
+    private void showVolumeDialog(int volumeProgress) {
+        if (volumeDialog == null) {
+            volumeDialog = new VolumeDialog(getContext(), R.style.volume_brightness_theme);
+        }
+        volumeDialog.showVolumeDialog(volumeProgress, this);
+    }
+
+    private void hideVolumeDialog() {
+        if (volumeDialog != null) {
+            volumeDialog.dismiss();
+        }
+    }
+    //endregion
 }

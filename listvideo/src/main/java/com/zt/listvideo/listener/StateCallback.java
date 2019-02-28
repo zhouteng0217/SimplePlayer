@@ -1,4 +1,4 @@
-package com.zt.listvideo;
+package com.zt.listvideo.listener;
 
 //各种播放状态回调
 public interface StateCallback {
