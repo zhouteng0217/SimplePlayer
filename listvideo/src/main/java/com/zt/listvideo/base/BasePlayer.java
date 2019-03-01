@@ -33,6 +33,8 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     public static final int STATE_PLAYING = 6;
     public static final int STATE_PAUSED = 7;
     public static final int STATE_COMPLETED = 8;
+    public static final int STATE_SEEK_START = 9;  //开始seek
+    public static final int STATE_SEEK_END = 10;   //seek结束
 
     private int currentState = BasePlayer.STATE_IDLE;
 
@@ -200,7 +202,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     @Override
     public void onSeekComplete(MediaPlayer mp) {
-
+        onStateChange(STATE_SEEK_END);
     }
 
     @Override
@@ -273,6 +275,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     }
 
     public void seekTo(int msec) {
+        onStateChange(STATE_SEEK_START);
         mediaPlayer.seekTo(msec);
     }
 

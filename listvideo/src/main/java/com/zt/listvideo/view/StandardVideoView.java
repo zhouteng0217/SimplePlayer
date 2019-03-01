@@ -6,15 +6,16 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.Window;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -149,9 +150,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 changeUIWithError();
                 break;
             case BasePlayer.STATE_BUFFERING_START:
+            case BasePlayer.STATE_SEEK_START:
                 changeUiWithBufferingStart();
                 break;
             case BasePlayer.STATE_BUFFERING_END:
+            case BasePlayer.STATE_SEEK_END:
                 changeUiWithBufferingEnd();
                 break;
         }
@@ -429,32 +432,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         return player != null && player.isInPlaybackState();
     }
 
-    @Override
-    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (fromUser) {
-            int time = progress * player.getDuration() / 100;
-            seekBar.setProgress(progress);
-            player.seekTo(time);
-            if (player.getBufferedPercentage() < progress) {
-                loadingProgressBar.setVisibility(View.VISIBLE);
-            } else {
-                loadingProgressBar.setVisibility(View.GONE);
-            }
-        } else {
-            loadingProgressBar.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    public void onStartTrackingTouch(SeekBar seekBar) {
-        cancelProgressTimer();
-    }
-
-    @Override
-    public void onStopTrackingTouch(SeekBar seekBar) {
-        startProgressTimer();
-    }
-
     public void setOnFullScreenChangeListener(OnFullScreenChangeListener onFullScreenChangeListener) {
         this.onFullScreenChangeListener = onFullScreenChangeListener;
     }
@@ -574,10 +551,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     protected boolean isSupportVolume = true;
     protected boolean isSupportBrightness = true;
-    protected boolean isSupportSeek;
+    protected boolean isSupportSeek = true;
 
     protected VolumeDialog volumeDialog;
     protected BrightnessDialog brightnessDialog;
+    protected SeekDialog seekDialog;
 
     protected boolean touchScreen;
 
@@ -586,6 +564,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     private int downVolume;  //触摸屏幕时的当前音量
     private float downBrightness;  //触摸屏幕时的当前亮度
+
+    private int downVideoPosition; //触摸屏幕时的当前播放进度
+    private int newVideoPosition; //手势操作拖动后的新的进度
+
+    private boolean isChangedProgress;  //是否手势操作拖动了进度条
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -599,6 +582,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 downY = event.getY();
                 downVolume = player.getStreamVolume();
                 downBrightness = VideoUtils.getScreenBrightness(getContext());
+                downVideoPosition = player.getCurrentPosition();
+                isChangedProgress = false;
                 break;
             case MotionEvent.ACTION_MOVE:
                 float dx = event.getX() - downX;
@@ -609,6 +594,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 touchScreen = false;
                 hideVolumeDialog();
                 hideBrightnewssDialog();
+                hideSeekDialog();
+                seekToNewVideoPosition();
                 break;
         }
         return false;
@@ -636,11 +623,78 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
-    private void changeProgress(float dx) {
-        int distance = getWidth();
-        String currentText = VideoUtils.stringForTime(player.getCurrentPosition() + (int) (dx / distance * player.getDuration()));
+    //region 播放进度手势处理
+    private void seekToNewVideoPosition() {
+        if (isChangedProgress) {
+            player.seekTo(newVideoPosition);
+            isChangedProgress = false;
+
+            startProgressTimer();
+        }
     }
 
+    private void changeProgress(float dx) {
+        cancelProgressTimer();
+
+        int distance = getWidth();
+        int videoDuration = player.getDuration();
+        newVideoPosition = downVideoPosition + (int) (dx / distance * videoDuration);
+        if (newVideoPosition >= videoDuration) {
+            newVideoPosition = videoDuration;
+        }
+        String progressText = VideoUtils.stringForTime(newVideoPosition) + "/" + VideoUtils.stringForTime(videoDuration);
+        int progress = (int) ((float) newVideoPosition / videoDuration * 100);
+        showSeekDialog(progressText, progress);
+        isChangedProgress = true;
+    }
+
+    private void showSeekDialog(String progressText, int seekBarProgress) {
+        if (seekDialog == null) {
+            seekDialog = new SeekDialog(getContext(), R.style.volume_brightness_theme);
+        }
+        seekDialog.showSeekDialog(progressText, this);
+        setProgressTextWithTouch(seekBarProgress);
+    }
+
+    private void hideSeekDialog() {
+        if (seekDialog != null) {
+            seekDialog.dismiss();
+        }
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+        cancelProgressTimer();
+        cancelControlViewTimer();
+        downVideoPosition = player.getCurrentPosition();
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+        if (fromUser) {
+            int videoDuration = player.getDuration();
+            newVideoPosition = progress * videoDuration / 100;
+            String progressText = VideoUtils.stringForTime(newVideoPosition) + "/" + VideoUtils.stringForTime(videoDuration);
+            showSeekDialog(progressText, progress);
+        }
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+        player.seekTo(newVideoPosition);
+        hideSeekDialog();
+        startProgressTimer();
+        startControlViewTimer();
+    }
+
+    private void setProgressTextWithTouch(int progress) {
+        currentTimeText.setText(VideoUtils.stringForTime(newVideoPosition));
+        seekBar.setProgress(progress);
+    }
+
+    //endregion
+
+    //region 亮度手势操作处理
     private void changeBrightness(float dy) {
         //屏幕亮度区间0.0 ~ 1.0
         int distance = getHeight();
@@ -668,7 +722,9 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             brightnessDialog.dismiss();
         }
     }
+    //endregion
 
+    //region 音量手势操作处理
     private void changeVolume(float dy) {
 
         int maxVolume = player.getStreamMaxVolume();
@@ -701,5 +757,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             volumeDialog.dismiss();
         }
     }
+    //endregion
+
     //endregion
 }

@@ -52,10 +52,11 @@ public class BrightnessDialog extends BaseDialog {
         layoutParams.y = location[1] + videoHeight / 2 - layoutParams.height / 2 - statusBarHeight;
         getWindow().setAttributes(layoutParams);
 
+        brightnessProgressBar.setProgress(brightnessProgress);
+
         if (!isShowing()) {
             show();
         }
-        brightnessProgressBar.setProgress(brightnessProgress);
     }
 
 }
