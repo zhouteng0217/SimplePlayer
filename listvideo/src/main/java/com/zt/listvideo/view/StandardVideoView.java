@@ -6,11 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +68,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     protected int originHeight;
 
     private OnFullScreenChangeListener onFullScreenChangeListener;
+
+    protected boolean isLiveVideo = false; // 表示是直播类的视频，没有播放进度
 
     public StandardVideoView(@NonNull Context context) {
         this(context, null);
@@ -235,8 +235,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         int visible = View.VISIBLE;
 
         if (player.getDuration() <= 0) {
+
             //表示直播类的视频，没有进度条
             visible = View.INVISIBLE;
+
+            isLiveVideo = true;
         }
 
         startControlViewTimer();
@@ -485,7 +488,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void startProgressTimer() {
-        if (player.getDuration() <= 0) {
+        if (isLiveVideo) {
             return;
         }
         cancelProgressTimer();
@@ -606,7 +609,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         float absDx = Math.abs(dx);
         float absDy = Math.abs(dy);
 
-        if (isSupportSeek && absDx > absDy) {
+        if (!isLiveVideo && isSupportSeek && absDx > absDy) {
             changeProgress(dx);
             return;
         }
