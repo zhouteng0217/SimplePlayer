@@ -573,6 +573,12 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     private boolean isChangedProgress;  //是否手势操作拖动了进度条
 
+    private boolean isSeekGesture = false; //是否触发了进度条拖拽的手势
+    private boolean isVolumeGesture = false; //是否触发了音量调整的手势
+    private boolean isBrightnessGesture = false; //是否触发了亮度调整的手势
+
+    private static final int MINI_GESTURE_DISTANCE = 60; // 手势的最小触发范围;
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (player == null || !player.isInPlaybackState()) {
@@ -587,6 +593,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 downBrightness = VideoUtils.getScreenBrightness(getContext());
                 downVideoPosition = player.getCurrentPosition();
                 isChangedProgress = false;
+
+                isSeekGesture = false;
+                isVolumeGesture = false;
+                isBrightnessGesture = false;
+
                 break;
             case MotionEvent.ACTION_MOVE:
                 float dx = event.getX() - downX;
@@ -604,24 +615,41 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         return false;
     }
 
+    //音量，亮度，播放进度等手势判断
     private void touchMove(float dx, float dy, float x) {
 
         float absDx = Math.abs(dx);
         float absDy = Math.abs(dy);
 
-        if (!isLiveVideo && isSupportSeek && absDx > absDy) {
+        int distance = getWidth();
+
+        if (!isSeekGesture && !isVolumeGesture && !isBrightnessGesture) {
+
+            //触发了播放进度拖拽手势
+            if (absDx > absDy && absDx >= MINI_GESTURE_DISTANCE) {
+                isSeekGesture = true;
+            }
+            //触发了亮度调节手势
+            else if (absDy > absDx && x <= distance / 2 && absDy >= MINI_GESTURE_DISTANCE) {
+                isBrightnessGesture = true;
+            }
+            //触发了音量调节手势
+            else if (absDy > absDx && x > distance / 2 && absDy >= MINI_GESTURE_DISTANCE) {
+                isVolumeGesture = true;
+            }
+        }
+
+        if (isSeekGesture && !isLiveVideo && isSupportSeek) {
             changeProgress(dx);
             return;
         }
 
-        int distance = getWidth();
-
-        if (isSupportBrightness && absDy > absDx && x <= distance / 2) {
+        if (isBrightnessGesture && isSupportBrightness) {
             changeBrightness(dy);
             return;
         }
 
-        if (isSupportVolume && absDy > absDx && x > distance / 2) {
+        if (isVolumeGesture && isSupportVolume) {
             changeVolume(dy);
         }
     }
