@@ -86,6 +86,12 @@ public class ListVideoManager {
         removePlayerFromParent();
     }
 
+    public void pause() {
+        if (currentVideoView != null) {
+            currentVideoView.pause();
+        }
+    }
+
     public boolean isFullScreen() {
         return currentVideoView != null && currentVideoView.isFullScreen();
     }

@@ -94,6 +94,12 @@ public class ListVideoActivity extends AppCompatActivity implements AbsListView.
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        ListVideoManager.getInstance().pause();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         ListVideoManager.getInstance().destroy();

@@ -546,6 +546,12 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
+    public void pause() {
+        if (player != null) {
+            player.pause();
+        }
+    }
+
     public boolean isFullScreen() {
         return isFullScreen;
     }
