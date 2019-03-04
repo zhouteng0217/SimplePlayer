@@ -52,6 +52,8 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     protected Context context;
 
+    private boolean isPrepared = false; //播放器是否已经prepared了
+
     private class MediaPlayerHandler extends Handler {
         private MediaPlayerHandler(Looper looper) {
             super(looper);
@@ -128,13 +130,16 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     }
 
     public void setStreamVolume(int value) {
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value,0);
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value, 0);
     }
 
     //endregion
 
     private void prepare() {
         try {
+
+            isPrepared = false;
+
             onStateChange(STATE_PREPARING);
 
             if (mediaPlayer != null) {
@@ -162,6 +167,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     public void destroy() {
         abandonAudioFocus();
         VideoUtils.removeScreenOn(context);
+        isPrepared = false;
         onStateChange(STATE_IDLE);
         Message message = Message.obtain();
         message.what = MSG_DESTORY;
@@ -171,6 +177,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     public void release() {
         abandonAudioFocus();
         VideoUtils.removeScreenOn(context);
+        isPrepared = false;
         onStateChange(STATE_IDLE);
         Message message = Message.obtain();
         message.what = MSG_RELEASE;
@@ -183,6 +190,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        isPrepared = true;
         onStateChange(STATE_PREPARED);
         play();
     }
@@ -262,6 +270,9 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     }
 
     public void pause() {
+        if (!isPlaying()) {
+            return;
+        }
         VideoUtils.removeScreenOn(context);
         mediaPlayer.pause();
         onStateChange(STATE_PAUSED);
@@ -280,7 +291,7 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
     }
 
     public boolean isPlaying() {
-        return mediaPlayer != null && mediaPlayer.isPlaying();
+        return mediaPlayer != null && isPrepared && mediaPlayer.isPlaying();
     }
 
     public int getBufferedPercentage() {
