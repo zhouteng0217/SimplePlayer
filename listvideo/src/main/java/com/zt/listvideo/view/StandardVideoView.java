@@ -55,8 +55,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     private ViewGroup lockStatusLayout;
     private ImageView lockStatus;
 
-    private ViewGroup screenShotLayout;
-
     private Timer updateProgressTimer;
     private ProgressTimerTask mProgressTimerTask;
 
@@ -122,9 +120,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         lockStatus = findViewById(R.id.lock_status);
         lockStatusLayout = findViewById(R.id.lock_status_layout);
         lockStatusLayout.setOnClickListener(this);
-
-        screenShotLayout = findViewById(R.id.screenshot_layout);
-        screenShotLayout.setOnClickListener(this);
     }
 
     @Override
@@ -265,8 +260,10 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     private void setViewsVisible(int topLayoutVisi, int bottomLayoutVisi, int failedLayoutVisi, int loadingVisi, int thumbVisi, int replayLayoutVisi) {
-        topLayout.setVisibility(topLayoutVisi);
-        bottomLayout.setVisibility(bottomLayoutVisi);
+
+        setTopVisi(topLayoutVisi);
+        setBottomVisi(bottomLayoutVisi);
+
         failedLayout.setVisibility(failedLayoutVisi);
         loadingProgressBar.setVisibility(loadingVisi);
         thumbView.setVisibility(thumbVisi);
@@ -442,8 +439,16 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     private void setTopBottomVisi(int visi) {
-        bottomLayout.setVisibility(visi);
-        topLayout.setVisibility(visi);
+        setBottomVisi(visi);
+        setTopVisi(visi);
+    }
+
+    protected void setBottomVisi(int visi) {
+        bottomLayout.setVisibility(isLocked ? View.GONE : visi);
+    }
+
+    protected void setTopVisi(int visi) {
+        topLayout.setVisibility(isLocked ? View.GONE : visi);
     }
 
     //endregion
@@ -696,7 +701,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //音量，亮度，播放进度等手势判断
     private void touchMove(float dx, float dy, float x) {
 
-        if(isLocked) {
+        if (isLocked) {
             return;
         }
 

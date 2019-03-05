@@ -160,25 +160,4 @@
 
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/screenshot_layout"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:layout_above="@id/lock_status_layout"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="30dp"
-        android:layout_marginBottom="30dp"
-        android:background="@drawable/shape_lock_bg"
-        android:visibility="invisible"
-        android:gravity="center">
-
-        <ImageView
-            android:id="@+id/screenshot"
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:src="@drawable/ic_screenshot" />
-
-    </RelativeLayout>
-
-
 </RelativeLayout>
