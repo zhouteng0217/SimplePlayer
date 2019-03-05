@@ -52,6 +52,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     private ViewGroup failedLayout;
     private ViewGroup replayLayout;
 
+    private ViewGroup lockStatusLayout;
+    private ImageView lockStatus;
+
+    private ViewGroup screenShotLayout;
+
     private Timer updateProgressTimer;
     private ProgressTimerTask mProgressTimerTask;
 
@@ -113,6 +118,13 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
         start = findViewById(R.id.start);
         start.setOnClickListener(this);
+
+        lockStatus = findViewById(R.id.lock_status);
+        lockStatusLayout = findViewById(R.id.lock_status_layout);
+        lockStatusLayout.setOnClickListener(this);
+
+        screenShotLayout = findViewById(R.id.screenshot_layout);
+        screenShotLayout.setOnClickListener(this);
     }
 
     @Override
@@ -122,8 +134,10 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     @Override
     protected int getLayoutId() {
-        return R.layout.list_video_layout;
+        return R.layout.standard_video_layout;
     }
+
+    //region 根据状态更新UI
 
     @Override
     public void onStateChange(int state) {
@@ -195,7 +209,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         currentTimeText.setText(totalTimeText.getText());
     }
 
-
     private void updatePlayIcon(int state) {
         if (state == BasePlayer.STATE_PLAYING) {
             setPlayingIcon();
@@ -259,6 +272,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         thumbView.setVisibility(thumbVisi);
         replayLayout.setVisibility(replayLayoutVisi);
     }
+    //endregion
 
     @Override
     public void onClick(View v) {
@@ -272,6 +286,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             handleFullScreen();
         } else if (v.getId() == R.id.back) {
             handleBack();
+        } else if (v.getId() == R.id.lock_status_layout) {
+            toggleVideoLockStatus();
         }
     }
 
@@ -300,8 +316,16 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         return false;
     }
 
+    public void setTitle(String titleText) {
+        title.setText(titleText);
+    }
+
+    //region 全屏处理
+
     private void startFullScreen() {
         isFullScreen = true;
+
+        resetLockStatus();
 
         Activity activity = VideoUtils.getActivity(getContext());
 
@@ -355,7 +379,10 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     private void exitFullscreen() {
+
         isFullScreen = false;
+
+        resetLockStatus();
 
         Activity activity = VideoUtils.getActivity(getContext());
 
@@ -386,6 +413,17 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
+    public boolean isFullScreen() {
+        return isFullScreen;
+    }
+
+    public void setOnFullScreenChangeListener(OnFullScreenChangeListener onFullScreenChangeListener) {
+        this.onFullScreenChangeListener = onFullScreenChangeListener;
+    }
+
+    //endregion
+
+    //region 点击屏幕，显示隐藏控制栏
     protected void surfaceContainerClick() {
         if (player == null || !player.isInPlaybackState()) {
             return;
@@ -395,51 +433,22 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     private void toggleControlView() {
-        bottomLayout.setVisibility(bottomLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
-        topLayout.setVisibility(bottomLayout.getVisibility());
-    }
-
-    public void start() {
-        if (!player.getUrl().startsWith("file") && !VideoUtils.isWifiConnected(getContext()) && !isShowMobileDataDialog) {
-            showMobileDataDialog();
+        setVideoLockLayoutVisi(lockStatusLayout.getVisibility() == View.VISIBLE ? View.INVISIBLE : View.VISIBLE);
+        if (isLocked) {
             return;
         }
-        startVideo();
+        int visi = bottomLayout.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE;
+        setTopBottomVisi(visi);
     }
 
-    public void showMobileDataDialog() {
-        if (isShowMobileDataDialog) {
-            return;
-        }
-        isShowMobileDataDialog = true;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
-        builder.setMessage(getResources().getString(R.string.mobile_data_tips));
-        builder.setPositiveButton(getResources().getString(R.string.contine_playing), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                startVideo();
-            }
-        });
-        builder.setNegativeButton(getResources().getString(R.string.stop_play), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
+    private void setTopBottomVisi(int visi) {
+        bottomLayout.setVisibility(visi);
+        topLayout.setVisibility(visi);
     }
 
-    protected boolean isInPlaybackState() {
-        return player != null && player.isInPlaybackState();
-    }
+    //endregion
 
-    public void setOnFullScreenChangeListener(OnFullScreenChangeListener onFullScreenChangeListener) {
-        this.onFullScreenChangeListener = onFullScreenChangeListener;
-    }
-
-    //top,bottom这些控制按钮，隐藏，消失任务
+    //region top,bottom控制栏隐藏任务
     private class ControlViewTimerTask extends TimerTask {
 
         @Override
@@ -448,8 +457,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 @Override
                 public void run() {
                     if (player.isInPlaybackState()) {
-                        topLayout.setVisibility(View.GONE);
-                        bottomLayout.setVisibility(View.GONE);
+                        setTopBottomVisi(View.GONE);
+                        setVideoLockLayoutVisi(View.INVISIBLE);
                     }
                 }
             });
@@ -471,8 +480,9 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             controlViewTimerTask.cancel();
         }
     }
+    //endregion
 
-    //进度条更新任务类
+    //region 进度条更新任务
     private class ProgressTimerTask extends TimerTask {
         @Override
         public void run() {
@@ -516,9 +526,44 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         currentTimeText.setText(VideoUtils.stringForTime(position));
         totalTimeText.setText(VideoUtils.stringForTime(duration));
     }
+    //endregion
 
-    public void setTitle(String titleText) {
-        title.setText(titleText);
+    //region 播放控制
+
+    protected boolean isInPlaybackState() {
+        return player != null && player.isInPlaybackState();
+    }
+
+    public void start() {
+        if (!player.getUrl().startsWith("file") && !VideoUtils.isWifiConnected(getContext()) && !isShowMobileDataDialog) {
+            showMobileDataDialog();
+            return;
+        }
+        startVideo();
+    }
+
+    public void showMobileDataDialog() {
+        if (isShowMobileDataDialog) {
+            return;
+        }
+        isShowMobileDataDialog = true;
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage(getResources().getString(R.string.mobile_data_tips));
+        builder.setPositiveButton(getResources().getString(R.string.contine_playing), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                startVideo();
+            }
+        });
+        builder.setNegativeButton(getResources().getString(R.string.stop_play), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
     }
 
     public void release() {
@@ -551,10 +596,37 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             player.pause();
         }
     }
+    //endregion
 
-    public boolean isFullScreen() {
+    //region 锁定屏幕
+
+    protected boolean isLocked = false; //是否处于锁定屏幕状态
+
+    //默认全屏支持锁定屏幕
+    protected boolean isSupportLock() {
         return isFullScreen;
     }
+
+    private void toggleVideoLockStatus() {
+        isLocked = !isLocked;
+        lockStatus.setImageResource(isLocked ? R.drawable.ic_locked : R.drawable.ic_unlocked);
+        setTopBottomVisi(isLocked ? View.GONE : View.VISIBLE);
+    }
+
+    private void setVideoLockLayoutVisi(int visi) {
+        if (isSupportLock()) {
+            lockStatusLayout.setVisibility(visi);
+        } else {
+            lockStatusLayout.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    private void resetLockStatus() {
+        isLocked = false;
+        setVideoLockLayoutVisi(bottomLayout.getVisibility());
+    }
+
+    //endregion
 
     //region 音量，亮度，进度调整
 
@@ -623,6 +695,10 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     //音量，亮度，播放进度等手势判断
     private void touchMove(float dx, float dy, float x) {
+
+        if(isLocked) {
+            return;
+        }
 
         float absDx = Math.abs(dx);
         float absDy = Math.abs(dy);
@@ -797,4 +873,5 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //endregion
 
     //endregion
+
 }
