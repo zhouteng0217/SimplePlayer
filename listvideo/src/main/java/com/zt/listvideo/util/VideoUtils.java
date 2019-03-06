@@ -68,15 +68,7 @@ public class VideoUtils {
         return null;
     }
 
-    public static void setFullScreenFlag(Activity mActivity) {
-
-        WindowManager.LayoutParams attrs = mActivity.getWindow().getAttributes();
-        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN;
-        attrs.flags &= ~WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON;
-        mActivity.getWindow().setAttributes(attrs);
-    }
-
-    public static void showSupportActionBar(Activity activity, boolean actionBar, boolean statusBar) {
+    public static void showSupportActionBar(Activity activity, boolean actionBar) {
         if (actionBar) {
             if (activity != null && activity instanceof AppCompatActivity) {
                 ActionBar ab = ((AppCompatActivity) activity).getSupportActionBar();
@@ -86,19 +78,9 @@ public class VideoUtils {
                 }
             }
         }
-
-        if (statusBar) {
-            showStatusBar(activity);
-        }
     }
 
-    public static void showStatusBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= 14) {
-            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        }
-    }
-
-    public static void hideSupportActionBar(Activity activity, boolean actionBar, boolean statusBar) {
+    public static void hideSupportActionBar(Activity activity, boolean actionBar) {
         if (actionBar) {
             if (activity != null && activity instanceof AppCompatActivity) {
                 ActionBar ab = ((AppCompatActivity) activity).getSupportActionBar();
@@ -108,8 +90,11 @@ public class VideoUtils {
                 }
             }
         }
-        if (statusBar) {
-            hideStatusBar(activity);
+    }
+
+    public static void showStatusBar(Activity activity) {
+        if (Build.VERSION.SDK_INT >= 14) {
+            activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
         }
     }
 
@@ -117,6 +102,18 @@ public class VideoUtils {
         if (Build.VERSION.SDK_INT >= 14) {
             activity.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_FULLSCREEN);
         }
+    }
+
+    public static void addFullScreenFlag(Activity activity) {
+        WindowManager.LayoutParams attrs = activity.getWindow().getAttributes();
+        attrs.flags |= WindowManager.LayoutParams.FLAG_FULLSCREEN; //添加FLAG_FULLSCREEN
+        activity.getWindow().setAttributes(attrs);
+    }
+
+    public static void clearFullScreenFlag(Activity activity) {
+        WindowManager.LayoutParams attrs = activity.getWindow().getAttributes();
+        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN; //添加FLAG_FULLSCREEN
+        activity.getWindow().setAttributes(attrs);
     }
 
     public static void hideNavKey(Activity activity) {

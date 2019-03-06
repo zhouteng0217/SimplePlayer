@@ -317,6 +317,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         title.setText(titleText);
     }
 
+
     //region 全屏处理
 
     private void startFullScreen() {
@@ -329,8 +330,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         mSystemUiVisibility = activity.getWindow().getDecorView().getSystemUiVisibility();
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        VideoUtils.setFullScreenFlag(activity);
-        VideoUtils.hideSupportActionBar(activity, true, true);
+        VideoUtils.hideSupportActionBar(activity, true);
+        VideoUtils.addFullScreenFlag(activity);
         VideoUtils.hideNavKey(activity);
 
         changeToFullScreen();
@@ -385,8 +386,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        VideoUtils.setFullScreenFlag(activity);
-        VideoUtils.showSupportActionBar(activity, true, false);   //根据需要是否显示actionbar和状态栏
+        VideoUtils.showSupportActionBar(activity, true);   //根据需要是否显示actionbar和状态栏
+        VideoUtils.clearFullScreenFlag(activity);
 
         activity.getWindow().getDecorView().setSystemUiVisibility(mSystemUiVisibility);
 
