@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zt.listvideoplayer">
+    package="com.zt.simplevideoplayer">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity
-            android:name=".MainActivity"
+            android:name="com.zt.simplevideoplayer.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|locale">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -22,19 +22,19 @@
         </activity>
 
         <activity
-            android:name=".ListVideoActivity"
+            android:name="com.zt.simplevideoplayer.ListVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|locale"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
-            android:name=".NormalVideoActivity"
+            android:name="com.zt.simplevideoplayer.NormalVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|locale"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
-            android:name=".RecyclerViewVideoActivity"
+            android:name="com.zt.simplevideoplayer.RecyclerViewVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|locale"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" />
