@@ -429,11 +429,18 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     //region 锁定屏幕
 
+    private boolean isSupportLock = true;
+
     protected boolean isLocked = false; //是否处于锁定屏幕状态
 
     //默认全屏支持锁定屏幕
     protected boolean isSupportLock() {
-        return isFullScreen;
+        return isFullScreen && isSupportLock;
+    }
+
+    //由外部控制的是否支持锁定屏幕
+    public void setSupportLock(boolean supportLock) {
+        isSupportLock = supportLock;
     }
 
     private void toggleVideoLockStatus() {
@@ -621,7 +628,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     //用于SeekDialog的继承扩展
     protected SeekDialog newSeekDialogInstance() {
-       return new SeekDialog(getContext(), R.style.volume_brightness_theme);
+        return new SeekDialog(getContext(), R.style.volume_brightness_theme);
     }
 
     @Override
