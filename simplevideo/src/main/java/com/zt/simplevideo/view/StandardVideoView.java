@@ -27,29 +27,29 @@ import java.util.TimerTask;
 
 public class StandardVideoView extends BaseVideoView implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
 
-    private FrameLayout surfaceContainer;
-    private ImageView thumbView;
-    private ViewGroup bottomLayout;
-    private ViewGroup topLayout;
-    private TextView currentTimeText;
-    private TextView totalTimeText;
+    protected FrameLayout surfaceContainer;
+    protected ImageView thumbView;
+    protected ViewGroup bottomLayout;
+    protected ViewGroup topLayout;
+    protected TextView currentTimeText;
+    protected TextView totalTimeText;
     protected SeekBar seekBar;
-    private ImageView fullScreen;
+    protected ImageView fullScreen;
     protected ImageView back;
     protected TextView title;
-    private ProgressBar loadingProgressBar;
-    private ImageView start;
-    private ViewGroup failedLayout;
-    private ViewGroup replayLayout;
+    protected ProgressBar loadingProgressBar;
+    protected ImageView start;
+    protected ViewGroup failedLayout;
+    protected ViewGroup replayLayout;
 
-    private ViewGroup lockStatusLayout;
-    private ImageView lockStatus;
+    protected ViewGroup lockStatusLayout;
+    protected ImageView lockStatus;
 
-    private Timer updateProgressTimer;
-    private ProgressTimerTask mProgressTimerTask;
+    protected Timer updateProgressTimer;
+    protected ProgressTimerTask mProgressTimerTask;
 
-    private Timer controlViewTimer;
-    private ControlViewTimerTask controlViewTimerTask;
+    protected Timer controlViewTimer;
+    protected ControlViewTimerTask controlViewTimerTask;
 
     protected boolean isLiveVideo = false; // 表示是直播类的视频，没有播放进度
 
@@ -193,11 +193,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
-    private void setPlayingIcon() {
+    protected void setPlayingIcon() {
         start.setImageResource(R.drawable.ic_pause);
     }
 
-    private void setPausedIcon() {
+    protected void setPausedIcon() {
         start.setImageResource(R.drawable.ic_play);
     }
 
@@ -238,7 +238,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         setViewsVisible(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
     }
 
-    private void setViewsVisible(int topLayoutVisi, int bottomLayoutVisi, int failedLayoutVisi, int loadingVisi, int thumbVisi, int replayLayoutVisi) {
+    protected void setViewsVisible(int topLayoutVisi, int bottomLayoutVisi, int failedLayoutVisi, int loadingVisi, int thumbVisi, int replayLayoutVisi) {
 
         setTopVisi(topLayoutVisi);
         setBottomVisi(bottomLayoutVisi);
@@ -267,7 +267,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
-    private void handleBack() {
+    protected void handleBack() {
         if (isFullScreen) {
             exitFullscreen();
         } else {
@@ -276,7 +276,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
-    private void handleFullScreen() {
+    protected void handleFullScreen() {
         if (isFullScreen) {
             exitFullscreen();
         } else {
@@ -348,7 +348,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //endregion
 
     //region top,bottom控制栏隐藏任务
-    private class ControlViewTimerTask extends TimerTask {
+    protected class ControlViewTimerTask extends TimerTask {
 
         @Override
         public void run() {
@@ -364,16 +364,16 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
-    private void startControlViewTimer() {
+    protected void startControlViewTimer() {
         cancelControlViewTimer();
         controlViewTimer = new Timer();
         controlViewTimerTask = new ControlViewTimerTask();
         controlViewTimer.schedule(controlViewTimerTask, 2500);
     }
 
-    private void cancelControlViewTimer() {
-        if (controlViewTimerTask != null) {
-            controlViewTimerTask.cancel();
+    protected void cancelControlViewTimer() {
+        if (controlViewTimer != null) {
+            controlViewTimer.cancel();
         }
         if (controlViewTimerTask != null) {
             controlViewTimerTask.cancel();
@@ -382,7 +382,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //endregion
 
     //region 进度条更新任务
-    private class ProgressTimerTask extends TimerTask {
+    protected class ProgressTimerTask extends TimerTask {
         @Override
         public void run() {
             post(new Runnable() {
@@ -484,7 +484,22 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     private boolean isVolumeGesture = false; //是否触发了音量调整的手势
     private boolean isBrightnessGesture = false; //是否触发了亮度调整的手势
 
-    private static final int MINI_GESTURE_DISTANCE = 60; // 手势的最小触发范围;
+    protected static final int MINI_GESTURE_DISTANCE = 60; // 手势的最小触发范围;
+
+    //手动设置是否支持手势调节音量
+    public void setSupportVolume(boolean supportVolume) {
+        isSupportVolume = supportVolume;
+    }
+
+    //手动设置是否支持手势调节亮度
+    public void setSupportBrightness(boolean supportBrightness) {
+        isSupportBrightness = supportBrightness;
+    }
+
+    //手动设置是否支持手势拖动播放进度(不支持直播类视频流)
+    public void setSupportSeek(boolean supportSeek) {
+        isSupportSeek = supportSeek;
+    }
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
@@ -523,7 +538,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     //音量，亮度，播放进度等手势判断
-    private void touchMove(float dx, float dy, float x) {
+    protected void touchMove(float dx, float dy, float x) {
 
         if (isLocked) {
             return;
@@ -566,7 +581,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     //region 播放进度手势处理
-    private void seekToNewVideoPosition() {
+    protected void seekToNewVideoPosition() {
         if (isChangedProgress) {
             player.seekTo(newVideoPosition);
             isChangedProgress = false;
@@ -575,7 +590,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
-    private void changeProgress(float dx) {
+    protected void changeProgress(float dx) {
         cancelProgressTimer();
 
         int distance = getWidth();
@@ -590,18 +605,23 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         isChangedProgress = true;
     }
 
-    private void showSeekDialog(String progressText, int seekBarProgress) {
+    protected void showSeekDialog(String progressText, int seekBarProgress) {
         if (seekDialog == null) {
-            seekDialog = new SeekDialog(getContext(), R.style.volume_brightness_theme);
+            seekDialog = newSeekDialogInstance();
         }
         seekDialog.showSeekDialog(progressText, this);
         setProgressTextWithTouch(seekBarProgress);
     }
 
-    private void hideSeekDialog() {
+    protected void hideSeekDialog() {
         if (seekDialog != null) {
             seekDialog.dismiss();
         }
+    }
+
+    //用于SeekDialog的继承扩展
+    protected SeekDialog newSeekDialogInstance() {
+       return new SeekDialog(getContext(), R.style.volume_brightness_theme);
     }
 
     @Override
@@ -629,7 +649,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         startControlViewTimer();
     }
 
-    private void setProgressTextWithTouch(int progress) {
+    protected void setProgressTextWithTouch(int progress) {
         currentTimeText.setText(VideoUtils.stringForTime(newVideoPosition));
         seekBar.setProgress(progress);
     }
@@ -637,7 +657,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //endregion
 
     //region 亮度手势操作处理
-    private void changeBrightness(float dy) {
+    protected void changeBrightness(float dy) {
         //屏幕亮度区间0.0 ~ 1.0
         int distance = getHeight();
 
@@ -652,22 +672,28 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         showBrightnewssDialog((int) (newBrightness * 100));
     }
 
-    private void showBrightnewssDialog(int volumeProgress) {
+    protected void showBrightnewssDialog(int volumeProgress) {
         if (brightnessDialog == null) {
-            brightnessDialog = new BrightnessDialog(getContext(), R.style.volume_brightness_theme);
+            brightnessDialog = newBrightnessDialogInstance();
         }
         brightnessDialog.showBrightnewssDialog(volumeProgress, this);
     }
 
-    private void hideBrightnewssDialog() {
+    protected void hideBrightnewssDialog() {
         if (brightnessDialog != null) {
             brightnessDialog.dismiss();
         }
     }
+
+    //用于BrightnessDialog的继承扩展
+    protected BrightnessDialog newBrightnessDialogInstance() {
+        return new BrightnessDialog(getContext(), R.style.volume_brightness_theme);
+    }
+
     //endregion
 
     //region 音量手势操作处理
-    private void changeVolume(float dy) {
+    protected void changeVolume(float dy) {
 
         int maxVolume = player.getStreamMaxVolume();
 
@@ -687,18 +713,24 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         showVolumeDialog((int) (newVolume / maxVolume * 100));
     }
 
-    private void showVolumeDialog(int volumeProgress) {
+    protected void showVolumeDialog(int volumeProgress) {
         if (volumeDialog == null) {
-            volumeDialog = new VolumeDialog(getContext(), R.style.volume_brightness_theme);
+            volumeDialog = newVolumeDialogInstance();
         }
         volumeDialog.showVolumeDialog(volumeProgress, this);
     }
 
-    private void hideVolumeDialog() {
+    protected void hideVolumeDialog() {
         if (volumeDialog != null) {
             volumeDialog.dismiss();
         }
     }
+
+    //用于VolumeDialog的继承扩展
+    protected VolumeDialog newVolumeDialogInstance() {
+        return new VolumeDialog(getContext(), R.style.volume_brightness_theme);
+    }
+
     //endregion
 
     //endregion

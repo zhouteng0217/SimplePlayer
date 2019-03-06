@@ -21,6 +21,9 @@ public class NormalVideoActivity extends AppCompatActivity {
 
         //设置全屏策略
         videoView.setFullScreenMode(StandardVideoView.AUTO_FULLSCREEN_MODE);
+        videoView.setSupportVolume(false);
+        videoView.setSupportBrightness(false);
+        videoView.setSupportSeek(false);
 
         videoView.start();
 
