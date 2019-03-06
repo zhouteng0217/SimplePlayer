@@ -19,11 +19,20 @@ public class NormalVideoActivity extends AppCompatActivity {
         videoView = findViewById(R.id.video_view);
         videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
 
-        //设置全屏策略
+        //设置全屏策略，默认横屏全屏
         videoView.setFullScreenMode(StandardVideoView.AUTO_FULLSCREEN_MODE);
-        videoView.setSupportVolume(false);
-        videoView.setSupportBrightness(false);
-        videoView.setSupportSeek(false);
+
+        //设置是否支持手势调节音量, 默认支持
+        videoView.setSupportVolume(true);
+
+        //设置是否支持手势调节亮度，默认支持
+        videoView.setSupportBrightness(true);
+
+        //设置是否支持手势调节播放进度，默认支持
+        videoView.setSupportSeek(true);
+
+        //设置是否支持锁定屏幕，默认全屏的时候支持
+        videoView.setSupportLock(true);
 
         videoView.start();
 
