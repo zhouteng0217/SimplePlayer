@@ -183,7 +183,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         currentTimeText.setText(totalTimeText.getText());
     }
 
-    private void updatePlayIcon(int state) {
+    protected void updatePlayIcon(int state) {
         if (state == BasePlayer.STATE_PLAYING) {
             setPlayingIcon();
         } else if (state == BasePlayer.STATE_ERROR) {
@@ -429,7 +429,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     //region 锁定屏幕
 
-    private boolean isSupportLock = true;
+    protected boolean isSupportLock = true;
 
     protected boolean isLocked = false; //是否处于锁定屏幕状态
 
@@ -443,13 +443,25 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         isSupportLock = supportLock;
     }
 
-    private void toggleVideoLockStatus() {
+    protected void toggleVideoLockStatus() {
         isLocked = !isLocked;
-        lockStatus.setImageResource(isLocked ? R.drawable.ic_locked : R.drawable.ic_unlocked);
+        if (isLocked) {
+            setVideoLockedIcon();
+        } else {
+            setVideoUnlockedIcon();
+        }
         setTopBottomVisi(isLocked ? View.GONE : View.VISIBLE);
     }
 
-    private void setVideoLockLayoutVisi(int visi) {
+    protected void setVideoLockedIcon() {
+        lockStatus.setImageResource(R.drawable.ic_locked);
+    }
+
+    protected void setVideoUnlockedIcon() {
+        lockStatus.setImageResource(R.drawable.ic_unlocked);
+    }
+
+    protected void setVideoLockLayoutVisi(int visi) {
         if (isSupportLock()) {
             lockStatusLayout.setVisibility(visi);
         } else {
@@ -457,7 +469,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
-    private void resetLockStatus() {
+    protected void resetLockStatus() {
         isLocked = false;
         setVideoLockLayoutVisi(bottomLayout.getVisibility());
     }
