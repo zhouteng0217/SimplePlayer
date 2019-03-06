@@ -18,6 +18,10 @@ public class NormalVideoActivity extends AppCompatActivity {
 
         videoView = findViewById(R.id.video_view);
         videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
+
+        //设置全屏策略
+        videoView.setFullScreenMode(StandardVideoView.AUTO_FULLSCREEN_MODE);
+
         videoView.start();
 
     }

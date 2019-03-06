@@ -54,6 +54,8 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     private boolean isPrepared = false; //播放器是否已经prepared了
 
+    private MediaPlayer.OnVideoSizeChangedListener onVideoSizeChangedListener;
+
     private class MediaPlayerHandler extends Handler {
         private MediaPlayerHandler(Looper looper) {
             super(looper);
@@ -234,7 +236,9 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-
+        if (onVideoSizeChangedListener != null) {
+            onVideoSizeChangedListener.onVideoSizeChanged(mp, width, height);
+        }
     }
 
     @Override
@@ -336,5 +340,22 @@ public class BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.O
 
     public String getUrl() {
         return url;
+    }
+
+    //视频内容宽高比
+    public float getAspectRation() {
+        return mediaPlayer == null || mediaPlayer.getVideoHeight() == 0 ? 1.0f : (float) mediaPlayer.getVideoWidth() / mediaPlayer.getVideoHeight();
+    }
+
+    public int getVideoWidth() {
+        return mediaPlayer == null || !isPrepared ? 0 : mediaPlayer.getVideoWidth();
+    }
+
+    public int getVideoHeight() {
+        return mediaPlayer == null || !isPrepared ? 0 : mediaPlayer.getVideoHeight();
+    }
+
+    public void setOnVideoSizeChangedListener(MediaPlayer.OnVideoSizeChangedListener onVideoSizeChangedListener) {
+        this.onVideoSizeChangedListener = onVideoSizeChangedListener;
     }
 }
