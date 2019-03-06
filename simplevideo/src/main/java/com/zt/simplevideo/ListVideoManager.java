@@ -14,9 +14,9 @@ public class ListVideoManager {
 
     private static ListVideoManager instance;
 
-    private ListVideoView currentVideoView;
+    protected ListVideoView currentVideoView;
 
-    private int curPos = -1;
+    protected int curPos = -1;
 
     public static ListVideoManager getInstance() {
         if (instance == null) {
@@ -25,17 +25,17 @@ public class ListVideoManager {
         return instance;
     }
 
-    private void removePlayerFromParent() {
+    protected void removePlayerFromParent() {
         if (currentVideoView != null && currentVideoView.getParent() != null) {
             ((ViewGroup) currentVideoView.getParent()).removeView(currentVideoView);
         }
     }
 
-    private View getChildViewAt(ListView listView, int position) {
+    protected View getChildViewAt(ListView listView, int position) {
         return listView.getChildAt(position + listView.getHeaderViewsCount() - listView.getFirstVisiblePosition());
     }
 
-    private View getChildViewAt(RecyclerView recyclerView, int position) {
+    protected View getChildViewAt(RecyclerView recyclerView, int position) {
         return recyclerView.getLayoutManager().findViewByPosition(position);
     }
 
@@ -51,9 +51,9 @@ public class ListVideoManager {
         initVideoView(recyclerView.getContext(), curPosView, containerId, url, title);
     }
 
-    private void initVideoView(Context context, View curPosView, @IdRes int containerId, String url, String title) {
+    protected void initVideoView(Context context, View curPosView, @IdRes int containerId, String url, String title) {
         if (currentVideoView == null) {
-            currentVideoView = new ListVideoView(context);
+            currentVideoView = newListVideoViewInstance(context);
         }
         currentVideoView.release();
         currentVideoView.resetSurface();
@@ -105,5 +105,10 @@ public class ListVideoManager {
 
     public int getCurPos() {
         return curPos;
+    }
+
+    //用于ListVideoView的继承扩展
+    protected ListVideoView newListVideoViewInstance(Context context) {
+        return new ListVideoView(context);
     }
 }

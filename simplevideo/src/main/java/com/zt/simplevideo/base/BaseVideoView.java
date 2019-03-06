@@ -55,7 +55,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
 
     protected int mSystemUiVisibility;
 
-    private boolean isShowMobileDataDialog = false;
+    protected boolean isShowMobileDataDialog = false;
 
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
@@ -70,7 +70,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
         init(context);
     }
 
-    private void init(Context context) {
+    protected void init(Context context) {
         LayoutInflater.from(context).inflate(getLayoutId(), this);
         player = new BasePlayer(context);
         player.setStateCallback(this);
@@ -92,7 +92,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
         }
     }
 
-    private void prepareToPlay() {
+    protected void prepareToPlay() {
         textureView = new TextureView(getContext());
         player.setTextureView(textureView);
 
@@ -177,7 +177,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
         vp.addView(frameLayout, lpParent);
     }
 
-    private ViewGroup getRootViewGroup() {
+    protected ViewGroup getRootViewGroup() {
         Activity activity = (Activity) getContext();
         if (activity != null) {
             return (ViewGroup) activity.findViewById(Window.ID_ANDROID_CONTENT);
@@ -185,7 +185,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
         return null;
     }
 
-    private void removePlayerFromParent() {
+    protected void removePlayerFromParent() {
         ViewParent parent = getParent();
         if (parent != null) {
             ((ViewGroup) parent).removeView(this);
@@ -299,7 +299,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
     }
     //endregion
 
-    private void postRunnableToResizeTexture() {
+    protected void postRunnableToResizeTexture() {
         post(new Runnable() {
             @Override
             public void run() {
@@ -314,7 +314,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
     }
 
     //根据视频内容重新调整视频渲染区域大小
-    private void resizeTextureView(int width, int height) {
+    protected void resizeTextureView(int width, int height) {
         if (width == 0 || height == 0 || textureView == null) {
             return;
         }
