@@ -1,30 +1,22 @@
 package com.zt.listvideo.view;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.view.Window;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import com.zt.listvideo.listener.OnFullScreenChangeListener;
 import com.zt.listvideo.R;
-import com.zt.listvideo.util.VideoUtils;
 import com.zt.listvideo.base.BasePlayer;
 import com.zt.listvideo.base.BaseVideoView;
+import com.zt.listvideo.util.VideoUtils;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -34,8 +26,6 @@ import java.util.TimerTask;
  */
 
 public class StandardVideoView extends BaseVideoView implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
-
-    private boolean isShowMobileDataDialog = false;
 
     private FrameLayout surfaceContainer;
     private ImageView thumbView;
@@ -60,17 +50,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     private Timer controlViewTimer;
     private ControlViewTimerTask controlViewTimerTask;
-
-    private boolean isFullScreen = false;
-
-    private int mSystemUiVisibility;
-
-    private ViewParent viewParent;
-
-    protected int originWidth;
-    protected int originHeight;
-
-    private OnFullScreenChangeListener onFullScreenChangeListener;
 
     protected boolean isLiveVideo = false; // 表示是直播类的视频，没有播放进度
 
@@ -317,109 +296,23 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         title.setText(titleText);
     }
 
-
-    //region 全屏处理
-
-    private void startFullScreen() {
-        isFullScreen = true;
-
+    @Override
+    protected void startFullScreen() {
+        super.startFullScreen();
         resetLockStatus();
-
-        Activity activity = VideoUtils.getActivity(getContext());
-
-        mSystemUiVisibility = activity.getWindow().getDecorView().getSystemUiVisibility();
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-
-        VideoUtils.hideSupportActionBar(activity, true);
-        VideoUtils.addFullScreenFlag(activity);
-        VideoUtils.hideNavKey(activity);
-
-        changeToFullScreen();
-
-        if (onFullScreenChangeListener != null) {
-            onFullScreenChangeListener.onFullScreenChange(true);
-        }
     }
 
-    protected void changeToFullScreen() {
-
-        originWidth = getWidth();
-        originHeight = getHeight();
-
-        viewParent = getParent();
-
-        ViewGroup vp = getRootViewGroup();
-
-        removePlayerFromParent();
-
-        final LayoutParams lpParent = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        final FrameLayout frameLayout = new FrameLayout(getContext());
-        frameLayout.setBackgroundColor(Color.BLACK);
-
-        LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        frameLayout.addView(this, lp);
-        vp.addView(frameLayout, lpParent);
-    }
-
-    private ViewGroup getRootViewGroup() {
-        Activity activity = (Activity) getContext();
-        if (activity != null) {
-            return (ViewGroup) activity.findViewById(Window.ID_ANDROID_CONTENT);
-        }
-        return null;
-    }
-
-    private void removePlayerFromParent() {
-        ViewParent parent = getParent();
-        if (parent != null) {
-            ((ViewGroup) parent).removeView(this);
-        }
-    }
-
-    private void exitFullscreen() {
-
-        isFullScreen = false;
-
+    @Override
+    protected void exitFullscreen() {
+        super.exitFullscreen();
         resetLockStatus();
-
-        Activity activity = VideoUtils.getActivity(getContext());
-
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
-        VideoUtils.showSupportActionBar(activity, true);   //根据需要是否显示actionbar和状态栏
-        VideoUtils.clearFullScreenFlag(activity);
-
-        activity.getWindow().getDecorView().setSystemUiVisibility(mSystemUiVisibility);
-
-        changeToNormalScreen();
-
-        if (onFullScreenChangeListener != null) {
-            onFullScreenChangeListener.onFullScreenChange(false);
-        }
     }
 
-    protected void changeToNormalScreen() {
-        ViewGroup vp = getRootViewGroup();
-        vp.removeView((View) this.getParent());
-        removePlayerFromParent();
-
-        ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(originWidth, originHeight);
-        setLayoutParams(layoutParams);
-
-        if (viewParent != null) {
-            ((ViewGroup) viewParent).addView(this);
-        }
+    @Override
+    public void release() {
+        super.release();
+        seekBar.setProgress(0);
     }
-
-    public boolean isFullScreen() {
-        return isFullScreen;
-    }
-
-    public void setOnFullScreenChangeListener(OnFullScreenChangeListener onFullScreenChangeListener) {
-        this.onFullScreenChangeListener = onFullScreenChangeListener;
-    }
-
-    //endregion
 
     //region 点击屏幕，显示隐藏控制栏
     protected void surfaceContainerClick() {
@@ -534,76 +427,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
     //endregion
 
-    //region 播放控制
-
-    protected boolean isInPlaybackState() {
-        return player != null && player.isInPlaybackState();
-    }
-
-    public void start() {
-        if (!player.getUrl().startsWith("file") && !VideoUtils.isWifiConnected(getContext()) && !isShowMobileDataDialog) {
-            showMobileDataDialog();
-            return;
-        }
-        startVideo();
-    }
-
-    public void showMobileDataDialog() {
-        if (isShowMobileDataDialog) {
-            return;
-        }
-        isShowMobileDataDialog = true;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
-        builder.setMessage(getResources().getString(R.string.mobile_data_tips));
-        builder.setPositiveButton(getResources().getString(R.string.contine_playing), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                startVideo();
-            }
-        });
-        builder.setNegativeButton(getResources().getString(R.string.stop_play), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
-    }
-
-    public void release() {
-        if (player != null) {
-            player.release();
-        }
-        seekBar.setProgress(0);
-    }
-
-    public void resetSurface() {
-        if (player != null) {
-            player.resetSurface();
-        }
-    }
-
-    private void replay() {
-        release();
-        resetSurface();
-        start();
-    }
-
-    public void destroy() {
-        if (player != null) {
-            player.destroy();
-        }
-    }
-
-    public void pause() {
-        if (player != null) {
-            player.pause();
-        }
-    }
-    //endregion
-
     //region 锁定屏幕
 
     protected boolean isLocked = false; //是否处于锁定屏幕状态
@@ -636,9 +459,9 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     //region 音量，亮度，进度调整
 
-    protected boolean isSupportVolume = true;
-    protected boolean isSupportBrightness = true;
-    protected boolean isSupportSeek = true;
+    protected boolean isSupportVolume = true;   //默认支持手势调节音量
+    protected boolean isSupportBrightness = true;  //默认支持手势调节亮度
+    protected boolean isSupportSeek = true;   //默认支持手势调节进度
 
     protected VolumeDialog volumeDialog;
     protected BrightnessDialog brightnessDialog;
