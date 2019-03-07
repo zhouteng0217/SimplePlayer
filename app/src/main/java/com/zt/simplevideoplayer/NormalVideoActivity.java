@@ -1,6 +1,7 @@
 package com.zt.simplevideoplayer;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
@@ -15,6 +16,9 @@ public class NormalVideoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.aty_normal_video);
+
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setTitle("Normal Video");
 
         videoView = findViewById(R.id.video_view);
         videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
