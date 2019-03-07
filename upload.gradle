@@ -1,0 +1,105 @@
+apply plugin: 'com.jfrog.bintray'
+apply plugin: 'com.github.dcendents.android-maven'
+
+def libraryRepo = 'maven'
+
+def publishedGroupId = 'com.zt.simple'
+def libraryName = 'simplevideo'
+
+def libraryVersion = '1.0.0'
+
+def libraryDescription = '一个标准的播放器框架，播放核心和播放界面分离，支持手势调节操作，支持竖屏全屏和横屏全屏，支持在ListView和RecyclerView中播放，实现简单，扩展方便'
+
+def siteUrl = 'https://github.com/zhouteng0217/SimpleVideoPlayer'
+def gitUrl = 'https://github.com/zhouteng0217/SimpleVideoPlayer.git'
+
+def developerId = 'zhouteng0217'
+def developerName = 'zhouteng'
+def developerEmail = 'qq1210514049@outlook.com'
+
+def licenseName = 'MIT License'
+def licenseUrl = 'https://mit-license.org'
+def allLicenses = ["MIT"]
+
+version = libraryVersion    //版本号
+group = publishedGroupId    //group
+
+//region 打包javadocjar和sourcejar
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+
+    //增加编码，这行很重要，如果是windows系统，同时如果在代码中有中文的话，不加这行，上传会报错
+    options.encoding = "utf-8"
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+tasks.getByPath(":simplevideo:javadoc").enabled = false
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+//endregion
+
+//region maven配置
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                name "SimpleVideoPlayer For Android"
+                url siteUrl
+                // Set your license
+                licenses {
+                    license {
+                        name licenseName
+                        url licenseUrl
+                    }
+                }
+                developers {
+                    developer { //填写的一些基本信息
+                        id developerId
+                        name developerName
+                        email developerEmail
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
+            }
+        }
+    }
+}
+//endregion
+
+//region 配置bintray参数
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    pkg {
+        repo = libraryRepo               //跟上面创建的Maven仓库名字保持一致
+        name = libraryName               //发布到JCenter上的项目名字
+        desc = libraryDescription
+        publicDownloadNumbers = true
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = allLicenses
+        publish = true
+    }
+}
+//endregion
