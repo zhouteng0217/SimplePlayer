@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -21,14 +20,16 @@ import android.view.Window;
 import android.widget.FrameLayout;
 
 import com.zt.simplevideo.R;
-import com.zt.simplevideo.listener.OnFullScreenChangeListener;
-import com.zt.simplevideo.listener.StateCallback;
+import com.zt.simplevideo.listener.OnFullScreenChangedListener;
+import com.zt.simplevideo.listener.OnStateChangedListener;
+import com.zt.simplevideo.listener.OnVideoSizeChangedListener;
+import com.zt.simplevideo.player.AndroidMediaPlayer;
 import com.zt.simplevideo.util.VideoUtils;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-public abstract class BaseVideoView extends FrameLayout implements StateCallback, MediaPlayer.OnVideoSizeChangedListener {
+public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, OnVideoSizeChangedListener {
 
     public static final int LANDSCAPE_FULLSCREEN_MODE = 1;  //横向的全屏模式
     public static final int PORTRAIT_FULLSCREEN_MODE = 2;  //竖向的全屏模式
@@ -44,7 +45,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
     private TextureView textureView;
 
     protected boolean isFullScreen = false;
-    protected OnFullScreenChangeListener onFullScreenChangeListener;
+    protected OnFullScreenChangedListener onFullScreenChangeListener;
     protected int fullScreenMode = LANDSCAPE_FULLSCREEN_MODE;
 
     //正常状态下控件的宽高
@@ -72,8 +73,8 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
 
     protected void init(Context context) {
         LayoutInflater.from(context).inflate(getLayoutId(), this);
-        player = new BasePlayer(context);
-        player.setStateCallback(this);
+        player = newPlayerInstance(context);
+        player.setOnStateChangeListener(this);
         player.setOnVideoSizeChangedListener(this);
     }
 
@@ -83,7 +84,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
 
     public void startVideo() {
         int currentState = player.getCurrentState();
-        if (currentState == BasePlayer.STATE_IDLE || currentState == BasePlayer.STATE_ERROR) {
+        if (currentState == AndroidMediaPlayer.STATE_IDLE || currentState == AndroidMediaPlayer.STATE_ERROR) {
             prepareToPlay();
         } else if (player.isPlaying()) {
             player.pause();
@@ -130,7 +131,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
         return isFullScreen;
     }
 
-    public void setOnFullScreenChangeListener(OnFullScreenChangeListener onFullScreenChangeListener) {
+    public void setOnFullScreenChangeListener(OnFullScreenChangedListener onFullScreenChangeListener) {
         this.onFullScreenChangeListener = onFullScreenChangeListener;
     }
 
@@ -232,8 +233,8 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
 
     //region 播放控制
 
-    protected boolean isInPlaybackState() {
-        return player != null && player.isInPlaybackState();
+    protected boolean isPlaying() {
+        return player != null && player.isPlaying();
     }
 
     public void start() {
@@ -309,7 +310,7 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
     }
 
     @Override
-    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+    public void onVideoSizeChanged(int width, int height) {
         resizeTextureView(width, height);
     }
 
@@ -338,6 +339,10 @@ public abstract class BaseVideoView extends FrameLayout implements StateCallback
         layoutParams.width = w;
         layoutParams.height = h;
         textureView.setLayoutParams(layoutParams);
+    }
+
+    protected BasePlayer newPlayerInstance(Context context) {
+        return new AndroidMediaPlayer(context);
     }
 
     protected abstract ViewGroup getSurfaceContainer();
