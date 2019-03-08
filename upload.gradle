@@ -3,15 +3,15 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 def libraryRepo = 'maven'
 
-def publishedGroupId = 'com.zt.simple'
-def libraryName = 'simplevideo'
+def publishedGroupId = 'com.github.zhoteng0217'
+def libraryName = 'simpleplayer'
 
 def libraryVersion = '1.0.0'
 
 def libraryDescription = '一个标准的播放器框架，播放核心和播放界面分离，支持手势调节操作，支持竖屏全屏和横屏全屏，支持在ListView和RecyclerView中播放，实现简单，扩展方便'
 
-def siteUrl = 'https://github.com/zhouteng0217/SimpleVideoPlayer'
-def gitUrl = 'https://github.com/zhouteng0217/SimpleVideoPlayer.git'
+def siteUrl = 'https://github.com/zhouteng0217/SimplePlayer'
+def gitUrl = 'https://github.com/zhouteng0217/SimplePlayer.git'
 
 def developerId = 'zhouteng0217'
 def developerName = 'zhouteng'
@@ -42,7 +42,7 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-tasks.getByPath(":simplevideo:javadoc").enabled = false
+tasks.getByPath(":simpleplayer:javadoc").enabled = false
 
 artifacts {
     archives javadocJar
@@ -57,7 +57,7 @@ install {
         pom {
             project {
                 packaging 'aar'
-                name "SimpleVideoPlayer For Android"
+                name "SimplePlayer For Android"
                 url siteUrl
                 // Set your license
                 licenses {
