@@ -12,7 +12,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -24,6 +23,7 @@ import com.zt.simpleplayer.listener.OnFullScreenChangedListener;
 import com.zt.simpleplayer.listener.OnStateChangedListener;
 import com.zt.simpleplayer.listener.OnVideoSizeChangedListener;
 import com.zt.simpleplayer.player.AndroidMediaPlayer;
+import com.zt.simpleplayer.render.TextureRenderView;
 import com.zt.simpleplayer.util.VideoUtils;
 
 import java.lang.annotation.Retention;
@@ -42,7 +42,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     protected BasePlayer player;
 
-    private TextureView textureView;
+    private BaseRenderView renderView;
 
     protected boolean isFullScreen = false;
     protected OnFullScreenChangedListener onFullScreenChangeListener;
@@ -94,8 +94,8 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     }
 
     protected void prepareToPlay() {
-        textureView = new TextureView(getContext());
-        player.setTextureView(textureView);
+        renderView = newRenderViewInstance(getContext());
+        player.setRenderView(renderView);
 
 
         ViewGroup surfaceContainer = getSurfaceContainer();
@@ -107,7 +107,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         Gravity.CENTER);
 
-        surfaceContainer.addView(textureView, layoutParams);
+        surfaceContainer.addView(renderView.getRenderView(), layoutParams);
     }
 
     //region 全屏处理
@@ -316,7 +316,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     //根据视频内容重新调整视频渲染区域大小
     protected void resizeTextureView(int width, int height) {
-        if (width == 0 || height == 0 || textureView == null) {
+        if (width == 0 || height == 0 || renderView == null || renderView.getRenderView() == null) {
             return;
         }
         float aspectRation = (float) width / height;
@@ -335,14 +335,20 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
             w = (int) (h * aspectRation);
         }
 
-        ViewGroup.LayoutParams layoutParams = textureView.getLayoutParams();
+        ViewGroup.LayoutParams layoutParams = renderView.getRenderView().getLayoutParams();
         layoutParams.width = w;
         layoutParams.height = h;
-        textureView.setLayoutParams(layoutParams);
+        renderView.getRenderView().setLayoutParams(layoutParams);
     }
 
+    //方便扩展播放器核心
     protected BasePlayer newPlayerInstance(Context context) {
         return new AndroidMediaPlayer(context);
+    }
+
+    //方便扩展播放器渲染界面
+    protected BaseRenderView newRenderViewInstance(Context context) {
+        return new TextureRenderView(context);
     }
 
     protected abstract ViewGroup getSurfaceContainer();
