@@ -253,7 +253,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
         builder.setMessage(getResources().getString(R.string.mobile_data_tips));
-        builder.setPositiveButton(getResources().getString(R.string.contine_playing), new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(getResources().getString(R.string.continue_playing), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
