@@ -2,12 +2,11 @@ package com.zt.simpleplayer.base;
 
 import android.content.Context;
 import android.media.AudioManager;
-import android.view.TextureView;
 
 import com.zt.simpleplayer.listener.OnStateChangedListener;
 import com.zt.simpleplayer.listener.OnVideoSizeChangedListener;
 
-public abstract class BasePlayer implements TextureView.SurfaceTextureListener {
+public abstract class BasePlayer implements BaseRenderView.RenderViewCallback {
 
     public static final int STATE_ERROR = -1;
     public static final int STATE_IDLE = 0;
@@ -32,16 +31,16 @@ public abstract class BasePlayer implements TextureView.SurfaceTextureListener {
     protected AudioManager audioManager;
     protected Context context;
 
-    protected TextureView textureView;
+    protected BaseRenderView renderView;
 
     public BasePlayer(Context context) {
         this.context = context;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
-    public void setTextureView(TextureView textureView) {
-        this.textureView = textureView;
-        textureView.setSurfaceTextureListener(this);
+    public void setRenderView(BaseRenderView renderView) {
+        this.renderView = renderView;
+        renderView.setRenderViewCallback(this);
     }
 
     public void setVideoPath(String url) {

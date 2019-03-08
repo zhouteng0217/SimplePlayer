@@ -1,4 +1,4 @@
-package com.zt.simpleplayer;
+package com.zt.simpleplayer.player;
 
 import android.content.Context;
 import android.support.annotation.IdRes;

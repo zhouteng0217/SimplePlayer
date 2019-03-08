@@ -1,7 +1,6 @@
 package com.zt.simpleplayer.player;
 
 import android.content.Context;
-import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
@@ -9,7 +8,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.view.Surface;
-import android.view.TextureView;
 
 import com.zt.simpleplayer.base.BasePlayer;
 import com.zt.simpleplayer.util.VideoUtils;
@@ -18,13 +16,12 @@ import com.zt.simpleplayer.util.VideoUtils;
  * 原生mediaplayer实现的封装的播放器
  */
 
-public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnVideoSizeChangedListener, TextureView.SurfaceTextureListener {
+public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnVideoSizeChangedListener {
 
     private static final int MSG_RELEASE = 101;
     private static final int MSG_DESTORY = 102;
 
     private MediaPlayer mediaPlayer;
-    private SurfaceTexture savedSurfaceTexture;
 
     protected int bufferedPercentage;
 
@@ -85,7 +82,7 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
             mediaPlayer.setOnInfoListener(this);
             mediaPlayer.setOnVideoSizeChangedListener(this);
             mediaPlayer.prepareAsync();
-            mediaPlayer.setSurface(new Surface(savedSurfaceTexture));
+            mediaPlayer.setSurface(new Surface(renderView.getSurfaceTexture()));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -115,7 +112,7 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
 
     @Override
     public void resetSurface() {
-        savedSurfaceTexture = null;
+        renderView.resetSurface();
     }
 
     @Override
@@ -170,28 +167,8 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
     }
 
     @Override
-    public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
-        if (savedSurfaceTexture == null) {
-            savedSurfaceTexture = surfaceTexture;
-            prepare();
-        } else {
-            textureView.setSurfaceTexture(savedSurfaceTexture);
-        }
-    }
-
-    @Override
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-
-    }
-
-    @Override
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        return savedSurfaceTexture == null;
-    }
-
-    @Override
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-
+    public void prepareWhenRenderViewAvailable() {
+        prepare();
     }
 
     @Override
