@@ -6,7 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.zt.simplevideo.listener.OnFullScreenChangeListener;
+import com.zt.simplevideo.listener.OnFullScreenChangedListener;
 
 /**
  * 专为列表视频播放定制的播放器,可以自己按需实现
@@ -33,7 +33,7 @@ public class ListVideoView extends StandardVideoView {
         isSupportBrightness = false;
         isSupportSeek = false;
 
-        setOnFullScreenChangeListener(new OnFullScreenChangeListener() {
+        setOnFullScreenChangeListener(new OnFullScreenChangedListener() {
             @Override
             public void onFullScreenChange(boolean isFullScreen) {
                 back.setVisibility(isFullScreen ? View.VISIBLE : View.GONE);
