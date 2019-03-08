@@ -1,6 +1,8 @@
 # SimplePlayer
 一个简单的视频播放框架, 供学习和项目使用
 
+[![](https://jitpack.io/v/zhouteng0217/SimplePlayer.svg)](https://jitpack.io/#zhouteng0217/SimplePlayer)
+
 ## 特性
 * 播放核心和播放界面分离，扩展性好
 * 支持手势调节音量，亮度，播放进度
