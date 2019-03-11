@@ -2,6 +2,7 @@ package com.zt.simpleplayer.render;
 
 import android.content.Context;
 import android.graphics.SurfaceTexture;
+import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 
@@ -15,15 +16,14 @@ public class TextureRenderView extends BaseRenderView implements TextureView.Sur
     public TextureRenderView(Context context) {
         textureView = new TextureView(context);
         textureView.setSurfaceTextureListener(this);
+        savedSurfaceTexture = null;
     }
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surfaceTexture, int width, int height) {
         if (savedSurfaceTexture == null) {
             savedSurfaceTexture = surfaceTexture;
-            if (renderViewCallback != null) {
-                renderViewCallback.prepareWhenRenderViewAvailable();
-            }
+            player.setSurface(new Surface(surfaceTexture));
         } else {
             textureView.setSurfaceTexture(savedSurfaceTexture);
         }
@@ -45,17 +45,7 @@ public class TextureRenderView extends BaseRenderView implements TextureView.Sur
     }
 
     @Override
-    public void resetSurface() {
-        savedSurfaceTexture = null;
-    }
-
-    @Override
     public View getRenderView() {
         return textureView;
-    }
-
-    @Override
-    public SurfaceTexture getSurfaceTexture() {
-        return savedSurfaceTexture;
     }
 }

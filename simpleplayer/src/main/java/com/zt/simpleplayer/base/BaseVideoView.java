@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -21,24 +20,14 @@ import android.widget.FrameLayout;
 import com.zt.simpleplayer.R;
 import com.zt.simpleplayer.listener.OnFullScreenChangedListener;
 import com.zt.simpleplayer.listener.OnStateChangedListener;
-import com.zt.simpleplayer.listener.OnVideoSizeChangedListener;
+import com.zt.simpleplayer.listener.PlayerListener;
 import com.zt.simpleplayer.player.AndroidMediaPlayer;
+import com.zt.simpleplayer.render.SurfaceRenderView;
 import com.zt.simpleplayer.render.TextureRenderView;
 import com.zt.simpleplayer.util.VideoUtils;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
-public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, OnVideoSizeChangedListener {
-
-    public static final int LANDSCAPE_FULLSCREEN_MODE = 1;  //横向的全屏模式
-    public static final int PORTRAIT_FULLSCREEN_MODE = 2;  //竖向的全屏模式
-    public static final int AUTO_FULLSCREEN_MODE = 3;      //根据视频内容宽高比，自动判定全屏模式, 宽>高（横屏全屏), 宽 < 高(竖屏全屏)
-
-    @IntDef({LANDSCAPE_FULLSCREEN_MODE, PORTRAIT_FULLSCREEN_MODE, AUTO_FULLSCREEN_MODE})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface FullScreeMode {
-    }
+public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, PlayerListener {
 
     protected BasePlayer player;
 
@@ -46,7 +35,6 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     protected boolean isFullScreen = false;
     protected OnFullScreenChangedListener onFullScreenChangeListener;
-    protected int fullScreenMode = LANDSCAPE_FULLSCREEN_MODE;
 
     //正常状态下控件的宽高
     protected int originWidth;
@@ -57,6 +45,8 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     protected int mSystemUiVisibility;
 
     protected boolean isShowMobileDataDialog = false;
+
+    private PlayerConfig playerConfig;
 
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
@@ -75,7 +65,8 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         LayoutInflater.from(context).inflate(getLayoutId(), this);
         player = newPlayerInstance(context);
         player.setOnStateChangeListener(this);
-        player.setOnVideoSizeChangedListener(this);
+        player.setPlayerListener(this);
+        playerConfig = new PlayerConfig.Builder().build();
     }
 
     public void setVideoPath(String url) {
@@ -94,9 +85,8 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     }
 
     protected void prepareToPlay() {
-        renderView = newRenderViewInstance(getContext());
-        player.setRenderView(renderView);
 
+        player.initPlayer();
 
         ViewGroup surfaceContainer = getSurfaceContainer();
         surfaceContainer.removeAllViews();
@@ -107,21 +97,21 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         Gravity.CENTER);
 
-        surfaceContainer.addView(renderView.getRenderView(), layoutParams);
+        renderView = newRenderViewInstance(getContext());
+        if (renderView != null) {
+            renderView.setPlayer(player);
+            surfaceContainer.addView(renderView.getRenderView(), layoutParams);
+        }
     }
 
     //region 全屏处理
 
-    public void setFullScreenMode(@FullScreeMode int fullScreenMode) {
-        this.fullScreenMode = fullScreenMode;
-    }
-
     //视频全屏策略，竖向全屏，横向全屏，还是根据宽高比来选择
     protected int getFullScreenOrientation() {
-        if (fullScreenMode == PORTRAIT_FULLSCREEN_MODE) {
+        if (playerConfig.screenMode == PlayerConfig.PORTRAIT_FULLSCREEN_MODE) {
             return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         }
-        if (fullScreenMode == AUTO_FULLSCREEN_MODE) {
+        if (playerConfig.screenMode == PlayerConfig.AUTO_FULLSCREEN_MODE) {
             return player.getAspectRation() >= 1 ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         }
         return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
@@ -275,15 +265,8 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         }
     }
 
-    public void resetSurface() {
-        if (player != null) {
-            player.resetSurface();
-        }
-    }
-
     protected void replay() {
         release();
-        resetSurface();
         start();
     }
 
@@ -348,7 +331,13 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     //方便扩展播放器渲染界面
     protected BaseRenderView newRenderViewInstance(Context context) {
-        return new TextureRenderView(context);
+        switch (playerConfig.renderType) {
+            case PlayerConfig.RENDER_TEXTURE_VIEW:
+                return new TextureRenderView(context);
+            case PlayerConfig.RENDER_SURFACE_VIEW:
+                return new SurfaceRenderView(context);
+        }
+        return null;
     }
 
     protected abstract ViewGroup getSurfaceContainer();
@@ -357,4 +346,8 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     @Override
     public abstract void onStateChange(int state);
+
+    public void setPlayerConfig(PlayerConfig playerConfig) {
+        this.playerConfig = playerConfig;
+    }
 }

@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.zt.simpleplayer.base.PlayerConfig;
 import com.zt.simpleplayer.listener.OnFullScreenChangedListener;
 
 /**
@@ -42,5 +43,11 @@ public class ListVideoView extends StandardVideoView {
                 isSupportSeek = isFullScreen;
             }
         });
+
+        PlayerConfig playerConfig = new PlayerConfig.Builder()
+                .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
+                .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
+                .build();
+        setPlayerConfig(playerConfig);
     }
 }
