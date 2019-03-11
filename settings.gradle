@@ -1,1 +1,1 @@
-include ':app', ':simpleplayer'
+include ':app', ':simpleplayer', ':simpleplayer_armv5', ':simpleplayer_armv7a', ':simpleplayer_arm64', ':simpleplayer_x86', ':simpleplayer_x86_64'
