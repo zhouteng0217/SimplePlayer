@@ -45,11 +45,6 @@ public class TextureRenderView extends BaseRenderView implements TextureView.Sur
     }
 
     @Override
-    public void resetSurface() {
-        savedSurfaceTexture = null;
-    }
-
-    @Override
     public View getRenderView() {
         return textureView;
     }

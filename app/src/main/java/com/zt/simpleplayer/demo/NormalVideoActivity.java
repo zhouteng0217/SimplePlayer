@@ -26,7 +26,7 @@ public class NormalVideoActivity extends AppCompatActivity {
 
         PlayerConfig playerConfig = new PlayerConfig.Builder()
                 .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
-                .renderType(PlayerConfig.RENDER_SURFACE_VIEW)
+                .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
                 .build();
         videoView.setPlayerConfig(playerConfig);
 

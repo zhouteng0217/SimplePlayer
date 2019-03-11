@@ -6,7 +6,7 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.zt.simpleplayer.listener.OnStateChangedListener;
-import com.zt.simpleplayer.listener.OnVideoSizeChangedListener;
+import com.zt.simpleplayer.listener.PlayerListener;
 
 public abstract class BasePlayer {
 
@@ -28,7 +28,7 @@ public abstract class BasePlayer {
     protected String url;
 
     protected OnStateChangedListener onStateChangeListener;
-    protected OnVideoSizeChangedListener onVideoSizeChangedListener;
+    protected PlayerListener playerListener;
 
     protected AudioManager audioManager;
     protected Context context;
@@ -46,8 +46,8 @@ public abstract class BasePlayer {
         this.onStateChangeListener = onStateChangeListener;
     }
 
-    public void setOnVideoSizeChangedListener(OnVideoSizeChangedListener onVideoSizeChangedListener) {
-        this.onVideoSizeChangedListener = onVideoSizeChangedListener;
+    public void setPlayerListener(PlayerListener playerListener) {
+        this.playerListener = playerListener;
     }
 
     public int getCurrentState() {

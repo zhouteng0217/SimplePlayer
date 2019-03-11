@@ -20,14 +20,14 @@ import android.widget.FrameLayout;
 import com.zt.simpleplayer.R;
 import com.zt.simpleplayer.listener.OnFullScreenChangedListener;
 import com.zt.simpleplayer.listener.OnStateChangedListener;
-import com.zt.simpleplayer.listener.OnVideoSizeChangedListener;
+import com.zt.simpleplayer.listener.PlayerListener;
 import com.zt.simpleplayer.player.AndroidMediaPlayer;
 import com.zt.simpleplayer.render.SurfaceRenderView;
 import com.zt.simpleplayer.render.TextureRenderView;
 import com.zt.simpleplayer.util.VideoUtils;
 
 
-public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, OnVideoSizeChangedListener {
+public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, PlayerListener {
 
     protected BasePlayer player;
 
@@ -65,7 +65,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         LayoutInflater.from(context).inflate(getLayoutId(), this);
         player = newPlayerInstance(context);
         player.setOnStateChangeListener(this);
-        player.setOnVideoSizeChangedListener(this);
+        player.setPlayerListener(this);
         playerConfig = new PlayerConfig.Builder().build();
     }
 
