@@ -1,1 +1,1 @@
-include ':app', ':simpleplayer', ':simpleplayer_armv5', ':simpleplayer_armv7a', ':simpleplayer_arm64', ':simpleplayer_x86', ':simpleplayer_x86_64'
+include ':app', ':library:core', ':library:ijkplayer-armv5', ':library:ijkplayer-armv7a', ':library:ijkplayer-arm64', ':library:ijkplayer-x86', ':library:ijkplayer-x86_64'
