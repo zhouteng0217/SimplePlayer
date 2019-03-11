@@ -2,11 +2,13 @@ package com.zt.simpleplayer.base;
 
 import android.content.Context;
 import android.media.AudioManager;
+import android.view.Surface;
+import android.view.SurfaceHolder;
 
 import com.zt.simpleplayer.listener.OnStateChangedListener;
 import com.zt.simpleplayer.listener.OnVideoSizeChangedListener;
 
-public abstract class BasePlayer implements BaseRenderView.RenderViewCallback {
+public abstract class BasePlayer {
 
     public static final int STATE_ERROR = -1;
     public static final int STATE_IDLE = 0;
@@ -31,16 +33,9 @@ public abstract class BasePlayer implements BaseRenderView.RenderViewCallback {
     protected AudioManager audioManager;
     protected Context context;
 
-    protected BaseRenderView renderView;
-
     public BasePlayer(Context context) {
         this.context = context;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-    }
-
-    public void setRenderView(BaseRenderView renderView) {
-        this.renderView = renderView;
-        renderView.setRenderViewCallback(this);
     }
 
     public void setVideoPath(String url) {
@@ -117,6 +112,9 @@ public abstract class BasePlayer implements BaseRenderView.RenderViewCallback {
                 && currentState != STATE_COMPLETED;
     }
 
+    //初始化播放器
+    public abstract void initPlayer();
+
     //是否正在播放
     public abstract boolean isPlaying();
 
@@ -131,9 +129,6 @@ public abstract class BasePlayer implements BaseRenderView.RenderViewCallback {
 
     //销毁播放器
     public abstract void destroy();
-
-    //销毁播放surface
-    public abstract void resetSurface();
 
     //获取视频内容宽高比
     public abstract float getAspectRation();
@@ -152,5 +147,11 @@ public abstract class BasePlayer implements BaseRenderView.RenderViewCallback {
 
     //跳转到指定播放位置
     public abstract void seekTo(int position);
+
+    //设置TextureView渲染界面
+    public abstract void setSurface(Surface surface);
+
+    //设置SurfaceView渲染界面
+    public abstract void setDisplay(SurfaceHolder holder);
 
 }

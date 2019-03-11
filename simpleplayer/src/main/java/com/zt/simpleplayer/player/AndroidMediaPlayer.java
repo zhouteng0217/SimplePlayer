@@ -8,6 +8,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.view.Surface;
+import android.view.SurfaceHolder;
 
 import com.zt.simpleplayer.base.BasePlayer;
 import com.zt.simpleplayer.util.VideoUtils;
@@ -45,7 +46,6 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
                     break;
                 case MSG_DESTORY:
                     mediaPlayer.release();
-                    resetSurface();
                     mediaPlayer = null;
                     break;
             }
@@ -59,13 +59,10 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
         mediaPlayerHandler = new MediaPlayerHandler(handlerThread.getLooper());
     }
 
-    private void prepare() {
+    @Override
+    public void initPlayer() {
+        isPrepared = false;
         try {
-
-            isPrepared = false;
-
-            onStateChange(STATE_PREPARING);
-
             if (mediaPlayer != null) {
                 mediaPlayer.release();
             }
@@ -82,9 +79,11 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
             mediaPlayer.setOnInfoListener(this);
             mediaPlayer.setOnVideoSizeChangedListener(this);
             mediaPlayer.prepareAsync();
-            mediaPlayer.setSurface(new Surface(renderView.getSurfaceTexture()));
+
+            onStateChange(STATE_PREPARING);
+
         } catch (Exception e) {
-            e.printStackTrace();
+
         }
     }
 
@@ -108,11 +107,6 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
         Message message = Message.obtain();
         message.what = MSG_RELEASE;
         mediaPlayerHandler.sendMessage(message);
-    }
-
-    @Override
-    public void resetSurface() {
-        renderView.resetSurface();
     }
 
     @Override
@@ -167,8 +161,17 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
     }
 
     @Override
-    public void prepareWhenRenderViewAvailable() {
-        prepare();
+    public void setSurface(Surface surface) {
+        if (mediaPlayer != null) {
+            mediaPlayer.setSurface(surface);
+        }
+    }
+
+    @Override
+    public void setDisplay(SurfaceHolder holder) {
+        if (mediaPlayer != null) {
+            mediaPlayer.setDisplay(holder);
+        }
     }
 
     @Override

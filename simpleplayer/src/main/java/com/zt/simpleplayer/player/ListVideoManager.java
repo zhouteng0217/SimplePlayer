@@ -56,7 +56,6 @@ public class ListVideoManager {
             currentVideoView = newListVideoViewInstance(context);
         }
         currentVideoView.release();
-        currentVideoView.resetSurface();
         ViewGroup containerView = null;
         if (curPosView != null) {
             containerView = curPosView.findViewById(containerId);
