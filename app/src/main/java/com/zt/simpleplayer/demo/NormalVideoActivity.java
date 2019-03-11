@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
+import com.zt.simpleplayer.base.PlayerConfig;
 import com.zt.simpleplayer.view.StandardVideoView;
 
 public class NormalVideoActivity extends AppCompatActivity {
@@ -21,10 +22,13 @@ public class NormalVideoActivity extends AppCompatActivity {
         actionBar.setTitle("Normal Video");
 
         videoView = findViewById(R.id.video_view);
-        videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
+        videoView.setVideoPath("http://video.jiecao.fm/5/1/%E8%87%AA%E5%8F%96%E5%85%B6%E8%BE%B1.mp4");
 
-        //设置全屏策略，默认横屏全屏
-        videoView.setFullScreenMode(StandardVideoView.AUTO_FULLSCREEN_MODE);
+        PlayerConfig playerConfig = new PlayerConfig.Builder()
+                .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
+                .renderType(PlayerConfig.RENDER_SURFACE_VIEW)
+                .build();
+        videoView.setPlayerConfig(playerConfig);
 
         //设置是否支持手势调节音量, 默认支持
         videoView.setSupportVolume(true);
