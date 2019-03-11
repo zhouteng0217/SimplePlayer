@@ -6,8 +6,6 @@ public abstract class BaseRenderView {
 
     protected BasePlayer player;
 
-    public abstract void resetSurface();
-
     public abstract View getRenderView();
 
     public void setPlayer(BasePlayer player) {

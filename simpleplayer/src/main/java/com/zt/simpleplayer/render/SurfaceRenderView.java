@@ -10,17 +10,11 @@ import com.zt.simpleplayer.base.BaseRenderView;
 public class SurfaceRenderView extends BaseRenderView implements SurfaceHolder.Callback {
 
     protected SurfaceView surfaceView;
-    protected SurfaceHolder savedSurfaceHolder;
 
     public SurfaceRenderView(Context context) {
         surfaceView = new SurfaceView(context);
         SurfaceHolder surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(this);
-    }
-
-    @Override
-    public void resetSurface() {
-
     }
 
     @Override
@@ -31,7 +25,6 @@ public class SurfaceRenderView extends BaseRenderView implements SurfaceHolder.C
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-        savedSurfaceHolder = holder;
         player.setDisplay(holder);
     }
 

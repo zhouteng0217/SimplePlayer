@@ -155,8 +155,8 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-        if (onVideoSizeChangedListener != null) {
-            onVideoSizeChangedListener.onVideoSizeChanged(width, height);
+        if (playerListener != null) {
+            playerListener.onVideoSizeChanged(width, height);
         }
     }
 
