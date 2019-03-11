@@ -8,6 +8,7 @@
 * 支持手势调节音量，亮度，播放进度
 * 支持竖屏全屏和横屏全屏，以及根据宽高比自动实现全屏策略
 * 支持在ListView和RecyclerView中播放，全屏等操作
+* 支持SurfaceView和TextureView播放
 
 ## Demo截图
 
@@ -57,8 +58,12 @@ protected void onCreate(Bundle savedInstanceState) {
     videoView = findViewById(R.id.video_view);
     videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
 
-    //设置全屏策略，默认横屏全屏
-    videoView.setFullScreenMode(StandardVideoView.AUTO_FULLSCREEN_MODE);
+    //设置全屏策略，设置视频渲染界面类型
+    PlayerConfig playerConfig = new PlayerConfig.Builder()
+            .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
+            .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
+            .build();
+    videoView.setPlayerConfig(playerConfig);
 
     //设置是否支持手势调节音量, 默认支持
     videoView.setSupportVolume(true);
@@ -119,7 +124,7 @@ play.setOnClickListener(new View.OnClickListener() {
 ```
 
 ### 6.自定义播放器界面和逻辑
-    可以继承StandardVideoView, BaseVideoView， ListVideoView来实现自定义各个界面。
+    可以继承StandardVideoView, BaseVideoView， ListVideoView来实现自定义各个界面，可以继承BasePlayer来实现自定义播放器核心。
 
 ### 注意事项
-     目前使用MediaPlayer + TextureView来实现的视频播放，因此需要minSdkVersion=16，并且开启硬件加速。
+     默认使用TextureView来实现的视频播放，需要minSdkVersion=16，并且开启硬件加速。
