@@ -2,11 +2,16 @@ package com.zt.core.base;
 
 import android.content.Context;
 import android.media.AudioManager;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.zt.core.listener.OnStateChangedListener;
 import com.zt.core.listener.PlayerListener;
+import com.zt.core.util.VideoUtils;
+
+import java.util.Map;
 
 public abstract class BasePlayer {
 
@@ -25,7 +30,7 @@ public abstract class BasePlayer {
 
     protected int currentState = STATE_IDLE;
 
-    protected String url;
+    protected Uri uri;
 
     protected OnStateChangedListener onStateChangeListener;
     protected PlayerListener playerListener;
@@ -33,13 +38,32 @@ public abstract class BasePlayer {
     protected AudioManager audioManager;
     protected Context context;
 
+    protected boolean isPrepared = false; //播放器是否已经prepared了
+
+    protected PlayerConfig playerConfig;
+
+    protected Map<String, String> headers;
+
+    protected int bufferedPercentage;
+
     public BasePlayer(Context context) {
         this.context = context;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
+    public void setPlayerConfig(PlayerConfig playerConfig) {
+        this.playerConfig = playerConfig;
+    }
+
     public void setVideoPath(String url) {
-        this.url = url;
+        setVideoPath(url, null);
+    }
+
+    protected void setVideoPath(String url, Map<String, String> headers) {
+        if (!TextUtils.isEmpty(url)) {
+            uri = Uri.parse(url);
+        }
+        this.headers = headers;
     }
 
     public void setOnStateChangeListener(OnStateChangedListener onStateChangeListener) {
@@ -52,10 +76,6 @@ public abstract class BasePlayer {
 
     public int getCurrentState() {
         return currentState;
-    }
-
-    public String getUrl() {
-        return url;
     }
 
     //region audiomanager
@@ -112,23 +132,115 @@ public abstract class BasePlayer {
                 && currentState != STATE_COMPLETED;
     }
 
+    protected void onStateChange(int state) {
+        currentState = state;
+        if (onStateChangeListener != null) {
+            onStateChangeListener.onStateChange(state);
+        }
+    }
+
+    public void play() {
+        requestAudioFocus();
+        VideoUtils.keepScreenOn(context);
+        onStateChange(STATE_PLAYING);
+        playImpl();
+    }
+
+    public void pause() {
+        if (!isPlaying()) {
+            return;
+        }
+        VideoUtils.removeScreenOn(context);
+        onStateChange(STATE_PAUSED);
+        pauseImpl();
+    }
+
+    public void initPlayer() {
+        isPrepared = false;
+        if (uri == null) {
+            return;
+        }
+        initPlayerImpl();
+        onStateChange(STATE_PREPARING);
+    }
+
+    public boolean isPlaying() {
+        return isPrepared && isPlayingImpl();
+    }
+
+    public void release() {
+        abandonAudioFocus();
+        VideoUtils.removeScreenOn(context);
+        isPrepared = false;
+        onStateChange(STATE_IDLE);
+        releaseImpl();
+    }
+
+    public void destroy() {
+        abandonAudioFocus();
+        VideoUtils.removeScreenOn(context);
+        isPrepared = false;
+        onStateChange(STATE_IDLE);
+        destroyImpl();
+    }
+
+    public void seekTo(int position) {
+        onStateChange(STATE_SEEK_START);
+        seekToImpl(position);
+    }
+
+    //prepare成功后的具体实现
+    protected void onPreparedImpl() {
+        isPrepared = true;
+        onStateChange(STATE_PREPARED);
+        play();
+    }
+
+    //onCompletion的具体实现
+    protected void onCompletionImpl() {
+        abandonAudioFocus();
+        VideoUtils.removeScreenOn(context);
+        onStateChange(STATE_COMPLETED);
+    }
+
+    //onBufferingUpdate具体实现
+    protected void onBufferingUpdateImpl(int percent) {
+        bufferedPercentage = percent;
+        onStateChange(STATE_BUFFERING);
+    }
+
+    protected void onSeekCompleteImpl() {
+        onStateChange(STATE_SEEK_END);
+    }
+
+    protected boolean onErrorImpl() {
+        onStateChange(STATE_ERROR);
+        return true;
+    }
+
+    protected void onVideoSizeChangedImpl(int width,int height) {
+        if (playerListener != null) {
+            playerListener.onVideoSizeChanged(width, height);
+        }
+    }
+
     //初始化播放器
-    public abstract void initPlayer();
+    protected abstract void initPlayerImpl();
 
     //是否正在播放
-    public abstract boolean isPlaying();
+    protected abstract boolean isPlayingImpl();
 
     //播放
-    public abstract void play();
+    protected abstract void playImpl();
 
     //暂停
-    public abstract void pause();
+    protected abstract void pauseImpl();
 
     //释放播放器
-    public abstract void release();
+    protected abstract void releaseImpl();
 
     //销毁播放器
-    public abstract void destroy();
+    protected abstract void destroyImpl();
 
     //获取视频内容宽高比
     public abstract float getAspectRation();
@@ -146,12 +258,21 @@ public abstract class BasePlayer {
     public abstract int getDuration();
 
     //跳转到指定播放位置
-    public abstract void seekTo(int position);
+    protected abstract void seekToImpl(int position);
 
     //设置TextureView渲染界面
     public abstract void setSurface(Surface surface);
 
     //设置SurfaceView渲染界面
     public abstract void setDisplay(SurfaceHolder holder);
+
+    //针对某些播放器内核，比如IjkPlayer，进行的一些额外设置
+    public abstract void setOptions();
+
+    //是否支持硬解码
+    protected abstract void setEnableMediaCodec(boolean isEnable);
+
+    //是否启用OpenSL ES
+    protected abstract void setEnableOpenSLES(boolean isEnable);
 
 }

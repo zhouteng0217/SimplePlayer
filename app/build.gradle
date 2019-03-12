@@ -25,5 +25,8 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:' + rootProject.ext.supportLibraryVersion
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     implementation project(':library:core')
+    implementation project(':library:ijkplayer')
+    implementation project(':library:ijkplayer-armv7a')
+
 //    implementation 'com.github.zhouteng0217:SimplePlayer:1.0.0'
 }

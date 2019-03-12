@@ -7,6 +7,7 @@ import android.view.KeyEvent;
 
 import com.zt.core.base.PlayerConfig;
 import com.zt.core.view.StandardVideoView;
+import com.zt.ijkplayer.IjkPlayer;
 
 public class NormalVideoActivity extends AppCompatActivity {
 
@@ -28,6 +29,7 @@ public class NormalVideoActivity extends AppCompatActivity {
         PlayerConfig playerConfig = new PlayerConfig.Builder()
                 .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
                 .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
+                .player(new IjkPlayer(this))
                 .build();
         videoView.setPlayerConfig(playerConfig);
 

@@ -26,17 +26,26 @@ public class PlayerConfig {
     public @interface RenderView {
     }
 
-    final int screenMode;
-    final int renderType;
+    public final int screenMode;
+    public final int renderType;
+    public final boolean enableMediaCodec;
+    public final boolean enableOpenSLES;
+    public final BasePlayer player;  //自定义播放器播放
 
     private PlayerConfig(PlayerConfig.Builder builder) {
         this.screenMode = builder.screenMode;
         this.renderType = builder.renderType;
+        this.enableMediaCodec = builder.enableMediaCodec;
+        this.enableOpenSLES = builder.enableOpenSLES;
+        this.player = builder.player;
     }
 
     public static class Builder {
         private int screenMode;
         private int renderType;
+        private boolean enableMediaCodec;
+        private boolean enableOpenSLES;
+        private BasePlayer player;
 
         public Builder fullScreenMode(@FullScreeMode int screenMode) {
             this.screenMode = screenMode;
@@ -45,6 +54,21 @@ public class PlayerConfig {
 
         public Builder renderType(@RenderView int renderType) {
             this.renderType = renderType;
+            return this;
+        }
+
+        public Builder enableMediaCodec(boolean enableMediaCodec) {
+            this.enableMediaCodec = enableMediaCodec;
+            return this;
+        }
+
+        public Builder enableOpenSLES(boolean enableOpenSLES) {
+            this.enableOpenSLES = enableOpenSLES;
+            return this;
+        }
+
+        public Builder player(BasePlayer player) {
+            this.player = player;
             return this;
         }
 

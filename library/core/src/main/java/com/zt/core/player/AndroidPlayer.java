@@ -17,18 +17,15 @@ import com.zt.core.util.VideoUtils;
  * 原生mediaplayer实现的封装的播放器
  */
 
-public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnVideoSizeChangedListener {
+public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnVideoSizeChangedListener {
 
-    private static final int MSG_RELEASE = 101;
-    private static final int MSG_DESTORY = 102;
+    protected static final int MSG_RELEASE = 101;
+    protected static final int MSG_DESTORY = 102;
 
-    private MediaPlayer mediaPlayer;
+    protected MediaPlayer mediaPlayer;
 
-    protected int bufferedPercentage;
+    protected MediaPlayerHandler mediaPlayerHandler; //用于处理mediaplayer的release等耗时操作
 
-    private MediaPlayerHandler mediaPlayerHandler; //用于处理mediaplayer的release等耗时操作
-
-    private boolean isPrepared = false; //播放器是否已经prepared了
 
     private class MediaPlayerHandler extends Handler {
         private MediaPlayerHandler(Looper looper) {
@@ -52,7 +49,7 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
         }
     }
 
-    public AndroidMediaPlayer(Context context) {
+    public AndroidPlayer(Context context) {
         super(context);
         HandlerThread handlerThread = new HandlerThread(this.getClass().getName());
         handlerThread.start();
@@ -60,15 +57,14 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
     }
 
     @Override
-    public void initPlayer() {
-        isPrepared = false;
+    public void initPlayerImpl() {
         try {
             if (mediaPlayer != null) {
                 mediaPlayer.release();
             }
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setDataSource(url);
+            mediaPlayer.setDataSource(context, uri, headers);
             mediaPlayer.setLooping(false);
             mediaPlayer.setOnPreparedListener(this);
             mediaPlayer.setOnCompletionListener(this);
@@ -79,31 +75,20 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
             mediaPlayer.setOnInfoListener(this);
             mediaPlayer.setOnVideoSizeChangedListener(this);
             mediaPlayer.prepareAsync();
-
-            onStateChange(STATE_PREPARING);
-
         } catch (Exception e) {
 
         }
     }
 
     @Override
-    public void destroy() {
-        abandonAudioFocus();
-        VideoUtils.removeScreenOn(context);
-        isPrepared = false;
-        onStateChange(STATE_IDLE);
+    protected void destroyImpl() {
         Message message = Message.obtain();
         message.what = MSG_DESTORY;
         mediaPlayerHandler.sendMessage(message);
     }
 
     @Override
-    public void release() {
-        abandonAudioFocus();
-        VideoUtils.removeScreenOn(context);
-        isPrepared = false;
-        onStateChange(STATE_IDLE);
+    protected void releaseImpl() {
         Message message = Message.obtain();
         message.what = MSG_RELEASE;
         mediaPlayerHandler.sendMessage(message);
@@ -111,33 +96,27 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        isPrepared = true;
-        onStateChange(STATE_PREPARED);
-        play();
+        onPreparedImpl();
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        abandonAudioFocus();
-        VideoUtils.removeScreenOn(context);
-        onStateChange(STATE_COMPLETED);
+        onCompletionImpl();
     }
 
     @Override
     public void onBufferingUpdate(MediaPlayer mp, int percent) {
-        bufferedPercentage = percent;
-        onStateChange(STATE_BUFFERING);
+        onBufferingUpdateImpl(percent);
     }
 
     @Override
     public void onSeekComplete(MediaPlayer mp) {
-        onStateChange(STATE_SEEK_END);
+        onSeekCompleteImpl();
     }
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        onStateChange(STATE_ERROR);
-        return true;
+        return onErrorImpl();
     }
 
     @Override
@@ -155,9 +134,7 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
 
     @Override
     public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-        if (playerListener != null) {
-            playerListener.onVideoSizeChanged(width, height);
-        }
+        onVideoSizeChangedImpl(width, height);
     }
 
     @Override
@@ -175,42 +152,23 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
     }
 
     @Override
-    public void play() {
-        requestAudioFocus();
-        VideoUtils.keepScreenOn(context);
+    protected void playImpl() {
         mediaPlayer.start();
-        onStateChange(STATE_PLAYING);
     }
 
     @Override
-    public void pause() {
-        if (!isPlaying()) {
-            return;
-        }
-        VideoUtils.removeScreenOn(context);
+    protected void pauseImpl() {
         mediaPlayer.pause();
-        onStateChange(STATE_PAUSED);
     }
 
-    private void onStateChange(int state) {
-        currentState = state;
-        if (onStateChangeListener != null) {
-            onStateChangeListener.onStateChange(state);
-        }
-    }
-
-    public void seekTo(int msec) {
-        onStateChange(STATE_SEEK_START);
+    @Override
+    protected void seekToImpl(int msec) {
         mediaPlayer.seekTo(msec);
     }
 
     @Override
-    public boolean isPlaying() {
-        return mediaPlayer != null && isPrepared && mediaPlayer.isPlaying();
-    }
-
-    public int getBufferedPercentage() {
-        return bufferedPercentage;
+    protected boolean isPlayingImpl() {
+        return mediaPlayer != null && mediaPlayer.isPlaying();
     }
 
     @Override
@@ -242,11 +200,26 @@ public class AndroidMediaPlayer extends BasePlayer implements MediaPlayer.OnPrep
 
     @Override
     public int getVideoWidth() {
-        return mediaPlayer == null || !isPrepared ? 0 : mediaPlayer.getVideoWidth();
+        return mediaPlayer == null ? 0 : mediaPlayer.getVideoWidth();
     }
 
     @Override
     public int getVideoHeight() {
-        return mediaPlayer == null || !isPrepared ? 0 : mediaPlayer.getVideoHeight();
+        return mediaPlayer == null ? 0 : mediaPlayer.getVideoHeight();
+    }
+
+    @Override
+    public void setOptions() {
+
+    }
+
+    @Override
+    public void setEnableMediaCodec(boolean isEnable) {
+
+    }
+
+    @Override
+    protected void setEnableOpenSLES(boolean isEnable) {
+
     }
 }
