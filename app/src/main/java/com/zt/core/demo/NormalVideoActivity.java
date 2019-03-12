@@ -24,7 +24,7 @@ public class NormalVideoActivity extends AppCompatActivity {
         videoView = findViewById(R.id.video_view);
         videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
 
-        //设置全屏策略，设置视频渲染界面类型
+        //设置全屏策略，设置视频渲染界面类型,设置是否循环播放，设置自定义播放器
         PlayerConfig playerConfig = new PlayerConfig.Builder()
                 .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
                 .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
