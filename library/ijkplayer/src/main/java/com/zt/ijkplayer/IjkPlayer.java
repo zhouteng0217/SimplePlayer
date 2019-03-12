@@ -60,14 +60,18 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
     }
 
     @Override
-    protected void releaseImpl() {
-        mediaPlayer.release();
+    protected void destroyImpl() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     @Override
-    protected void destroyImpl() {
-        mediaPlayer.release();
-        mediaPlayer = null;
+    protected void releaseImpl() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
     }
 
     @Override
