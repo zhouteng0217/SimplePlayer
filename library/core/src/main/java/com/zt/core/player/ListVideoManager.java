@@ -8,13 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.zt.core.base.BaseVideoView;
 import com.zt.core.view.ListVideoView;
 
 public class ListVideoManager {
 
     private static ListVideoManager instance;
 
-    protected ListVideoView currentVideoView;
+    protected BaseVideoView currentVideoView;
 
     protected int curPos = -1;
 
@@ -53,7 +54,7 @@ public class ListVideoManager {
 
     protected void initVideoView(Context context, View curPosView, @IdRes int containerId, String url, String title) {
         if (currentVideoView == null) {
-            currentVideoView = newListVideoViewInstance(context);
+            currentVideoView = newVideoViewInstance(context);
         }
         currentVideoView.release();
         ViewGroup containerView = null;
@@ -106,8 +107,8 @@ public class ListVideoManager {
         return curPos;
     }
 
-    //用于ListVideoView的继承扩展
-    protected ListVideoView newListVideoViewInstance(Context context) {
+    //用于BaseVideoView的继承扩展
+    protected BaseVideoView newVideoViewInstance(Context context) {
         return new ListVideoView(context);
     }
 }

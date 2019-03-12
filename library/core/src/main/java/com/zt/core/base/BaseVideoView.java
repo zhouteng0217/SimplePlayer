@@ -364,6 +364,10 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     protected abstract int getLayoutId();
 
+    public abstract boolean onBackKeyPressed();
+
+    public abstract void setTitle(String titleText);
+
     @Override
     public abstract void onStateChange(int state);
 
