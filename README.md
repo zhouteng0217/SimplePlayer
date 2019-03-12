@@ -34,7 +34,19 @@ allprojects {
 
 ```
 dependencies {
-    implementation 'com.github.zhouteng0217:SimplePlayer:1.0.0'
+   
+   //核心依赖，必需，提供默认的原生MediaPlayer播放支持和标准的播放界面
+   implementation 'com.github.zhouteng0217.SimplePlayer:core:1.0'
+   
+   //ijkplayer扩展依赖, 要支持ijiplayer必需添加这两个依赖
+   implementation 'com.github.zhouteng0217.SimplePlayer:ijkplayer:1.0'
+   implementation 'com.github.zhouteng0217.SimplePlayer:ijkplayer-armv7a:1.0'
+   
+   //ijkplayer的其余的处理器架构so库支持依赖,根据需要添加
+   implementation 'com.github.zhouteng0217.SimplePlayer:ijkplayer-armv5:1.0'
+   implementation 'com.github.zhouteng0217.SimplePlayer:ijkplayer-arm64:1.0'
+   implementation 'com.github.zhouteng0217.SimplePlayer:ijkplayer-x86:1.0'
+   implementation 'com.github.zhouteng0217.SimplePlayer:ijkplayer-x86_64:1.0'
 }
 ```
 
