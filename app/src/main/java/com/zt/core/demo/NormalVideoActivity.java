@@ -22,7 +22,7 @@ public class NormalVideoActivity extends AppCompatActivity {
         actionBar.setTitle("Normal Video");
 
         videoView = findViewById(R.id.video_view);
-        videoView.setVideoPath("https://html5demos.com/assets/dizzy.mp4");
+        videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
 
         //设置全屏策略，设置视频渲染界面类型
         PlayerConfig playerConfig = new PlayerConfig.Builder()

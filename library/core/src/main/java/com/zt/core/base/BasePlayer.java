@@ -19,14 +19,11 @@ public abstract class BasePlayer {
     public static final int STATE_IDLE = 0;
     public static final int STATE_PREPARING = 1;
     public static final int STATE_PREPARED = 2;
-    public static final int STATE_BUFFERING = 3;  //缓冲中
-    public static final int STATE_BUFFERING_START = 4; //暂停播放开始缓冲更多数据
-    public static final int STATE_BUFFERING_END = 5; //缓冲了足够的数据重新开始播放
-    public static final int STATE_PLAYING = 6;
-    public static final int STATE_PAUSED = 7;
-    public static final int STATE_COMPLETED = 8;
-    public static final int STATE_SEEK_START = 9;  //开始seek
-    public static final int STATE_SEEK_END = 10;   //seek结束
+    public static final int STATE_BUFFERING_START = 3; //暂停播放开始缓冲更多数据
+    public static final int STATE_BUFFERING_END = 4; //缓冲了足够的数据重新开始播放
+    public static final int STATE_PLAYING = 5;
+    public static final int STATE_PAUSED = 6;
+    public static final int STATE_COMPLETED = 7;
 
     protected int currentState = STATE_IDLE;
 
@@ -185,7 +182,6 @@ public abstract class BasePlayer {
     }
 
     public void seekTo(int position) {
-        onStateChange(STATE_SEEK_START);
         seekToImpl(position);
     }
 
@@ -206,11 +202,10 @@ public abstract class BasePlayer {
     //onBufferingUpdate具体实现
     protected void onBufferingUpdateImpl(int percent) {
         bufferedPercentage = percent;
-        onStateChange(STATE_BUFFERING);
     }
 
     protected void onSeekCompleteImpl() {
-        onStateChange(STATE_SEEK_END);
+
     }
 
     protected boolean onErrorImpl() {

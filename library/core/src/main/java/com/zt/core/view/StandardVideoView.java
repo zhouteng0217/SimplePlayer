@@ -138,11 +138,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 changeUIWithError();
                 break;
             case AndroidPlayer.STATE_BUFFERING_START:
-            case AndroidPlayer.STATE_SEEK_START:
+//            case AndroidPlayer.STATE_SEEK_START:
                 changeUiWithBufferingStart();
                 break;
             case AndroidPlayer.STATE_BUFFERING_END:
-            case AndroidPlayer.STATE_SEEK_END:
+//            case AndroidPlayer.STATE_SEEK_END:
                 changeUiWithBufferingEnd();
                 break;
         }
