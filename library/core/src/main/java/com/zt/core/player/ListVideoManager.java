@@ -114,7 +114,7 @@ public class ListVideoManager {
 
     public void release() {
         if (currentVideoView != null) {
-            currentVideoView.destroy();
+            currentVideoView.release();
         }
         removePlayerFromParent();
     }

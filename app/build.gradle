@@ -24,9 +24,15 @@ dependencies {
     implementation('com.github.bumptech.glide:glide:4.6.1')
     implementation 'com.android.support:recyclerview-v7:' + rootProject.ext.supportLibraryVersion
     implementation 'com.android.support.constraint:constraint-layout:1.1.3'
+
     implementation project(':library:core')
     implementation project(':library:ijkplayer')
     implementation project(':library:ijkplayer-armv7a')
 
-//    implementation 'com.github.zhouteng0217:SimplePlayer:1.0.0'
+    //核心依赖，必需，提供默认的原生MediaPlayer播放支持和标准的播放界面
+//    implementation 'com.github.zhouteng0217.SimplePlayer:core:1.0'
+
+    //ijkplayer扩展依赖, 要支持ijiplayer必需添加这两个依赖
+//    implementation 'com.github.zhouteng0217.SimplePlayer:ijkplayer:1.0'
+//    implementation 'com.github.zhouteng0217.SimplePlayer:ijkplayer-armv7a:1.0'
 }

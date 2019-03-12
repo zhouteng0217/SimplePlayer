@@ -3,6 +3,10 @@ package com.zt.core.base;
 import android.content.Context;
 import android.media.AudioManager;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -14,6 +18,9 @@ import com.zt.core.util.VideoUtils;
 import java.util.Map;
 
 public abstract class BasePlayer {
+
+    protected static final int MSG_RELEASE = 101;
+    protected static final int MSG_DESTORY = 102;
 
     public static final int STATE_ERROR = -1;
     public static final int STATE_IDLE = 0;
@@ -43,17 +50,38 @@ public abstract class BasePlayer {
 
     protected int bufferedPercentage;
 
+    protected MediaPlayerHandler mediaPlayerHandler; //用于处理release等耗时操作
+
+    protected class MediaPlayerHandler extends Handler {
+
+        private MediaPlayerHandler(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_RELEASE:
+                    releaseImpl();
+                    break;
+                case MSG_DESTORY:
+                    destroyImpl();
+                    break;
+            }
+        }
+    }
+
     public BasePlayer(Context context) {
         this.context = context;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+
+        HandlerThread handlerThread = new HandlerThread(this.getClass().getName());
+        handlerThread.start();
+        mediaPlayerHandler = new MediaPlayerHandler(handlerThread.getLooper());
     }
 
     public void setPlayerConfig(PlayerConfig playerConfig) {
         this.playerConfig = playerConfig;
-    }
-
-    public void setVideoPath(String url) {
-        setVideoPath(url, null);
     }
 
     protected void setVideoPath(String url, Map<String, String> headers) {
@@ -170,7 +198,10 @@ public abstract class BasePlayer {
         VideoUtils.removeScreenOn(context);
         isPrepared = false;
         onStateChange(STATE_IDLE);
-        releaseImpl();
+
+        Message message = Message.obtain();
+        message.what = MSG_RELEASE;
+        mediaPlayerHandler.sendMessage(message);
     }
 
     public void destroy() {
@@ -178,7 +209,10 @@ public abstract class BasePlayer {
         VideoUtils.removeScreenOn(context);
         isPrepared = false;
         onStateChange(STATE_IDLE);
-        destroyImpl();
+
+        Message message = Message.obtain();
+        message.what = MSG_DESTORY;
+        mediaPlayerHandler.sendMessage(message);
     }
 
     public void seekTo(int position) {
