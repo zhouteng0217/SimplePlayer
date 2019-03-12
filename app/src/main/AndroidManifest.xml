@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.zt.simpleplayer.demo">
+    package="com.zt.core.demo">
 
     <application
         android:allowBackup="true"
@@ -9,7 +9,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light">
         <activity
-            android:name="com.zt.simpleplayer.demo.MainActivity"
+            android:name="com.zt.core.demo.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|locale">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,19 +19,19 @@
         </activity>
 
         <activity
-            android:name="com.zt.simpleplayer.demo.ListVideoActivity"
+            android:name="com.zt.core.demo.ListVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|locale"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
-            android:name="com.zt.simpleplayer.demo.NormalVideoActivity"
+            android:name="com.zt.core.demo.NormalVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|locale"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" />
 
         <activity
-            android:name="com.zt.simpleplayer.demo.RecyclerViewVideoActivity"
+            android:name="com.zt.core.demo.RecyclerViewVideoActivity"
             android:configChanges="orientation|keyboardHidden|screenSize|locale"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light" />
