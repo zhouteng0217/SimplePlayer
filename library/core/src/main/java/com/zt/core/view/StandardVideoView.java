@@ -284,6 +284,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
+    @Override
     public boolean onBackKeyPressed() {
         if (isFullScreen) {
             exitFullscreen();

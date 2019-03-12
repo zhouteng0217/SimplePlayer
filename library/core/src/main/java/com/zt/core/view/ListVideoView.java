@@ -43,11 +43,5 @@ public class ListVideoView extends StandardVideoView {
                 isSupportSeek = isFullScreen;
             }
         });
-
-        PlayerConfig playerConfig = new PlayerConfig.Builder()
-                .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
-                .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
-                .build();
-        setPlayerConfig(playerConfig);
     }
 }
