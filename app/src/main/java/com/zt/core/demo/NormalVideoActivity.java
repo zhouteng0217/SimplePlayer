@@ -11,7 +11,6 @@ import com.zt.ijkplayer.IjkPlayer;
 
 public class NormalVideoActivity extends AppCompatActivity {
 
-
     private StandardVideoView videoView;
 
     @Override
@@ -23,12 +22,13 @@ public class NormalVideoActivity extends AppCompatActivity {
         actionBar.setTitle("Normal Video");
 
         videoView = findViewById(R.id.video_view);
-        videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
+        videoView.setVideoPath("https://html5demos.com/assets/dizzy.mp4");
 
         //设置全屏策略，设置视频渲染界面类型
         PlayerConfig playerConfig = new PlayerConfig.Builder()
                 .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
                 .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
+                .looping(true)
                 .player(new IjkPlayer(this))  //IjkPlayer需添加对应的依赖
                 .build();
         videoView.setPlayerConfig(playerConfig);

@@ -64,8 +64,8 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
             }
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setLooping(isLooping());
             mediaPlayer.setDataSource(context, uri, headers);
-            mediaPlayer.setLooping(false);
             mediaPlayer.setOnPreparedListener(this);
             mediaPlayer.setOnCompletionListener(this);
             mediaPlayer.setOnBufferingUpdateListener(this);

@@ -26,6 +26,7 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
         }
         mediaPlayer = new IjkMediaPlayer();
         setOptions();
+        mediaPlayer.setLooping(isLooping());
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnVideoSizeChangedListener(this);
         mediaPlayer.setOnCompletionListener(this);

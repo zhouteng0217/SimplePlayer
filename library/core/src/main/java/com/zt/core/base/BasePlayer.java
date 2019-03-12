@@ -218,10 +218,14 @@ public abstract class BasePlayer {
         return true;
     }
 
-    protected void onVideoSizeChangedImpl(int width,int height) {
+    protected void onVideoSizeChangedImpl(int width, int height) {
         if (playerListener != null) {
             playerListener.onVideoSizeChanged(width, height);
         }
+    }
+
+    protected boolean isLooping() {
+        return playerConfig != null && playerConfig.looping;
     }
 
     //初始化播放器
