@@ -11,7 +11,6 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.zt.core.base.BasePlayer;
-import com.zt.core.util.VideoUtils;
 
 /**
  * 原生mediaplayer实现的封装的播放器
