@@ -275,4 +275,7 @@ public abstract class BasePlayer {
     //是否启用OpenSL ES
     protected abstract void setEnableOpenSLES(boolean isEnable);
 
+    //获取缓冲网速
+    public abstract long getTcpSpeed();
+
 }

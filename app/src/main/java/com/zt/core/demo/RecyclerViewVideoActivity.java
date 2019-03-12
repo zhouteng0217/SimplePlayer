@@ -153,7 +153,7 @@ public class RecyclerViewVideoActivity extends AppCompatActivity {
                 play.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ListVideoManager.getInstance().videoPlayer(recyclerView, R.id.container, position, listItem.videoUrl, "title " + position);
+                        ListVideoManager.getInstance().play(recyclerView, R.id.container, position, listItem.videoUrl, "title " + position);
                     }
                 });
             }
