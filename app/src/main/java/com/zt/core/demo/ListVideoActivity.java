@@ -168,16 +168,46 @@ public class ListVideoActivity extends AppCompatActivity implements AbsListView.
                 play.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ListVideoManager.getInstance().videoPlayer(listView, R.id.container, position, listItem.videoUrl, "title " + position);
+                        ListVideoManager.getInstance().play(listView
+                                , R.id.container
+                                , position
+                                , listItem.videoUrl
+                                , "title " + position
+                                , new CustomListVideoView(context));
                     }
                 });
             }
         }
-
     }
 
     private class ListItem {
         private String videoUrl;
         private String videoThumb;
+    }
+
+    //自定义ListView中播放视频的控件,配置ijkplayer来播放
+    class CustomListVideoView extends ListVideoView {
+
+        public CustomListVideoView(@NonNull Context context) {
+            super(context);
+        }
+
+        public CustomListVideoView(@NonNull Context context, @Nullable AttributeSet attrs) {
+            super(context, attrs);
+        }
+
+        public CustomListVideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+            super(context, attrs, defStyleAttr);
+        }
+
+        @Override
+        protected void initView() {
+            super.initView();
+            PlayerConfig playerConfig = new PlayerConfig.Builder()
+                    .player(new IjkPlayer(getContext()))
+                    .build();
+            setPlayerConfig(playerConfig);
+
+        }
     }
 }

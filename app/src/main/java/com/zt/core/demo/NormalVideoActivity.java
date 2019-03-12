@@ -29,7 +29,7 @@ public class NormalVideoActivity extends AppCompatActivity {
         PlayerConfig playerConfig = new PlayerConfig.Builder()
                 .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
                 .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
-                .player(new IjkPlayer(this))
+                .player(new IjkPlayer(this))  //IjkPlayer需添加对应的依赖
                 .build();
         videoView.setPlayerConfig(playerConfig);
 

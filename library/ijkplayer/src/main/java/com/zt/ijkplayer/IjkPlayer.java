@@ -195,4 +195,9 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
     public void onSeekComplete(IMediaPlayer iMediaPlayer) {
         onSeekCompleteImpl();
     }
+
+    @Override
+    public long getTcpSpeed() {
+        return mediaPlayer.getTcpSpeed();
+    }
 }

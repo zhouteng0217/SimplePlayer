@@ -222,4 +222,9 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     protected void setEnableOpenSLES(boolean isEnable) {
 
     }
+
+    @Override
+    public long getTcpSpeed() {
+        return 0;
+    }
 }
