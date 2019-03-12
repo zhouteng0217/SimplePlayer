@@ -26,10 +26,11 @@ public class PlayerConfig {
     public @interface RenderView {
     }
 
-    public final int screenMode;
-    public final int renderType;
-    public final boolean enableMediaCodec;
-    public final boolean enableOpenSLES;
+    public final int screenMode;  //全屏模式
+    public final int renderType;  //渲染类型
+    public final boolean enableMediaCodec;  //是否启用硬解码
+    public final boolean enableOpenSLES;   //是否启用OpenSL ES
+    public final boolean looping; //是否循环播放
     public final BasePlayer player;  //自定义播放器播放
 
     private PlayerConfig(PlayerConfig.Builder builder) {
@@ -38,6 +39,7 @@ public class PlayerConfig {
         this.enableMediaCodec = builder.enableMediaCodec;
         this.enableOpenSLES = builder.enableOpenSLES;
         this.player = builder.player;
+        this.looping = builder.looping;
     }
 
     public static class Builder {
@@ -45,6 +47,7 @@ public class PlayerConfig {
         private int renderType;
         private boolean enableMediaCodec;
         private boolean enableOpenSLES;
+        private boolean looping;
         private BasePlayer player;
 
         public Builder fullScreenMode(@FullScreeMode int screenMode) {
@@ -64,6 +67,11 @@ public class PlayerConfig {
 
         public Builder enableOpenSLES(boolean enableOpenSLES) {
             this.enableOpenSLES = enableOpenSLES;
+            return this;
+        }
+
+        public Builder looping(boolean isLooping) {
+            this.looping = isLooping;
             return this;
         }
 
