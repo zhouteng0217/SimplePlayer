@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,10 +22,12 @@ import com.zt.core.R;
 import com.zt.core.listener.OnFullScreenChangedListener;
 import com.zt.core.listener.OnStateChangedListener;
 import com.zt.core.listener.PlayerListener;
-import com.zt.core.player.AndroidMediaPlayer;
+import com.zt.core.player.AndroidPlayer;
 import com.zt.core.render.SurfaceRenderView;
 import com.zt.core.render.TextureRenderView;
 import com.zt.core.util.VideoUtils;
+
+import java.util.Map;
 
 
 public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, PlayerListener {
@@ -48,6 +51,9 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     private PlayerConfig playerConfig;
 
+    private String url;
+    private Map<String, String> headers;
+
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
     }
@@ -63,19 +69,21 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     protected void init(Context context) {
         LayoutInflater.from(context).inflate(getLayoutId(), this);
-        player = newPlayerInstance(context);
-        player.setOnStateChangeListener(this);
-        player.setPlayerListener(this);
         playerConfig = new PlayerConfig.Builder().build();
     }
 
     public void setVideoPath(String url) {
-        player.setVideoPath(url);
+        setVideoPath(url, null);
+    }
+
+    public void setVideoPath(String url, Map<String, String> headers) {
+        this.url = url;
+        this.headers = headers;
     }
 
     public void startVideo() {
-        int currentState = player.getCurrentState();
-        if (currentState == AndroidMediaPlayer.STATE_IDLE || currentState == AndroidMediaPlayer.STATE_ERROR) {
+        int currentState = player == null ? BasePlayer.STATE_IDLE : player.getCurrentState();
+        if (currentState == BasePlayer.STATE_IDLE || currentState == BasePlayer.STATE_ERROR) {
             prepareToPlay();
         } else if (player.isPlaying()) {
             player.pause();
@@ -84,9 +92,18 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         }
     }
 
+    private void initPlayer() {
+        player = newPlayerInstance(getContext());
+        player.setOnStateChangeListener(this);
+        player.setPlayerListener(this);
+        player.setPlayerConfig(playerConfig);
+        player.setVideoPath(url, headers);
+        player.initPlayer();
+    }
+
     protected void prepareToPlay() {
 
-        player.initPlayer();
+        initPlayer();
 
         ViewGroup surfaceContainer = getSurfaceContainer();
         surfaceContainer.removeAllViews();
@@ -228,7 +245,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     }
 
     public void start() {
-        if (!player.getUrl().startsWith("file") && !VideoUtils.isWifiConnected(getContext()) && !isShowMobileDataDialog) {
+        if (!TextUtils.isEmpty(url) && !url.startsWith("file") && !VideoUtils.isWifiConnected(getContext()) && !isShowMobileDataDialog) {
             showMobileDataDialog();
             return;
         }
@@ -326,7 +343,10 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     //方便扩展播放器核心
     protected BasePlayer newPlayerInstance(Context context) {
-        return new AndroidMediaPlayer(context);
+        if (playerConfig != null && playerConfig.player != null) {
+            return playerConfig.player;
+        }
+        return new AndroidPlayer(context);
     }
 
     //方便扩展播放器渲染界面

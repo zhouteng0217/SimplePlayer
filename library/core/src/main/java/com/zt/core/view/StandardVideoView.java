@@ -14,7 +14,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.zt.core.R;
-import com.zt.core.player.AndroidMediaPlayer;
+import com.zt.core.player.AndroidPlayer;
 import com.zt.core.base.BaseVideoView;
 import com.zt.core.util.VideoUtils;
 
@@ -116,33 +116,33 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     @Override
     public void onStateChange(int state) {
         switch (state) {
-            case AndroidMediaPlayer.STATE_IDLE:
+            case AndroidPlayer.STATE_IDLE:
                 changeUIWithIdle();
                 break;
-            case AndroidMediaPlayer.STATE_PREPARING:
+            case AndroidPlayer.STATE_PREPARING:
                 changeUIWithPreparing();
                 break;
-            case AndroidMediaPlayer.STATE_PREPARED:
+            case AndroidPlayer.STATE_PREPARED:
                 changeUIWithPrepared();
                 break;
-            case AndroidMediaPlayer.STATE_PLAYING:
+            case AndroidPlayer.STATE_PLAYING:
                 changeUIWithPlaying();
                 break;
-            case AndroidMediaPlayer.STATE_PAUSED:
+            case AndroidPlayer.STATE_PAUSED:
                 changeUIWithPause();
                 break;
-            case AndroidMediaPlayer.STATE_COMPLETED:
+            case AndroidPlayer.STATE_COMPLETED:
                 changeUIWithComplete();
                 break;
-            case AndroidMediaPlayer.STATE_ERROR:
+            case AndroidPlayer.STATE_ERROR:
                 changeUIWithError();
                 break;
-            case AndroidMediaPlayer.STATE_BUFFERING_START:
-            case AndroidMediaPlayer.STATE_SEEK_START:
+            case AndroidPlayer.STATE_BUFFERING_START:
+            case AndroidPlayer.STATE_SEEK_START:
                 changeUiWithBufferingStart();
                 break;
-            case AndroidMediaPlayer.STATE_BUFFERING_END:
-            case AndroidMediaPlayer.STATE_SEEK_END:
+            case AndroidPlayer.STATE_BUFFERING_END:
+            case AndroidPlayer.STATE_SEEK_END:
                 changeUiWithBufferingEnd();
                 break;
         }
@@ -157,26 +157,26 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void changeUIWithPlaying() {
-        updatePlayIcon(AndroidMediaPlayer.STATE_PLAYING);
+        updatePlayIcon(AndroidPlayer.STATE_PLAYING);
         startProgressTimer();
         setViewsVisible(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithPause() {
-        updatePlayIcon(AndroidMediaPlayer.STATE_PAUSED);
+        updatePlayIcon(AndroidPlayer.STATE_PAUSED);
         cancelProgressTimer();
         cancelControlViewTimer();
         setViewsVisible(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithError() {
-        updatePlayIcon(AndroidMediaPlayer.STATE_ERROR);
+        updatePlayIcon(AndroidPlayer.STATE_ERROR);
         cancelProgressTimer();
         setViewsVisible(View.VISIBLE, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithComplete() {
-        updatePlayIcon(AndroidMediaPlayer.STATE_COMPLETED);
+        updatePlayIcon(AndroidPlayer.STATE_COMPLETED);
         cancelProgressTimer();
         setViewsVisible(View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE, View.VISIBLE);
         seekBar.setProgress(100);
@@ -184,9 +184,9 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void updatePlayIcon(int state) {
-        if (state == AndroidMediaPlayer.STATE_PLAYING) {
+        if (state == AndroidPlayer.STATE_PLAYING) {
             setPlayingIcon();
-        } else if (state == AndroidMediaPlayer.STATE_ERROR) {
+        } else if (state == AndroidPlayer.STATE_ERROR) {
             setPausedIcon();
         } else {
             setPausedIcon();
@@ -208,7 +208,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     protected void changeUIWithIdle() {
         cancelProgressTimer();
-        updatePlayIcon(AndroidMediaPlayer.STATE_IDLE);
+        updatePlayIcon(AndroidPlayer.STATE_IDLE);
         setViewsVisible(View.VISIBLE, View.GONE, View.GONE, View.GONE, View.VISIBLE, View.GONE);
     }
 
