@@ -31,6 +31,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:' + rootProject.ext.testRunnerVersion
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:' + rootProject.ext.espressoVersion
 
-    implementation project(":library:core")
+    compileOnly project(":library:core")
     implementation 'tv.danmaku.ijk.media:ijkplayer-java:0.8.8'
 }
