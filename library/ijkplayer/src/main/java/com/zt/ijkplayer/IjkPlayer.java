@@ -178,10 +178,10 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
     public boolean onInfo(IMediaPlayer iMediaPlayer, int what, int extra) {
         switch (what) {
             case IMediaPlayer.MEDIA_INFO_BUFFERING_START:
-                onStateChange(STATE_BUFFERING_START);
+                onBufferingStart();
                 break;
             case IMediaPlayer.MEDIA_INFO_BUFFERING_END:
-                onStateChange(STATE_BUFFERING_END);
+                onBufferingEnd();
                 break;
         }
         return false;
