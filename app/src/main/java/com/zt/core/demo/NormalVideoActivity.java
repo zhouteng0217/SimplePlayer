@@ -22,14 +22,16 @@ public class NormalVideoActivity extends AppCompatActivity {
         actionBar.setTitle("Normal Video");
 
         videoView = findViewById(R.id.video_view);
-        videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
+//        videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
+//        videoView.setVideoPath("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_hd.mpd");
+        videoView.setVideoPath("http://video.jiecao.fm/5/1/%E8%87%AA%E5%8F%96%E5%85%B6%E8%BE%B1.mp4");
 
         //设置全屏策略，设置视频渲染界面类型,设置是否循环播放，设置自定义播放器
         PlayerConfig playerConfig = new PlayerConfig.Builder()
                 .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
                 .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
                 .looping(true)
-                .player(new IjkPlayer(this))  //IjkPlayer需添加对应的依赖
+                .player(new IjkPlayer(this))  //IjkPlayer,GoogleExoPlayer 需添加对应的依赖
                 .build();
         videoView.setPlayerConfig(playerConfig);
 
