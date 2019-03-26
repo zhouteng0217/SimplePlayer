@@ -6,7 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 
 import com.zt.core.base.PlayerConfig;
+import com.zt.core.player.AndroidPlayer;
 import com.zt.core.view.StandardVideoView;
+import com.zt.exoplayer.GoogleExoPlayer;
 import com.zt.ijkplayer.IjkPlayer;
 
 public class NormalVideoActivity extends AppCompatActivity {
@@ -23,13 +25,14 @@ public class NormalVideoActivity extends AppCompatActivity {
 
         videoView = findViewById(R.id.video_view);
         videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
+//        videoView.setVideoPath("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_hd.mpd");
 
         //设置全屏策略，设置视频渲染界面类型,设置是否循环播放，设置自定义播放器
         PlayerConfig playerConfig = new PlayerConfig.Builder()
                 .fullScreenMode(PlayerConfig.AUTO_FULLSCREEN_MODE)
-                .renderType(PlayerConfig.RENDER_TEXTURE_VIEW)
+//                .renderType(PlayerConfig.RENDER_SURFACE_VIEW)
                 .looping(true)
-                .player(new IjkPlayer(this))  //IjkPlayer需添加对应的依赖
+                .player(new GoogleExoPlayer(this))  //IjkPlayer,GoogleExoPlayer 需添加对应的依赖
                 .build();
         videoView.setPlayerConfig(playerConfig);
 
