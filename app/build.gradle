@@ -9,12 +9,20 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
+
+        ndk {
+            abiFilters "armeabi-v7a", "x86"
+        }
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -28,6 +36,9 @@ dependencies {
     implementation project(':library:core')
     implementation project(':library:ijkplayer')
     implementation project(':library:ijkplayer-armv7a')
+    implementation project(':library:ijkplayer-arm64')
+    implementation project(':library:exoplayer')
+
 
     //核心依赖，必需，提供默认的原生MediaPlayer播放支持和标准的播放界面
 //    implementation 'com.github.zhouteng0217.SimplePlayer:core:1.0.0'

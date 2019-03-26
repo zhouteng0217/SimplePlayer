@@ -1,1 +1,1 @@
-include ':app', ':library:core', ':library:ijkplayer-armv5', ':library:ijkplayer-armv7a', ':library:ijkplayer-arm64', ':library:ijkplayer-x86', ':library:ijkplayer-x86_64', ':library:ijkplayer'
+include ':app', ':library:core', ':library:ijkplayer-armv5', ':library:ijkplayer-armv7a', ':library:ijkplayer-arm64', ':library:ijkplayer-x86', ':library:ijkplayer-x86_64', ':library:ijkplayer', ':library:exoplayer'

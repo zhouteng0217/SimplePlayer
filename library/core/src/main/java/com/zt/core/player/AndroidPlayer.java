@@ -88,10 +88,10 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     public boolean onInfo(MediaPlayer mp, int what, int extra) {
         switch (what) {
             case MediaPlayer.MEDIA_INFO_BUFFERING_START:
-                onStateChange(STATE_BUFFERING_START);
+                onBufferingStart();
                 break;
             case MediaPlayer.MEDIA_INFO_BUFFERING_END:
-                onStateChange(STATE_BUFFERING_END);
+                onBufferingEnd();
                 break;
         }
         return false;

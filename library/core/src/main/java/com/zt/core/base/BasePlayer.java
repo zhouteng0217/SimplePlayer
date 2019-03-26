@@ -247,6 +247,14 @@ public abstract class BasePlayer {
         return true;
     }
 
+    protected void onBufferingStart() {
+        onStateChange(STATE_BUFFERING_START);
+    }
+
+    protected void onBufferingEnd() {
+        onStateChange(STATE_BUFFERING_END);
+    }
+
     protected void onVideoSizeChangedImpl(int width, int height) {
         if (playerListener != null) {
             playerListener.onVideoSizeChanged(width, height);
