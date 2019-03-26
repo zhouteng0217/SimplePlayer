@@ -36,8 +36,6 @@ public class GoogleExoPlayer extends BasePlayer {
     private SimpleExoPlayer simpleExoPlayer;
     private DataSource.Factory dataSourceFactory;
 
-    private Surface surface;
-
     private int videoWidth;
     private int videoHeight;
 
@@ -52,9 +50,7 @@ public class GoogleExoPlayer extends BasePlayer {
         simpleExoPlayer.addListener(playerEventListener);
         simpleExoPlayer.addVideoListener(videoListener);
         simpleExoPlayer.setRepeatMode(isLooping() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
-        if (surface != null) {
-            simpleExoPlayer.setVideoSurface(surface);
-        }
+
         simpleExoPlayer.prepare(buildMediaSource(uri, null));
     }
 
@@ -90,7 +86,6 @@ public class GoogleExoPlayer extends BasePlayer {
             simpleExoPlayer.removeListener(playerEventListener);
             simpleExoPlayer.removeVideoListener(videoListener);
         }
-        surface = null;
     }
 
     @Override
@@ -133,7 +128,6 @@ public class GoogleExoPlayer extends BasePlayer {
 
     @Override
     public void setSurface(Surface surface) {
-        this.surface = surface;
         if (simpleExoPlayer != null) {
             simpleExoPlayer.setVideoSurface(surface);
         }
@@ -141,7 +135,9 @@ public class GoogleExoPlayer extends BasePlayer {
 
     @Override
     public void setDisplay(SurfaceHolder holder) {
-        setSurface(holder == null ? null : holder.getSurface());
+        if (simpleExoPlayer != null) {
+            simpleExoPlayer.setVideoSurfaceHolder(holder);
+        }
     }
 
     @Override
