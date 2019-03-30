@@ -27,21 +27,21 @@ public class VideoUtils {
         return networkInfo != null && networkInfo.getType() == ConnectivityManager.TYPE_WIFI;
     }
 
-    public static String stringForTime(int timeMs) {
+    public static String stringForTime(long timeMs) {
         return stringForTime(timeMs, false);
     }
 
-    public static String stringForTime(int timeMs, boolean isSeconds) {
+    public static String stringForTime(long timeMs, boolean isSeconds) {
         if (timeMs <= 0 || timeMs >= 24 * 60 * 60 * 1000) {
             return "00:00";
         }
-        int totalSeconds = timeMs;
+        long totalSeconds = timeMs;
         if (!isSeconds) {
             totalSeconds = timeMs / 1000;
         }
-        int seconds = totalSeconds % 60;
-        int minutes = (totalSeconds / 60) % 60;
-        int hours = totalSeconds / 3600;
+        long seconds = totalSeconds % 60;
+        long minutes = (totalSeconds / 60) % 60;
+        long hours = totalSeconds / 3600;
         StringBuilder stringBuilder = new StringBuilder();
         Formatter mFormatter = new Formatter(stringBuilder, Locale.getDefault());
         if (hours > 0) {

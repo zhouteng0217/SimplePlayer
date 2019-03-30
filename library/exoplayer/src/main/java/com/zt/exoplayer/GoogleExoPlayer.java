@@ -110,17 +110,29 @@ public class GoogleExoPlayer extends BasePlayer {
     }
 
     @Override
-    public int getCurrentPosition() {
-        return simpleExoPlayer == null ? 0 : (int) simpleExoPlayer.getCurrentPosition();
+    public long getCurrentPosition() {
+        long position = 0;
+        try {
+            position = simpleExoPlayer.getCurrentPosition();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return position;
     }
 
     @Override
-    public int getDuration() {
-        return simpleExoPlayer == null ? 0 : (int) simpleExoPlayer.getDuration();
+    public long getDuration() {
+        long duration = -1;
+        try {
+            duration = simpleExoPlayer.getDuration();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return duration;
     }
 
     @Override
-    protected void seekToImpl(int position) {
+    protected void seekToImpl(long position) {
         if (simpleExoPlayer != null) {
             simpleExoPlayer.seekTo(position);
         }
