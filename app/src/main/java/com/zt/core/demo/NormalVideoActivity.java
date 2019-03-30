@@ -24,8 +24,9 @@ public class NormalVideoActivity extends AppCompatActivity {
         actionBar.setTitle("Normal Video");
 
         videoView = findViewById(R.id.video_view);
-        videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
+//        videoView.setVideoPath("http://mirror.aarnet.edu.au/pub/TED-talks/AlexLaskey_2013.mp4");
 //        videoView.setVideoPath("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears_hd.mpd");
+        videoView.setVideoPath("rtmp://58.200.131.2:1935/livetv/hunantv");
 
         //设置全屏策略，设置视频渲染界面类型,设置是否循环播放，设置自定义播放器
         PlayerConfig playerConfig = new PlayerConfig.Builder()

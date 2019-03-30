@@ -215,7 +215,7 @@ public abstract class BasePlayer {
         mediaPlayerHandler.sendMessage(message);
     }
 
-    public void seekTo(int position) {
+    public void seekTo(long position) {
         seekToImpl(position);
     }
 
@@ -293,13 +293,13 @@ public abstract class BasePlayer {
     public abstract int getVideoHeight();
 
     //获取当前播放进度
-    public abstract int getCurrentPosition();
+    public abstract long getCurrentPosition();
 
     //获取播放总进度
-    public abstract int getDuration();
+    public abstract long getDuration();
 
     //跳转到指定播放位置
-    protected abstract void seekToImpl(int position);
+    protected abstract void seekToImpl(long position);
 
     //设置TextureView渲染界面
     public abstract void setSurface(Surface surface);

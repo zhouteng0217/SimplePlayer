@@ -77,6 +77,7 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     @Override
     public void onSeekComplete(MediaPlayer mp) {
         onSeekCompleteImpl();
+        onBufferingEnd();
     }
 
     @Override
@@ -127,8 +128,11 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     }
 
     @Override
-    protected void seekToImpl(int msec) {
-        mediaPlayer.seekTo(msec);
+    protected void seekToImpl(long msec) {
+        if (mediaPlayer != null) {
+            mediaPlayer.seekTo((int) msec);
+            onBufferingStart();
+        }
     }
 
     @Override
@@ -137,8 +141,8 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     }
 
     @Override
-    public int getDuration() {
-        int duration = -1;
+    public long getDuration() {
+        long duration = -1;
         try {
             duration = mediaPlayer.getDuration();
         } catch (Exception e) {
@@ -148,8 +152,8 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     }
 
     @Override
-    public int getCurrentPosition() {
-        int position = 0;
+    public long getCurrentPosition() {
+        long position = 0;
         try {
             position = mediaPlayer.getCurrentPosition();
         } catch (Exception e) {

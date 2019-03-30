@@ -417,8 +417,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void setProgressAndText() {
-        int position = player.getCurrentPosition();
-        int duration = player.getDuration();
+        int position = (int) player.getCurrentPosition();
+        int duration = (int) player.getDuration();
         int progress = position * 100 / (duration == 0 ? 1 : duration);
         if (progress != 0 && !touchScreen) {
             seekBar.setProgress(progress);
@@ -495,8 +495,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     private int downVolume;  //触摸屏幕时的当前音量
     private float downBrightness;  //触摸屏幕时的当前亮度
 
-    private int downVideoPosition; //触摸屏幕时的当前播放进度
-    private int newVideoPosition; //手势操作拖动后的新的进度
+    private long downVideoPosition; //触摸屏幕时的当前播放进度
+    private long newVideoPosition; //手势操作拖动后的新的进度
 
     private boolean isChangedProgress;  //是否手势操作拖动了进度条
 
@@ -614,7 +614,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         cancelProgressTimer();
 
         int distance = getWidth();
-        int videoDuration = player.getDuration();
+        long videoDuration = player.getDuration();
         newVideoPosition = downVideoPosition + (int) (dx / distance * videoDuration);
         if (newVideoPosition >= videoDuration) {
             newVideoPosition = videoDuration;
@@ -654,7 +654,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser) {
-            int videoDuration = player.getDuration();
+            long videoDuration = player.getDuration();
             newVideoPosition = progress * videoDuration / 100;
             String progressText = VideoUtils.stringForTime(newVideoPosition) + "/" + VideoUtils.stringForTime(videoDuration);
             showSeekDialog(progressText, progress);
