@@ -21,7 +21,7 @@ import android.widget.FrameLayout;
 import com.zt.core.R;
 import com.zt.core.listener.OnFullScreenChangedListener;
 import com.zt.core.listener.OnStateChangedListener;
-import com.zt.core.listener.PlayerListener;
+import com.zt.core.listener.onVideoSizeChangedListener;
 import com.zt.core.player.AndroidPlayer;
 import com.zt.core.render.SurfaceRenderView;
 import com.zt.core.render.TextureRenderView;
@@ -30,7 +30,7 @@ import com.zt.core.util.VideoUtils;
 import java.util.Map;
 
 
-public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, PlayerListener {
+public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, onVideoSizeChangedListener {
 
     protected BasePlayer player;
 
@@ -95,7 +95,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     private void initPlayer() {
         player = newPlayerInstance(getContext());
         player.setOnStateChangeListener(this);
-        player.setPlayerListener(this);
+        player.setOnVideoSizeChangedListener(this);
         player.setPlayerConfig(playerConfig);
         player.setVideoPath(url, headers);
         player.initPlayer();

@@ -1,7 +1,6 @@
 package com.zt.core.base;
 
 import android.content.Context;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -12,12 +11,12 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.zt.core.listener.OnStateChangedListener;
-import com.zt.core.listener.PlayerListener;
+import com.zt.core.listener.onVideoSizeChangedListener;
 import com.zt.core.util.VideoUtils;
 
 import java.util.Map;
 
-public abstract class BasePlayer {
+public abstract class BasePlayer implements PlayerListener {
 
     protected static final int MSG_RELEASE = 101;
     protected static final int MSG_DESTORY = 102;
@@ -37,9 +36,8 @@ public abstract class BasePlayer {
     protected Uri uri;
 
     protected OnStateChangedListener onStateChangeListener;
-    protected PlayerListener playerListener;
+    protected onVideoSizeChangedListener onVideoSizeChangedListener;
 
-    protected AudioManager audioManager;
     protected Context context;
 
     protected boolean isPrepared = false; //播放器是否已经prepared了
@@ -51,6 +49,8 @@ public abstract class BasePlayer {
     protected int bufferedPercentage;
 
     protected MediaPlayerHandler mediaPlayerHandler; //用于处理release等耗时操作
+
+    protected PlayerAudioManager playerAudioManager;
 
     protected class MediaPlayerHandler extends Handler {
 
@@ -73,7 +73,7 @@ public abstract class BasePlayer {
 
     public BasePlayer(Context context) {
         this.context = context;
-        audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        playerAudioManager = new PlayerAudioManager(context, this);
 
         HandlerThread handlerThread = new HandlerThread(this.getClass().getName());
         handlerThread.start();
@@ -95,60 +95,28 @@ public abstract class BasePlayer {
         this.onStateChangeListener = onStateChangeListener;
     }
 
-    public void setPlayerListener(PlayerListener playerListener) {
-        this.playerListener = playerListener;
+    public void setOnVideoSizeChangedListener(onVideoSizeChangedListener onVideoSizeChangedListener) {
+        this.onVideoSizeChangedListener = onVideoSizeChangedListener;
     }
 
     public int getCurrentState() {
         return currentState;
     }
 
-    //region audiomanager
-
-    //获取音频焦点
-    protected void requestAudioFocus() {
-        audioManager.requestAudioFocus(onAudioFocusChangeListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN_TRANSIENT);
-    }
-
-    //丢弃音频焦点
-    protected void abandonAudioFocus() {
-        audioManager.abandonAudioFocus(onAudioFocusChangeListener);
-    }
-
-    protected AudioManager.OnAudioFocusChangeListener onAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
-        @Override
-        public void onAudioFocusChange(int focusChange) {
-            switch (focusChange) {
-                case AudioManager.AUDIOFOCUS_GAIN:
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS:
-                    pause();
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                    pause();
-                    break;
-                case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                    break;
-            }
-        }
-    };
-
     //获取最大音量
     public int getStreamMaxVolume() {
-        return audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        return playerAudioManager.getStreamMaxVolume();
     }
 
     //获取当前音量
     public int getStreamVolume() {
-        return audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+        return playerAudioManager.getStreamVolume();
     }
 
     //设置音量
     public void setStreamVolume(int value) {
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, value, 0);
+        playerAudioManager.setStreamVolume(value);
     }
-
-    //endregion
 
     public boolean isInPlaybackState() {
         return currentState != STATE_ERROR
@@ -164,13 +132,15 @@ public abstract class BasePlayer {
         }
     }
 
+    @Override
     public void play() {
-        requestAudioFocus();
+        playerAudioManager.requestAudioFocus();
         VideoUtils.keepScreenOn(context);
         onStateChange(STATE_PLAYING);
         playImpl();
     }
 
+    @Override
     public void pause() {
         if (!isPlaying()) {
             return;
@@ -189,12 +159,14 @@ public abstract class BasePlayer {
         onStateChange(STATE_PREPARING);
     }
 
+    @Override
     public boolean isPlaying() {
         return isPrepared && isPlayingImpl();
     }
 
+    @Override
     public void release() {
-        abandonAudioFocus();
+        playerAudioManager.abandonAudioFocus();
         VideoUtils.removeScreenOn(context);
         isPrepared = false;
         onStateChange(STATE_IDLE);
@@ -204,8 +176,9 @@ public abstract class BasePlayer {
         mediaPlayerHandler.sendMessage(message);
     }
 
+    @Override
     public void destroy() {
-        abandonAudioFocus();
+        playerAudioManager.destroy();
         VideoUtils.removeScreenOn(context);
         isPrepared = false;
         onStateChange(STATE_IDLE);
@@ -215,6 +188,7 @@ public abstract class BasePlayer {
         mediaPlayerHandler.sendMessage(message);
     }
 
+    @Override
     public void seekTo(long position) {
         seekToImpl(position);
     }
@@ -228,7 +202,7 @@ public abstract class BasePlayer {
 
     //onCompletion的具体实现
     protected void onCompletionImpl() {
-        abandonAudioFocus();
+        playerAudioManager.abandonAudioFocus();
         VideoUtils.removeScreenOn(context);
         onStateChange(STATE_COMPLETED);
     }
@@ -256,8 +230,8 @@ public abstract class BasePlayer {
     }
 
     protected void onVideoSizeChangedImpl(int width, int height) {
-        if (playerListener != null) {
-            playerListener.onVideoSizeChanged(width, height);
+        if (onVideoSizeChangedListener != null) {
+            onVideoSizeChangedListener.onVideoSizeChanged(width, height);
         }
     }
 
