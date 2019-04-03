@@ -16,12 +16,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import com.bumptech.glide.Glide;
-import com.zt.core.base.BasePlayer;
 import com.zt.core.base.PlayerConfig;
 import com.zt.core.player.ListVideoManager;
 import com.zt.core.view.ListVideoView;
 import com.zt.exoplayer.GoogleExoPlayer;
-import com.zt.ijkplayer.IjkPlayer;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -3,10 +3,6 @@ package com.zt.core.player;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
@@ -18,41 +14,10 @@ import com.zt.core.base.BasePlayer;
 
 public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener, MediaPlayer.OnBufferingUpdateListener, MediaPlayer.OnSeekCompleteListener, MediaPlayer.OnErrorListener, MediaPlayer.OnInfoListener, MediaPlayer.OnVideoSizeChangedListener {
 
-    protected static final int MSG_RELEASE = 101;
-    protected static final int MSG_DESTORY = 102;
-
     protected MediaPlayer mediaPlayer;
-
-    protected MediaPlayerHandler mediaPlayerHandler; //用于处理mediaplayer的release等耗时操作
-
-
-    private class MediaPlayerHandler extends Handler {
-        private MediaPlayerHandler(Looper looper) {
-            super(looper);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            if (mediaPlayer == null) {
-                return;
-            }
-            switch (msg.what) {
-                case MSG_RELEASE:
-                    mediaPlayer.release();
-                    break;
-                case MSG_DESTORY:
-                    mediaPlayer.release();
-                    mediaPlayer = null;
-                    break;
-            }
-        }
-    }
 
     public AndroidPlayer(Context context) {
         super(context);
-        HandlerThread handlerThread = new HandlerThread(this.getClass().getName());
-        handlerThread.start();
-        mediaPlayerHandler = new MediaPlayerHandler(handlerThread.getLooper());
     }
 
     @Override
@@ -81,16 +46,17 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
 
     @Override
     protected void destroyImpl() {
-        Message message = Message.obtain();
-        message.what = MSG_DESTORY;
-        mediaPlayerHandler.sendMessage(message);
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     @Override
     protected void releaseImpl() {
-        Message message = Message.obtain();
-        message.what = MSG_RELEASE;
-        mediaPlayerHandler.sendMessage(message);
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
     }
 
     @Override
@@ -111,6 +77,7 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     @Override
     public void onSeekComplete(MediaPlayer mp) {
         onSeekCompleteImpl();
+        onBufferingEnd();
     }
 
     @Override
@@ -161,8 +128,11 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     }
 
     @Override
-    protected void seekToImpl(int msec) {
-        mediaPlayer.seekTo(msec);
+    protected void seekToImpl(long msec) {
+        if (mediaPlayer != null) {
+            mediaPlayer.seekTo((int) msec);
+            onBufferingStart();
+        }
     }
 
     @Override
@@ -171,8 +141,8 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     }
 
     @Override
-    public int getDuration() {
-        int duration = -1;
+    public long getDuration() {
+        long duration = -1;
         try {
             duration = mediaPlayer.getDuration();
         } catch (Exception e) {
@@ -182,8 +152,8 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
     }
 
     @Override
-    public int getCurrentPosition() {
-        int position = 0;
+    public long getCurrentPosition() {
+        long position = 0;
         try {
             position = mediaPlayer.getCurrentPosition();
         } catch (Exception e) {

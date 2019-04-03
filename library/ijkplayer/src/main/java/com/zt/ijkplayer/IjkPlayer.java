@@ -60,14 +60,18 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
     }
 
     @Override
-    protected void releaseImpl() {
-        mediaPlayer.release();
+    protected void destroyImpl() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
     }
 
     @Override
-    protected void destroyImpl() {
-        mediaPlayer.release();
-        mediaPlayer = null;
+    protected void releaseImpl() {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+        }
     }
 
     @Override
@@ -86,10 +90,10 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
     }
 
     @Override
-    public int getCurrentPosition() {
-        int position = 0;
+    public long getCurrentPosition() {
+        long position = 0;
         try {
-            position = (int) mediaPlayer.getCurrentPosition();
+            position = mediaPlayer.getCurrentPosition();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,10 +101,10 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
     }
 
     @Override
-    public int getDuration() {
-        int duration = -1;
+    public long getDuration() {
+        long duration = -1;
         try {
-            duration = (int) mediaPlayer.getDuration();
+            duration = mediaPlayer.getDuration();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -108,8 +112,10 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
     }
 
     @Override
-    protected void seekToImpl(int position) {
-        mediaPlayer.seekTo(position);
+    protected void seekToImpl(long position) {
+        if (mediaPlayer != null) {
+            mediaPlayer.seekTo(position);
+        }
     }
 
     @Override
