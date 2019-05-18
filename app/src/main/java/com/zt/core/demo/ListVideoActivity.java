@@ -20,6 +20,7 @@ import com.zt.core.base.PlayerConfig;
 import com.zt.core.player.ListVideoManager;
 import com.zt.core.view.ListVideoView;
 import com.zt.exoplayer.GoogleExoPlayer;
+import com.zt.ijkplayer.IjkPlayer;
 
 import java.util.ArrayList;
 import java.util.List;

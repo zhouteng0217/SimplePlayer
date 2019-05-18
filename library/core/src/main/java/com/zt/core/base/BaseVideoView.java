@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
+import android.content.res.AssetFileDescriptor;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -54,6 +55,8 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     private String url;
     private Map<String, String> headers;
 
+    private AssetFileDescriptor assetFileDescriptor;
+
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
     }
@@ -70,6 +73,10 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     protected void init(Context context) {
         LayoutInflater.from(context).inflate(getLayoutId(), this);
         playerConfig = new PlayerConfig.Builder().build();
+    }
+
+    public void setAssetFileDescriptor(AssetFileDescriptor assetFileDescriptor) {
+        this.assetFileDescriptor = assetFileDescriptor;
     }
 
     public void setVideoPath(String url) {
@@ -97,8 +104,16 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         player.setOnStateChangeListener(this);
         player.setOnVideoSizeChangedListener(this);
         player.setPlayerConfig(playerConfig);
-        player.setVideoPath(url, headers);
+        setDataSource();
         player.initPlayer();
+    }
+
+    private void setDataSource() {
+        if (assetFileDescriptor != null) {
+            player.setAssetFileDescriptor(assetFileDescriptor);
+        } else {
+            player.setVideoPath(url, headers);
+        }
     }
 
     protected void prepareToPlay() {
@@ -142,6 +157,15 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         this.onFullScreenChangeListener = onFullScreenChangeListener;
     }
 
+    /**
+     * 表示是否要在滚动控件(scrollview,listview ,recyclerview) 里面播放视频来全屏操作
+     *
+     * @return
+     */
+    protected boolean isFullScreenInScrollView() {
+        return false;
+    }
+
     protected void startFullScreen() {
 
         isFullScreen = true;
@@ -156,7 +180,11 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         VideoUtils.addFullScreenFlag(activity);
         VideoUtils.hideNavKey(activity);
 
-        changeToFullScreen();
+        if (isFullScreenInScrollView()) {
+            changeToFullScreenInScrollView();
+        } else {
+            changeToFullScreen();
+        }
 
         postRunnableToResizeTexture();
 
@@ -165,7 +193,25 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         }
     }
 
+    //正常全屏操作
     protected void changeToFullScreen() {
+        originWidth = getWidth();
+        originHeight = getHeight();
+
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        setLayoutParams(layoutParams);
+    }
+
+    /**
+     * 通过获取到Activity的ID_ANDROID_CONTENT根布局，来添加视频控件，并全屏
+     * <p>
+     * 这种模式，为了全屏后，能顺利回到原来的位置，需要在布局时，单独给视频控件添加一层父控件，
+     * <p>
+     * 用于滚动视图，列表视图播放器全屏
+     */
+    protected void changeToFullScreenInScrollView() {
 
         originWidth = getWidth();
         originHeight = getHeight();
@@ -176,8 +222,8 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
         removePlayerFromParent();
 
-        final LayoutParams lpParent = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        final FrameLayout frameLayout = new FrameLayout(getContext());
+        LayoutParams lpParent = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        FrameLayout frameLayout = new FrameLayout(getContext());
         frameLayout.setBackgroundColor(Color.BLACK);
 
         LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -213,7 +259,11 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
         activity.getWindow().getDecorView().setSystemUiVisibility(mSystemUiVisibility);
 
-        changeToNormalScreen();
+        if (isFullScreenInScrollView()) {
+            changeToNormalScreenInScrollView();
+        } else {
+            changeToNormalScreen();
+        }
 
         postRunnableToResizeTexture();
 
@@ -222,7 +272,18 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         }
     }
 
+    //正常的回到全屏前状态
     protected void changeToNormalScreen() {
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        layoutParams.width = originWidth;
+        layoutParams.height = originHeight;
+        setLayoutParams(layoutParams);
+    }
+
+    /**
+     * 对应上面的全屏模式，来恢复到全屏之前的样式，需要视频控件外出套了一层父控件，以方便添加回去
+     */
+    protected void changeToNormalScreenInScrollView() {
         ViewGroup vp = getRootViewGroup();
         vp.removeView((View) this.getParent());
         removePlayerFromParent();
@@ -245,7 +306,11 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     }
 
     public void start() {
-        if (!TextUtils.isEmpty(url) && !url.startsWith("file") && !VideoUtils.isWifiConnected(getContext()) && !isShowMobileDataDialog) {
+        if (assetFileDescriptor == null
+                && !TextUtils.isEmpty(url)
+                && !url.startsWith("file")
+                && !VideoUtils.isWifiConnected(getContext())
+                && !isShowMobileDataDialog) {
             showMobileDataDialog();
             return;
         }
@@ -283,8 +348,10 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     }
 
     protected void replay() {
-        release();
-        start();
+        if (player != null) {
+            player.seekTo(0);
+            start();
+        }
     }
 
     public void destroy() {

@@ -17,8 +17,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Serializable;
 import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +44,39 @@ public class MainActivity extends AppCompatActivity implements ExpandableListVie
         listView.setOnChildClickListener(this);
 
         new SampleTask(this).execute();
+
+        prepareLocalVideo();
+    }
+
+    private void prepareLocalVideo() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                copyTestVideoToLocal();
+            }
+        }).start();
+    }
+
+    private void copyTestVideoToLocal() {
+        String path = getExternalFilesDir(null).getAbsolutePath() + "/test.mp4";
+        File testVideo = new File(path);
+        if (testVideo.exists()) {
+            return;
+        }
+        try {
+            InputStream inputStream = getAssets().open("test.mp4");
+            FileOutputStream outputStream = new FileOutputStream(testVideo);
+            byte[] buffer = new byte[1024];
+            int count = 0;
+            while ((count = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, count);
+            }
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     private static class SampleTask extends AsyncTask<Void, Void, List<SampleGroup>> {
@@ -76,7 +112,8 @@ public class MainActivity extends AppCompatActivity implements ExpandableListVie
                 stringBuilder.append(line);
             }
             String result = stringBuilder.toString();
-            sampleGroups = new Gson().fromJson(result, new TypeToken<List<SampleGroup>>() {}.getType());
+            sampleGroups = new Gson().fromJson(result, new TypeToken<List<SampleGroup>>() {
+            }.getType());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -173,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements ExpandableListVie
             this.samples = samples;
         }
     }
-
 
 
     @Override

@@ -8,6 +8,8 @@ import android.view.SurfaceHolder;
 
 import com.zt.core.base.BasePlayer;
 
+import java.io.IOException;
+
 /**
  * 原生mediaplayer实现的封装的播放器
  */
@@ -29,7 +31,7 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setLooping(isLooping());
-            mediaPlayer.setDataSource(context, uri, headers);
+            setDataSource();
             mediaPlayer.setOnPreparedListener(this);
             mediaPlayer.setOnCompletionListener(this);
             mediaPlayer.setOnBufferingUpdateListener(this);
@@ -41,6 +43,16 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
             mediaPlayer.prepareAsync();
         } catch (Exception e) {
 
+        }
+    }
+
+    @Override
+    protected void setDataSource() throws IOException {
+        if (assetFileDescriptor != null) {
+            mediaPlayer.setDataSource(assetFileDescriptor.getFileDescriptor()
+                    , assetFileDescriptor.getStartOffset(), assetFileDescriptor.getLength());
+        } else {
+            mediaPlayer.setDataSource(context, uri, headers);
         }
     }
 

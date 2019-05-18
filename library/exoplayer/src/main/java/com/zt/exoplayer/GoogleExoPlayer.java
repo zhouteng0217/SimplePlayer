@@ -29,6 +29,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.zt.core.base.BasePlayer;
 
+import java.io.IOException;
 import java.util.Map;
 
 public class GoogleExoPlayer extends BasePlayer {
@@ -50,8 +51,20 @@ public class GoogleExoPlayer extends BasePlayer {
         simpleExoPlayer.addListener(playerEventListener);
         simpleExoPlayer.addVideoListener(videoListener);
         simpleExoPlayer.setRepeatMode(isLooping() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
+        try {
+            setDataSource();
+        } catch (Exception e) {
 
-        simpleExoPlayer.prepare(buildMediaSource(uri, null));
+        }
+    }
+
+    @Override
+    protected void setDataSource() throws IOException {
+        if (assetFileDescriptor != null) {
+
+        } else {
+            simpleExoPlayer.prepare(buildMediaSource(uri, null));
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.zt.core.demo;
 
+import android.content.res.AssetFileDescriptor;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -27,7 +28,7 @@ public class NormalVideoActivity extends AppCompatActivity {
         sample = (Sample) getIntent().getSerializableExtra("sample");
 
         ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Normal Video");
+        actionBar.setTitle("Video Play");
 
         videoView = findViewById(R.id.video_view);
         videoView.setTitle(sample.title);
@@ -36,8 +37,23 @@ public class NormalVideoActivity extends AppCompatActivity {
             case "url":
                 videoView.setVideoPath(sample.path);
                 break;
+            case "file":
+                sample.path = getExternalFilesDir(null).getAbsolutePath() + "/test.mp4";
+                videoView.setVideoPath("file:///" + sample.path);
+                break;
+            case "raw":
+                sample.path = "R.raw.test";
+                AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.test); // 注意这里的区别
+                videoView.setAssetFileDescriptor(afd);
+                break;
         }
 
+        initPlayerView();
+
+        initDescView();
+    }
+
+    private void initPlayerView() {
         BasePlayer player;
         switch (sample.player) {
             case 0:
@@ -75,30 +91,43 @@ public class NormalVideoActivity extends AppCompatActivity {
         videoView.setSupportLock(true);
 
         videoView.start();
-
-        setDescView();
     }
 
-    private void setDescView() {
+    private void initDescView() {
         TextView descTextView = findViewById(R.id.desc);
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Player: ");
-        stringBuilder.append(sample.player == 0 ? "Android MediaPlayer" : sample.player == 1 ? "IjkPlayer" : "ExoPlayer");
+        stringBuilder.append("播放器: ");
+        stringBuilder.append(sample.player == 0 ? "原生MediaPlayer" : sample.player == 1 ? "Bilibili IjkPlayer" : "Google ExoPlayer");
         stringBuilder.append("\n");
 
         stringBuilder.append("Render: ");
         stringBuilder.append(sample.renderType == 0 ? "TextureView" : "SurfaceView");
         stringBuilder.append("\n");
 
-        stringBuilder.append("Video:");
+        stringBuilder.append("播放地址:");
         stringBuilder.append(sample.path);
         stringBuilder.append("\n");
 
-        stringBuilder.append("FullScreenMode: ");
-        stringBuilder.append(sample.fullscreenMode == 0 ? "landscape fullscreen"
-                :  sample.fullscreenMode == 1 ? "portrait fullscreen" : "auto orientation fullscreen");
+        stringBuilder.append("全屏模式: ");
+        stringBuilder.append(sample.fullscreenMode == 0 ? "横向全屏"
+                : sample.fullscreenMode == 1 ? "竖向全屏" : "根据视频比例来设定全屏方向");
         stringBuilder.append("\n");
 
+        stringBuilder.append("循环播放:");
+        stringBuilder.append(sample.looping ? "是" : "否");
+        stringBuilder.append("\n");
+
+        stringBuilder.append("音量调节手势:");
+        stringBuilder.append(sample.volumeSupport ? "支持" : "不支持");
+        stringBuilder.append("\n");
+
+        stringBuilder.append("亮度调节手势:");
+        stringBuilder.append(sample.brightnessSupport ? "支持" : "不支持");
+        stringBuilder.append("\n");
+
+        stringBuilder.append("进度调节手势:");
+        stringBuilder.append(sample.seekSupport ? "支持" : "不支持");
+        stringBuilder.append("\n");
 
         descTextView.setText(stringBuilder.toString());
     }

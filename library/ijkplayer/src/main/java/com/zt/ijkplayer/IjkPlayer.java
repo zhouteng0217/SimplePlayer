@@ -7,6 +7,8 @@ import android.view.SurfaceHolder;
 
 import com.zt.core.base.BasePlayer;
 
+import java.io.IOException;
+
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 
@@ -20,28 +22,36 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
 
     @Override
     protected void initPlayerImpl() {
-
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-        }
-        mediaPlayer = new IjkMediaPlayer();
-        setOptions();
-        mediaPlayer.setLooping(isLooping());
-        mediaPlayer.setOnPreparedListener(this);
-        mediaPlayer.setOnVideoSizeChangedListener(this);
-        mediaPlayer.setOnCompletionListener(this);
-        mediaPlayer.setOnErrorListener(this);
-        mediaPlayer.setOnInfoListener(this);
-        mediaPlayer.setOnBufferingUpdateListener(this);
-        mediaPlayer.setOnSeekCompleteListener(this);
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaPlayer.setScreenOnWhilePlaying(true);
         try {
-            mediaPlayer.setDataSource(context, uri, headers);
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+            }
+            mediaPlayer = new IjkMediaPlayer();
+            setOptions();
+            mediaPlayer.setLooping(isLooping());
+            mediaPlayer.setOnPreparedListener(this);
+            mediaPlayer.setOnVideoSizeChangedListener(this);
+            mediaPlayer.setOnCompletionListener(this);
+            mediaPlayer.setOnErrorListener(this);
+            mediaPlayer.setOnInfoListener(this);
+            mediaPlayer.setOnBufferingUpdateListener(this);
+            mediaPlayer.setOnSeekCompleteListener(this);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setScreenOnWhilePlaying(true);
+            setDataSource();
+            mediaPlayer.prepareAsync();
         } catch (Exception e) {
 
         }
-        mediaPlayer.prepareAsync();
+    }
+
+    @Override
+    protected void setDataSource() throws IOException {
+        if (assetFileDescriptor != null) {
+            mediaPlayer.setDataSource(new RawDataSourceProvider(assetFileDescriptor));
+        } else {
+            mediaPlayer.setDataSource(context, uri, headers);
+        }
     }
 
     @Override

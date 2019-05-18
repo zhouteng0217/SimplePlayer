@@ -1,6 +1,7 @@
 package com.zt.core.base;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -14,6 +15,7 @@ import com.zt.core.listener.OnStateChangedListener;
 import com.zt.core.listener.onVideoSizeChangedListener;
 import com.zt.core.util.VideoUtils;
 
+import java.io.IOException;
 import java.util.Map;
 
 public abstract class BasePlayer implements PlayerListener {
@@ -45,6 +47,8 @@ public abstract class BasePlayer implements PlayerListener {
     protected PlayerConfig playerConfig;
 
     protected Map<String, String> headers;
+
+    protected AssetFileDescriptor assetFileDescriptor;  //用于播放assets和raw中的视频文件
 
     protected int bufferedPercentage;
 
@@ -89,6 +93,10 @@ public abstract class BasePlayer implements PlayerListener {
             uri = Uri.parse(url);
         }
         this.headers = headers;
+    }
+
+    protected void setAssetFileDescriptor(AssetFileDescriptor assetFileDescriptor) {
+        this.assetFileDescriptor = assetFileDescriptor;
     }
 
     public void setOnStateChangeListener(OnStateChangedListener onStateChangeListener) {
@@ -152,11 +160,15 @@ public abstract class BasePlayer implements PlayerListener {
 
     public void initPlayer() {
         isPrepared = false;
-        if (uri == null) {
+        if (!hasDataSource()) {
             return;
         }
         initPlayerImpl();
         onStateChange(STATE_PREPARING);
+    }
+
+    protected boolean hasDataSource() {
+        return uri != null || assetFileDescriptor != null;
     }
 
     @Override
@@ -238,6 +250,9 @@ public abstract class BasePlayer implements PlayerListener {
     protected boolean isLooping() {
         return playerConfig != null && playerConfig.looping;
     }
+
+    //设置播放数据源
+    protected abstract void setDataSource() throws IOException;
 
     //初始化播放器
     protected abstract void initPlayerImpl();
