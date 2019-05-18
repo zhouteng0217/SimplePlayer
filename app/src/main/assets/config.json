@@ -1,0 +1,71 @@
+[
+  {
+    "title": "播放协议",
+    "samples": [
+      {
+        "title": "http",
+        "path": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
+        "player": "1"
+      },
+      {
+        "title": "https",
+        "path": "https://www.w3schools.com/html/mov_bbb.mp4",
+        "player": "1"
+      },
+      {
+        "title": "file",
+        "path": "/sdcard/SimplePlayer/test.video"
+      },
+      {
+        "title": "raw"
+      },
+      {
+        "title": "assets"
+      },
+      {
+        "title": "rtmp",
+        "path": "rtmp://58.200.131.2:1935/livetv/hunantv"
+      }
+    ]
+  },
+  {
+    "title": "播放器",
+    "samples": [
+      {
+        "title": "Android MediaPalyer + SurfaceView",
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+      },
+      {
+        "title": "Android MediaPlayer + TextureView",
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+      },
+      {
+        "title": "IjkPlayer + TextureView",
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+      },
+      {
+        "title": "IjkPlayer + TextureView",
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+      },
+      {
+        "title": "ExoPlayer + TextureView",
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+      },
+      {
+        "title": "ExoPlayer + TextureView",
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+      }
+    ]
+  },
+  {
+    "title": "列表视频",
+    "samples": [
+      {
+        "title": "ListView 列表视频"
+      },
+      {
+        "title": "RecyclerView 列表视频"
+      }
+    ]
+  }
+]
