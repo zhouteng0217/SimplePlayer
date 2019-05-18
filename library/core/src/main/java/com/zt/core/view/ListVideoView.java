@@ -26,6 +26,13 @@ public class ListVideoView extends StandardVideoView {
         super(context, attrs, defStyleAttr);
     }
 
+    //滚动视图中，全屏模式变更下
+
+    @Override
+    protected boolean isFullScreenInScrollView() {
+        return true;
+    }
+
     @Override
     protected void initView() {
         super.initView();

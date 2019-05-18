@@ -142,6 +142,15 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         this.onFullScreenChangeListener = onFullScreenChangeListener;
     }
 
+    /**
+     * 表示是否要在滚动控件(scrollview,listview ,recyclerview) 里面播放视频来全屏操作
+     *
+     * @return
+     */
+    protected boolean isFullScreenInScrollView() {
+        return false;
+    }
+
     protected void startFullScreen() {
 
         isFullScreen = true;
@@ -156,7 +165,11 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         VideoUtils.addFullScreenFlag(activity);
         VideoUtils.hideNavKey(activity);
 
-        changeToFullScreen();
+        if (isFullScreenInScrollView()) {
+            changeToFullScreenInScrollView();
+        } else {
+            changeToFullScreen();
+        }
 
         postRunnableToResizeTexture();
 
@@ -165,7 +178,25 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         }
     }
 
+    //正常全屏操作
     protected void changeToFullScreen() {
+        originWidth = getWidth();
+        originHeight = getHeight();
+
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
+        layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
+        setLayoutParams(layoutParams);
+    }
+
+    /**
+     * 通过获取到Activity的ID_ANDROID_CONTENT根布局，来添加视频控件，并全屏
+     * <p>
+     * 这种模式，为了全屏后，能顺利回到原来的位置，需要在布局时，单独给视频控件添加一层父控件，
+     * <p>
+     * 用于滚动视图，列表视图播放器全屏
+     */
+    protected void changeToFullScreenInScrollView() {
 
         originWidth = getWidth();
         originHeight = getHeight();
@@ -176,8 +207,8 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
         removePlayerFromParent();
 
-        final LayoutParams lpParent = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        final FrameLayout frameLayout = new FrameLayout(getContext());
+        LayoutParams lpParent = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        FrameLayout frameLayout = new FrameLayout(getContext());
         frameLayout.setBackgroundColor(Color.BLACK);
 
         LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
@@ -213,7 +244,11 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
         activity.getWindow().getDecorView().setSystemUiVisibility(mSystemUiVisibility);
 
-        changeToNormalScreen();
+        if (isFullScreenInScrollView()) {
+            changeToNormalScreenInScrollView();
+        } else {
+            changeToNormalScreen();
+        }
 
         postRunnableToResizeTexture();
 
@@ -222,7 +257,18 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         }
     }
 
+    //正常的回到全屏前状态
     protected void changeToNormalScreen() {
+        ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        layoutParams.width = originWidth;
+        layoutParams.height = originHeight;
+        setLayoutParams(layoutParams);
+    }
+
+    /**
+     * 对应上面的全屏模式，来恢复到全屏之前的样式，需要视频控件外出套了一层父控件，以方便添加回去
+     */
+    protected void changeToNormalScreenInScrollView() {
         ViewGroup vp = getRootViewGroup();
         vp.removeView((View) this.getParent());
         removePlayerFromParent();
