@@ -38,13 +38,16 @@ public class NormalVideoActivity extends AppCompatActivity {
                 videoView.setVideoPath(sample.path);
                 break;
             case "file":
-                sample.path = getExternalFilesDir(null).getAbsolutePath() + "/test.mp4";
+                sample.path = getExternalFilesDir(null).getAbsolutePath() + "/assets_test_video.mp4";
                 videoView.setVideoPath("file:///" + sample.path);
                 break;
             case "raw":
-                sample.path = "R.raw.test";
-                AssetFileDescriptor afd = getResources().openRawResourceFd(R.raw.test); // 注意这里的区别
-                videoView.setAssetFileDescriptor(afd);
+                sample.path = "R.raw.raw_test_video";
+                videoView.setVideoRawPath(R.raw.raw_test_video);
+                break;
+            case "assets":
+                sample.path = "assets_test_video.mp4";
+                videoView.setVideoAssetPath(sample.path);
                 break;
         }
 

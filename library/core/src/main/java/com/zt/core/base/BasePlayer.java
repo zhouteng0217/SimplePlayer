@@ -1,12 +1,12 @@
 package com.zt.core.base;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.RawRes;
 import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
@@ -36,6 +36,9 @@ public abstract class BasePlayer implements PlayerListener {
     protected int currentState = STATE_IDLE;
 
     protected Uri uri;
+    protected Map<String, String> headers;
+    protected @RawRes int rawId;
+    protected String assetFileName;
 
     protected OnStateChangedListener onStateChangeListener;
     protected onVideoSizeChangedListener onVideoSizeChangedListener;
@@ -45,10 +48,6 @@ public abstract class BasePlayer implements PlayerListener {
     protected boolean isPrepared = false; //播放器是否已经prepared了
 
     protected PlayerConfig playerConfig;
-
-    protected Map<String, String> headers;
-
-    protected AssetFileDescriptor assetFileDescriptor;  //用于播放assets和raw中的视频文件
 
     protected int bufferedPercentage;
 
@@ -88,6 +87,9 @@ public abstract class BasePlayer implements PlayerListener {
         this.playerConfig = playerConfig;
     }
 
+    //region DataSource
+
+    //设置视频播放路径 (网络路径和本地文件路径)
     protected void setVideoPath(String url, Map<String, String> headers) {
         if (!TextUtils.isEmpty(url)) {
             uri = Uri.parse(url);
@@ -95,9 +97,17 @@ public abstract class BasePlayer implements PlayerListener {
         this.headers = headers;
     }
 
-    protected void setAssetFileDescriptor(AssetFileDescriptor assetFileDescriptor) {
-        this.assetFileDescriptor = assetFileDescriptor;
+    //设置raw下视频的路径
+    protected void setVideoRawPath(@RawRes int rawId) {
+        this.rawId = rawId;
     }
+
+    //设置assets下视频的路径
+    protected void setVideoAssetPath(String assetFileName) {
+        this.assetFileName = assetFileName;
+    }
+
+    //endregion
 
     public void setOnStateChangeListener(OnStateChangedListener onStateChangeListener) {
         this.onStateChangeListener = onStateChangeListener;
@@ -160,15 +170,15 @@ public abstract class BasePlayer implements PlayerListener {
 
     public void initPlayer() {
         isPrepared = false;
-        if (!hasDataSource()) {
+        if (noDataSource()) {
             return;
         }
         initPlayerImpl();
         onStateChange(STATE_PREPARING);
     }
 
-    protected boolean hasDataSource() {
-        return uri != null || assetFileDescriptor != null;
+    protected boolean noDataSource() {
+        return uri == null && rawId == 0 && TextUtils.isEmpty(assetFileName);
     }
 
     @Override

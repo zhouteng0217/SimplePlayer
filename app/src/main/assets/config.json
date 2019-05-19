@@ -15,6 +15,12 @@
         "fileType": "url"
       },
       {
+        "title": "rtmp",
+        "path": "rtmp://58.200.131.2:1935/livetv/hunantv",
+        "player": "2",
+        "fileType": "url"
+      },
+      {
         "title": "file",
         "player": "1",
         "fileType": "file"
@@ -25,11 +31,9 @@
         "player": "0"
       },
       {
-        "title": "assets"
-      },
-      {
-        "title": "rtmp",
-        "path": "rtmp://58.200.131.2:1935/livetv/hunantv"
+        "title": "assets",
+        "fileType": "assets",
+        "player": "0"
       }
     ]
   },

@@ -1,8 +1,10 @@
 package com.zt.core.player;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
@@ -48,9 +50,14 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
 
     @Override
     protected void setDataSource() throws IOException {
-        if (assetFileDescriptor != null) {
-            mediaPlayer.setDataSource(assetFileDescriptor.getFileDescriptor()
-                    , assetFileDescriptor.getStartOffset(), assetFileDescriptor.getLength());
+        if (!TextUtils.isEmpty(assetFileName)) {
+            AssetFileDescriptor afd = context.getAssets().openFd(assetFileName);
+            mediaPlayer.setDataSource(afd.getFileDescriptor()
+                    , afd.getStartOffset(), afd.getLength());
+        } else if (rawId != 0) {
+            AssetFileDescriptor afd = context.getResources().openRawResourceFd(rawId);
+            mediaPlayer.setDataSource(afd.getFileDescriptor()
+                    , afd.getStartOffset(), afd.getLength());
         } else {
             mediaPlayer.setDataSource(context, uri, headers);
         }

@@ -5,10 +5,10 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
-import android.content.res.AssetFileDescriptor;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RawRes;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -54,8 +54,10 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     private String url;
     private Map<String, String> headers;
+    protected @RawRes
+    int rawId;
+    protected String assetFileName;
 
-    private AssetFileDescriptor assetFileDescriptor;
 
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
@@ -75,10 +77,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         playerConfig = new PlayerConfig.Builder().build();
     }
 
-    public void setAssetFileDescriptor(AssetFileDescriptor assetFileDescriptor) {
-        this.assetFileDescriptor = assetFileDescriptor;
-    }
-
+    //region DataSource
     public void setVideoPath(String url) {
         setVideoPath(url, null);
     }
@@ -87,6 +86,18 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         this.url = url;
         this.headers = headers;
     }
+
+    //设置raw下视频的路径
+    public void setVideoRawPath(@RawRes int rawId) {
+        this.rawId = rawId;
+    }
+
+    //设置assets下视频的路径
+    public void setVideoAssetPath(String assetFileName) {
+        this.assetFileName = assetFileName;
+    }
+
+    //endregion
 
     public void startVideo() {
         int currentState = player == null ? BasePlayer.STATE_IDLE : player.getCurrentState();
@@ -109,8 +120,10 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     }
 
     private void setDataSource() {
-        if (assetFileDescriptor != null) {
-            player.setAssetFileDescriptor(assetFileDescriptor);
+        if (assetFileName != null) {
+            player.setVideoAssetPath(assetFileName);
+        } else if (rawId != 0) {
+            player.setVideoRawPath(rawId);
         } else {
             player.setVideoPath(url, headers);
         }
@@ -305,16 +318,17 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         return player != null && player.isPlaying();
     }
 
+
+    private boolean isLocalVideo() {
+        return !TextUtils.isEmpty(assetFileName) || rawId != 0 || (!TextUtils.isEmpty(url) && url.startsWith("file"));
+    }
+
     public void start() {
-        if (assetFileDescriptor == null
-                && !TextUtils.isEmpty(url)
-                && !url.startsWith("file")
-                && !VideoUtils.isWifiConnected(getContext())
-                && !isShowMobileDataDialog) {
+        if (isLocalVideo() || VideoUtils.isWifiConnected(getContext())) {
+            startVideo();
+        } else {
             showMobileDataDialog();
-            return;
         }
-        startVideo();
     }
 
     public void showMobileDataDialog() {

@@ -4,6 +4,7 @@ package com.zt.exoplayer;
 import android.content.Context;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
@@ -22,9 +23,11 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
+import com.google.android.exoplayer2.upstream.RawResourceDataSource;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.zt.core.base.BasePlayer;
@@ -60,7 +63,14 @@ public class GoogleExoPlayer extends BasePlayer {
 
     @Override
     protected void setDataSource() throws IOException {
-        if (assetFileDescriptor != null) {
+        if (!TextUtils.isEmpty(assetFileName)) {
+            String assetFilePath = "file:///android_asset/" + assetFileName;
+            simpleExoPlayer.prepare(buildMediaSource(Uri.parse(assetFilePath), null));
+        } else if (rawId != 0) {
+            RawResourceDataSource rawResourceDataSource = new RawResourceDataSource(context);
+            DataSpec dataSpec = new DataSpec(RawResourceDataSource.buildRawResourceUri(rawId));
+            rawResourceDataSource.open(dataSpec);
+            simpleExoPlayer.prepare(buildMediaSource(rawResourceDataSource.getUri(), null));
 
         } else {
             simpleExoPlayer.prepare(buildMediaSource(uri, null));
@@ -226,7 +236,7 @@ public class GoogleExoPlayer extends BasePlayer {
     };
 
     private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
-        if (uri.getScheme().equals("rtmp")) {
+        if ("rtmp".equals(uri.getScheme())) {
             RtmpDataSourceFactory rtmpDataSourceFactory = new RtmpDataSourceFactory(null);
             return new ExtractorMediaSource.Factory(rtmpDataSourceFactory)
                     .createMediaSource(uri);

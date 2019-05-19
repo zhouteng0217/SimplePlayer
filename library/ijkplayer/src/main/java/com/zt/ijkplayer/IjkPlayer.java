@@ -2,6 +2,7 @@ package com.zt.ijkplayer;
 
 import android.content.Context;
 import android.media.AudioManager;
+import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
@@ -47,8 +48,10 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
 
     @Override
     protected void setDataSource() throws IOException {
-        if (assetFileDescriptor != null) {
-            mediaPlayer.setDataSource(new RawDataSourceProvider(assetFileDescriptor));
+        if (!TextUtils.isEmpty(assetFileName)) {
+            mediaPlayer.setDataSource(new RawDataSourceProvider(context.getAssets().openFd(assetFileName)));
+        } else if (rawId != 0) {
+            mediaPlayer.setDataSource(new RawDataSourceProvider(context.getResources().openRawResourceFd(rawId)));
         } else {
             mediaPlayer.setDataSource(context, uri, headers);
         }

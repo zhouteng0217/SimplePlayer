@@ -58,13 +58,13 @@ public class MainActivity extends AppCompatActivity implements ExpandableListVie
     }
 
     private void copyTestVideoToLocal() {
-        String path = getExternalFilesDir(null).getAbsolutePath() + "/test.mp4";
+        String path = getExternalFilesDir(null).getAbsolutePath() + "/assets_test_video.mp4";
         File testVideo = new File(path);
         if (testVideo.exists()) {
             return;
         }
         try {
-            InputStream inputStream = getAssets().open("test.mp4");
+            InputStream inputStream = getAssets().open("assets_test_video.mp4");
             FileOutputStream outputStream = new FileOutputStream(testVideo);
             byte[] buffer = new byte[1024];
             int count = 0;
