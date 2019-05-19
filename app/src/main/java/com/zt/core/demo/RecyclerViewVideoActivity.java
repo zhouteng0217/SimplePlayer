@@ -6,11 +6,13 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.zt.core.player.ListVideoManager;
@@ -25,24 +27,41 @@ public class RecyclerViewVideoActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerViewAdapter recyclerViewAdapter;
 
+    private Sample sample;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.aty_recyclerview_video);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("RecyclerView Video");
+        sample = (Sample) getIntent().getSerializableExtra("sample");
+
+        initToolbar();
+
+        initDatas();
 
         recyclerView = findViewById(R.id.recyclerview);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.addOnScrollListener(new RecyclerViewOnScrollListener());
 
-        initDatas();
 
         recyclerViewAdapter = new RecyclerViewAdapter(this);
         recyclerView.setAdapter(recyclerViewAdapter);
 
 
+    }
+
+    private void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("RecyclerView");
+
+        String player = sample.player == 0 ? "Android MediaPlayer" : sample.player == 1 ? "Bilibili IjkPlayer" : "Google ExoPlayer";
+        String render = sample.renderType == 0 ? "TextureView" : "SurfaceView";
+
+
+        TextView descTextView = findViewById(R.id.desc);
+        descTextView.setText(player + "+" + render);
     }
 
     @Override

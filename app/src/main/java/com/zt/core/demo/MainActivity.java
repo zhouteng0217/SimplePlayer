@@ -214,8 +214,23 @@ public class MainActivity extends AppCompatActivity implements ExpandableListVie
 
     @Override
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        Intent intent = new Intent(this, NormalVideoActivity.class);
-        intent.putExtra("sample", sampleAdapter.getChild(groupPosition, childPosition));
+        Sample sample = sampleAdapter.getChild(groupPosition, childPosition);
+        Intent intent = null;
+        switch (sample.demoType) {
+            case "list":
+                intent = new Intent(this, ListViewVideoActivity.class);
+                break;
+            case "recycler":
+                intent = new Intent(this, RecyclerViewVideoActivity.class);
+                break;
+            case "scroll":
+                intent = new Intent(this, ScrollViewVideoActivity.class);
+                break;
+            default:
+                intent = new Intent(this, NormalVideoActivity.class);
+                break;
+        }
+        intent.putExtra("sample", sample);
         startActivity(intent);
         return false;
     }

@@ -1,7 +1,7 @@
 package com.zt.core.demo;
 
-import android.content.res.AssetFileDescriptor;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
@@ -23,16 +23,28 @@ public class NormalVideoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.aty_normal_video);
+        setContentView(getLayoutId());
+        setActionBarTitle();
 
         sample = (Sample) getIntent().getSerializableExtra("sample");
-
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("Video Play");
 
         videoView = findViewById(R.id.video_view);
         videoView.setTitle(sample.title);
 
+        initPlayerView();
+
+        initDescView();
+    }
+
+    protected void setActionBarTitle() {
+        getSupportActionBar().setTitle("Video Play");
+    }
+
+    protected @LayoutRes int getLayoutId() {
+        return R.layout.aty_normal_video;
+    }
+
+    private void initPlayerView() {
         switch (sample.fileType) {
             case "url":
                 videoView.setVideoPath(sample.path);
@@ -51,12 +63,6 @@ public class NormalVideoActivity extends AppCompatActivity {
                 break;
         }
 
-        initPlayerView();
-
-        initDescView();
-    }
-
-    private void initPlayerView() {
         BasePlayer player;
         switch (sample.player) {
             case 0:

@@ -5,35 +5,35 @@
       {
         "title": "http",
         "path": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
-        "player": "1",
+        "player": 1,
         "fileType": "url"
       },
       {
         "title": "https",
         "path": "https://www.w3schools.com/html/mov_bbb.mp4",
-        "player": "2",
+        "player": 2,
         "fileType": "url"
       },
       {
         "title": "rtmp",
         "path": "rtmp://58.200.131.2:1935/livetv/hunantv",
-        "player": "2",
+        "player": 2,
         "fileType": "url"
       },
       {
         "title": "file",
-        "player": "1",
+        "player": 1,
         "fileType": "file"
       },
       {
         "title": "raw",
         "fileType": "raw",
-        "player": "0"
+        "player": 0
       },
       {
         "title": "assets",
         "fileType": "assets",
-        "player": "0"
+        "player": 0
       }
     ]
   },
@@ -42,27 +42,39 @@
     "samples": [
       {
         "title": "Android MediaPalyer + SurfaceView",
-        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
+        "player": 0,
+        "renderType": 1
       },
       {
         "title": "Android MediaPlayer + TextureView",
-        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
+        "player": 0,
+        "renderType": 0
+      },
+      {
+        "title": "IjkPlayer + SurfaceView",
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
+        "player": 1,
+        "renderType": 1
       },
       {
         "title": "IjkPlayer + TextureView",
-        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
+        "player": 1,
+        "renderType": 0
       },
       {
-        "title": "IjkPlayer + TextureView",
-        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+        "title": "ExoPlayer + SurfaceView",
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
+        "player": 2,
+        "renderType": 1
       },
       {
         "title": "ExoPlayer + TextureView",
-        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
-      },
-      {
-        "title": "ExoPlayer + TextureView",
-        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4"
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
+        "player": 2,
+        "renderType": 0
       }
     ]
   },
@@ -70,10 +82,24 @@
     "title": "列表视频",
     "samples": [
       {
-        "title": "ListView 列表视频"
+        "title": "ListView 列表视频",
+        "demoType": "list",
+        "player": 1,
+        "renderType": 0
+
       },
       {
-        "title": "RecyclerView 列表视频"
+        "title": "RecyclerView 列表视频",
+        "demoType": "recycler",
+        "player": 2,
+        "renderType": 1
+      },
+      {
+        "title": "ScrollView 视频",
+        "demoType": "scroll",
+        "player": 2,
+        "renderType": 1,
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/JackHorner_2010X.mp4"
       }
     ]
   }
