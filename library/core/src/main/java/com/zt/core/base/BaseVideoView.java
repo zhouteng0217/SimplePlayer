@@ -329,8 +329,10 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     }
 
     protected void replay() {
-        release();
-        start();
+        if (player != null) {
+            player.seekTo(0);
+            start();
+        }
     }
 
     public void destroy() {
