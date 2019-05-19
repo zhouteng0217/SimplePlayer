@@ -17,9 +17,9 @@
 
 ## Demo截图
 
-|  |  |  |  |  |
-|:--:|:--:|---:|:--:|:--:|
-|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/01.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/02.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/03.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/4.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/5.png)|
+|  |  |  |  
+|:--:|:--:|---:|
+|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/01.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/02.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/03.png)|
 
 ## 使用
 
