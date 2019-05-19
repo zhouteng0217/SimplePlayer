@@ -2,10 +2,13 @@ package com.zt.ijkplayer;
 
 import android.content.Context;
 import android.media.AudioManager;
+import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.zt.core.base.BasePlayer;
+
+import java.io.IOException;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
@@ -20,28 +23,38 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
 
     @Override
     protected void initPlayerImpl() {
-
-        if (mediaPlayer != null) {
-            mediaPlayer.release();
-        }
-        mediaPlayer = new IjkMediaPlayer();
-        setOptions();
-        mediaPlayer.setLooping(isLooping());
-        mediaPlayer.setOnPreparedListener(this);
-        mediaPlayer.setOnVideoSizeChangedListener(this);
-        mediaPlayer.setOnCompletionListener(this);
-        mediaPlayer.setOnErrorListener(this);
-        mediaPlayer.setOnInfoListener(this);
-        mediaPlayer.setOnBufferingUpdateListener(this);
-        mediaPlayer.setOnSeekCompleteListener(this);
-        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mediaPlayer.setScreenOnWhilePlaying(true);
         try {
-            mediaPlayer.setDataSource(context, uri, headers);
+            if (mediaPlayer != null) {
+                mediaPlayer.release();
+            }
+            mediaPlayer = new IjkMediaPlayer();
+            setOptions();
+            mediaPlayer.setLooping(isLooping());
+            mediaPlayer.setOnPreparedListener(this);
+            mediaPlayer.setOnVideoSizeChangedListener(this);
+            mediaPlayer.setOnCompletionListener(this);
+            mediaPlayer.setOnErrorListener(this);
+            mediaPlayer.setOnInfoListener(this);
+            mediaPlayer.setOnBufferingUpdateListener(this);
+            mediaPlayer.setOnSeekCompleteListener(this);
+            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mediaPlayer.setScreenOnWhilePlaying(true);
+            setDataSource();
+            mediaPlayer.prepareAsync();
         } catch (Exception e) {
 
         }
-        mediaPlayer.prepareAsync();
+    }
+
+    @Override
+    protected void setDataSource() throws IOException {
+        if (!TextUtils.isEmpty(assetFileName)) {
+            mediaPlayer.setDataSource(new RawDataSourceProvider(context.getAssets().openFd(assetFileName)));
+        } else if (rawId != 0) {
+            mediaPlayer.setDataSource(new RawDataSourceProvider(context.getResources().openRawResourceFd(rawId)));
+        } else {
+            mediaPlayer.setDataSource(context, uri, headers);
+        }
     }
 
     @Override

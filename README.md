@@ -7,17 +7,19 @@
 * 播放核心和播放界面分离，扩展性好
 * 支持手势调节音量，亮度，播放进度
 * 支持竖屏全屏和横屏全屏，以及根据宽高比自动实现全屏策略
-* 支持在ListView和RecyclerView中播放，全屏等操作
+* 支持在ScrollView，ListView和RecyclerView中播放，全屏等操作
 * 支持SurfaceView和TextureView播放
 * 支持[ijkplayer](https://github.com/bilibili/ijkplayer)播放扩展, 默认Android原生播放器播放
 * 支持[ExoPlayer](https://github.com/google/ExoPlayer)播放扩展
+* 支持rtmp播放(限ijkplayer和exoplayer模块)
+* 支持播放本地视频，raw和assets视频
 * 可以灵活自定义播放界面和播放核心
 
 ## Demo截图
 
 |  |  |  |  |  |
 |:--:|:--:|---:|:--:|:--:|
-|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/1.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/2.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/3.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/4.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/5.png)|
+|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/01.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/02.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/03.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/4.png)|![](https://raw.githubusercontent.com/zhouteng0217/SimplePlayer/master/app/src/main/assets/5.png)|
 
 ## 使用
 

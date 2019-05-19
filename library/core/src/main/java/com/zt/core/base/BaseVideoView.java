@@ -8,6 +8,7 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RawRes;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.Gravity;
@@ -21,7 +22,7 @@ import android.widget.FrameLayout;
 import com.zt.core.R;
 import com.zt.core.listener.OnFullScreenChangedListener;
 import com.zt.core.listener.OnStateChangedListener;
-import com.zt.core.listener.PlayerListener;
+import com.zt.core.listener.onVideoSizeChangedListener;
 import com.zt.core.player.AndroidPlayer;
 import com.zt.core.render.SurfaceRenderView;
 import com.zt.core.render.TextureRenderView;
@@ -30,7 +31,7 @@ import com.zt.core.util.VideoUtils;
 import java.util.Map;
 
 
-public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, PlayerListener {
+public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, onVideoSizeChangedListener {
 
     protected BasePlayer player;
 
@@ -53,6 +54,10 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     private String url;
     private Map<String, String> headers;
+    protected @RawRes
+    int rawId;
+    protected String assetFileName;
+
 
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
@@ -72,6 +77,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         playerConfig = new PlayerConfig.Builder().build();
     }
 
+    //region DataSource
     public void setVideoPath(String url) {
         setVideoPath(url, null);
     }
@@ -80,6 +86,18 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         this.url = url;
         this.headers = headers;
     }
+
+    //设置raw下视频的路径
+    public void setVideoRawPath(@RawRes int rawId) {
+        this.rawId = rawId;
+    }
+
+    //设置assets下视频的路径
+    public void setVideoAssetPath(String assetFileName) {
+        this.assetFileName = assetFileName;
+    }
+
+    //endregion
 
     public void startVideo() {
         int currentState = player == null ? BasePlayer.STATE_IDLE : player.getCurrentState();
@@ -95,10 +113,20 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     private void initPlayer() {
         player = newPlayerInstance(getContext());
         player.setOnStateChangeListener(this);
-        player.setPlayerListener(this);
+        player.setOnVideoSizeChangedListener(this);
         player.setPlayerConfig(playerConfig);
-        player.setVideoPath(url, headers);
+        setDataSource();
         player.initPlayer();
+    }
+
+    private void setDataSource() {
+        if (assetFileName != null) {
+            player.setVideoAssetPath(assetFileName);
+        } else if (rawId != 0) {
+            player.setVideoRawPath(rawId);
+        } else {
+            player.setVideoPath(url, headers);
+        }
     }
 
     protected void prepareToPlay() {
@@ -290,12 +318,17 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         return player != null && player.isPlaying();
     }
 
+
+    private boolean isLocalVideo() {
+        return !TextUtils.isEmpty(assetFileName) || rawId != 0 || (!TextUtils.isEmpty(url) && url.startsWith("file"));
+    }
+
     public void start() {
-        if (!TextUtils.isEmpty(url) && !url.startsWith("file") && !VideoUtils.isWifiConnected(getContext()) && !isShowMobileDataDialog) {
+        if (isLocalVideo() || VideoUtils.isWifiConnected(getContext())) {
+            startVideo();
+        } else {
             showMobileDataDialog();
-            return;
         }
-        startVideo();
     }
 
     public void showMobileDataDialog() {

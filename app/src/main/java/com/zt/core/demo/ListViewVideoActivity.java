@@ -4,8 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.View;
@@ -14,9 +14,12 @@ import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.zt.core.base.BasePlayer;
 import com.zt.core.base.PlayerConfig;
+import com.zt.core.player.AndroidPlayer;
 import com.zt.core.player.ListVideoManager;
 import com.zt.core.view.ListVideoView;
 import com.zt.exoplayer.GoogleExoPlayer;
@@ -26,29 +29,44 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ListVideoActivity extends AppCompatActivity implements AbsListView.OnScrollListener {
+public class ListViewVideoActivity extends AppCompatActivity implements AbsListView.OnScrollListener {
 
     private List<ListItem> listItems = new ArrayList<>();
     private ListView listView;
     private ListAdapter listAdapter;
+
+    private Sample sample;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.aty_list_video);
 
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setTitle("List Video");
-
-        listView = findViewById(R.id.listview);
-
         initDatas();
 
+        sample = (Sample) getIntent().getSerializableExtra("sample");
+
+        initToolbar();
+
+        listView = findViewById(R.id.listview);
         listAdapter = new ListAdapter(this);
         listView.setAdapter(listAdapter);
 
         listView.setOnScrollListener(this);
 
+    }
+
+    private void initToolbar() {
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("ListView");
+
+        String player = sample.player == 0 ? "Android MediaPlayer" : sample.player == 1 ? "Bilibili IjkPlayer" : "Google ExoPlayer";
+        String render = sample.renderType == 0 ? "TextureView" : "SurfaceView";
+
+
+        TextView descTextView = findViewById(R.id.desc);
+        descTextView.setText(player + "+" + render);
     }
 
     @Override
@@ -165,7 +183,7 @@ public class ListVideoActivity extends AppCompatActivity implements AbsListView.
 
             private void bindData(final int position) {
                 final ListItem listItem = listItems.get(position);
-                Glide.with(ListVideoActivity.this).load(listItem.videoThumb).into(thumb);
+                Glide.with(ListViewVideoActivity.this).load(listItem.videoThumb).into(thumb);
                 play.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -186,7 +204,7 @@ public class ListVideoActivity extends AppCompatActivity implements AbsListView.
         private String videoThumb;
     }
 
-    //自定义ListView中播放视频的控件,配置ijkplayer来播放
+    //自定义ListView中播放视频的控件, 配置播放器
     class CustomListVideoView extends ListVideoView {
 
         public CustomListVideoView(@NonNull Context context) {
@@ -204,9 +222,12 @@ public class ListVideoActivity extends AppCompatActivity implements AbsListView.
         @Override
         protected void initView() {
             super.initView();
+            BasePlayer player = sample.player == 0 ? new AndroidPlayer(getContext()) : sample.player == 1 ? new IjkPlayer(getContext()) : new GoogleExoPlayer(getContext());
             PlayerConfig playerConfig = new PlayerConfig.Builder()
-                    .player(new GoogleExoPlayer(getContext()))
-//                    .renderType(PlayerConfig.RENDER_SURFACE_VIEW)
+                    .player(player)
+                    .renderType(sample.renderType)
+                    .looping(sample.looping)
+                    .fullScreenMode(sample.fullscreenMode)
                     .build();
             setPlayerConfig(playerConfig);
 

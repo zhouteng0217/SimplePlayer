@@ -1,12 +1,16 @@
 package com.zt.core.player;
 
 import android.content.Context;
+import android.content.res.AssetFileDescriptor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
 import com.zt.core.base.BasePlayer;
+
+import java.io.IOException;
 
 /**
  * 原生mediaplayer实现的封装的播放器
@@ -29,7 +33,7 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
             mediaPlayer = new MediaPlayer();
             mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mediaPlayer.setLooping(isLooping());
-            mediaPlayer.setDataSource(context, uri, headers);
+            setDataSource();
             mediaPlayer.setOnPreparedListener(this);
             mediaPlayer.setOnCompletionListener(this);
             mediaPlayer.setOnBufferingUpdateListener(this);
@@ -41,6 +45,21 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
             mediaPlayer.prepareAsync();
         } catch (Exception e) {
 
+        }
+    }
+
+    @Override
+    protected void setDataSource() throws IOException {
+        if (!TextUtils.isEmpty(assetFileName)) {
+            AssetFileDescriptor afd = context.getAssets().openFd(assetFileName);
+            mediaPlayer.setDataSource(afd.getFileDescriptor()
+                    , afd.getStartOffset(), afd.getLength());
+        } else if (rawId != 0) {
+            AssetFileDescriptor afd = context.getResources().openRawResourceFd(rawId);
+            mediaPlayer.setDataSource(afd.getFileDescriptor()
+                    , afd.getStartOffset(), afd.getLength());
+        } else {
+            mediaPlayer.setDataSource(context, uri, headers);
         }
     }
 

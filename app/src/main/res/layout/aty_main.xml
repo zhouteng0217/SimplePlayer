@@ -5,30 +5,9 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/normal_video"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:text="Normal Video"
-        android:onClick="onClick"
-        android:textAllCaps="false" />
-
-    <Button
-        android:id="@+id/list_video"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:text="List Video"
-        android:onClick="onClick"
-        android:textAllCaps="false" />
-
-    <Button
-        android:id="@+id/recyclerview_video"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="20dp"
-        android:text="RecyclerView Video"
-        android:onClick="onClick"
-        android:textAllCaps="false" />
+    <ExpandableListView
+        android:id="@+id/sample_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
 </LinearLayout>
