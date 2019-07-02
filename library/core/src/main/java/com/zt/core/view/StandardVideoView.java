@@ -18,6 +18,7 @@ import com.zt.core.player.AndroidPlayer;
 import com.zt.core.base.BaseVideoView;
 import com.zt.core.util.VideoUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -349,26 +350,52 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //endregion
 
     //region top,bottom控制栏隐藏任务
-    protected class ControlViewTimerTask extends TimerTask {
+
+    private void hideControlView() {
+        if (player != null && player.isInPlaybackState()) {
+            setTopBottomVisi(View.GONE);
+            setVideoLockLayoutVisi(View.INVISIBLE);
+        }
+    }
+
+    protected static class ControlViewTimerTask extends TimerTask {
+
+        private WeakReference<StandardVideoView> weakReference;
+
+        private ControlViewTimerTask(StandardVideoView videoView) {
+            weakReference = new WeakReference<>(videoView);
+        }
 
         @Override
         public void run() {
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    if (player.isInPlaybackState()) {
-                        setTopBottomVisi(View.GONE);
-                        setVideoLockLayoutVisi(View.INVISIBLE);
-                    }
-                }
-            });
+            StandardVideoView videoView = weakReference.get();
+            if (videoView != null) {
+                videoView.post(new ControlViewRunnable(videoView));
+            }
+        }
+    }
+
+    private static class ControlViewRunnable implements Runnable {
+
+        private final WeakReference<StandardVideoView> weakReference;
+
+        private ControlViewRunnable(StandardVideoView videoView) {
+            weakReference = new WeakReference<>(videoView);
+        }
+
+        @Override
+        public void run() {
+            StandardVideoView videoView = weakReference.get();
+            if (videoView != null) {
+                videoView.hideControlView();
+            }
         }
     }
 
     protected void startControlViewTimer() {
         cancelControlViewTimer();
         controlViewTimer = new Timer();
-        controlViewTimerTask = new ControlViewTimerTask();
+        controlViewTimerTask = new ControlViewTimerTask(this);
         controlViewTimer.schedule(controlViewTimerTask, 2500);
     }
 
@@ -384,16 +411,36 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     //region 进度条更新任务
     protected class ProgressTimerTask extends TimerTask {
+        private WeakReference<StandardVideoView> weakReference;
+
+        private ProgressTimerTask(StandardVideoView videoView) {
+            weakReference = new WeakReference<>(videoView);
+        }
+
         @Override
         public void run() {
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    if (isPlaying()) {
-                        setProgressAndText();
-                    }
-                }
-            });
+            StandardVideoView videoView = weakReference.get();
+            if (videoView == null || !videoView.isPlaying()) {
+                return;
+            }
+            videoView.post(new ProgressRunnable(videoView));
+        }
+    }
+
+    private static class ProgressRunnable implements Runnable {
+
+        private WeakReference<StandardVideoView> weakReference;
+
+        private ProgressRunnable(StandardVideoView videoView) {
+            weakReference = new WeakReference<>(videoView);
+        }
+
+        @Override
+        public void run() {
+            StandardVideoView videoView = weakReference.get();
+            if (videoView != null) {
+                videoView.setProgressAndText();
+            }
         }
     }
 
@@ -403,7 +450,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
         cancelProgressTimer();
         updateProgressTimer = new Timer();
-        mProgressTimerTask = new ProgressTimerTask();
+        mProgressTimerTask = new ProgressTimerTask(this);
         updateProgressTimer.schedule(mProgressTimerTask, 0, 300);
     }
 
