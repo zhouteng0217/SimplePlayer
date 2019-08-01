@@ -154,6 +154,8 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
             setEnableMediaCodec(playerConfig.enableMediaCodec);
             setEnableOpenSLES(playerConfig.enableOpenSLES);
             mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1);
+//            mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"reconnect",5);
+            mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "reconnect", 1);
         }
     }
 
