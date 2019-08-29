@@ -6,12 +6,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
-import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,21 +20,12 @@ import android.widget.FrameLayout;
 
 import com.zt.core.R;
 import com.zt.core.listener.OnFullScreenChangedListener;
-import com.zt.core.listener.OnStateChangedListener;
-import com.zt.core.listener.onVideoSizeChangedListener;
-import com.zt.core.player.AndroidPlayer;
-import com.zt.core.render.SurfaceRenderView;
-import com.zt.core.render.TextureRenderView;
 import com.zt.core.util.VideoUtils;
 
 import java.util.Map;
 
 
-public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, onVideoSizeChangedListener {
-
-    protected BasePlayer player;
-
-    private BaseRenderView renderView;
+public abstract class BaseVideoView extends FrameLayout {
 
     protected boolean isFullScreen = false;
     protected OnFullScreenChangedListener onFullScreenChangeListener;
@@ -44,20 +34,15 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     protected int originWidth;
     protected int originHeight;
 
+    //父视图
     protected ViewParent viewParent;
+    //当前view在父视图中的位置
+    protected int positionInParent;
 
     protected int mSystemUiVisibility;
 
-    protected boolean isShowMobileDataDialog = false;
-
-    private PlayerConfig playerConfig;
-
-    private String url;
-    private Map<String, String> headers;
-    protected @RawRes
-    int rawId;
-    protected String assetFileName;
-
+    protected AbstractVideoController videoController;
+    protected ViewGroup surfaceContainer;
 
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
@@ -74,92 +59,40 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     protected void init(Context context) {
         LayoutInflater.from(context).inflate(getLayoutId(), this);
-        playerConfig = new PlayerConfig.Builder().build();
+        surfaceContainer = findViewById(getSurfaceContainerId());
+        videoController = new VideoController(surfaceContainer);
     }
 
     //region DataSource
     public void setVideoPath(String url) {
-        setVideoPath(url, null);
+        videoController.setVideoPath(url);
     }
 
     public void setVideoPath(String url, Map<String, String> headers) {
-        this.url = url;
-        this.headers = headers;
+        videoController.setVideoPath(url, headers);
     }
 
     //设置raw下视频的路径
     public void setVideoRawPath(@RawRes int rawId) {
-        this.rawId = rawId;
+        videoController.setVideoRawPath(rawId);
     }
 
     //设置assets下视频的路径
     public void setVideoAssetPath(String assetFileName) {
-        this.assetFileName = assetFileName;
+        videoController.setVideoAssetPath(assetFileName);
     }
 
     //endregion
 
     public void startVideo() {
-        int currentState = player == null ? BasePlayer.STATE_IDLE : player.getCurrentState();
-        if (currentState == BasePlayer.STATE_IDLE || currentState == BasePlayer.STATE_ERROR) {
-            prepareToPlay();
-        } else if (player.isPlaying()) {
-            player.pause();
-        } else {
-            player.play();
-        }
-    }
-
-    private void initPlayer() {
-        player = newPlayerInstance(getContext());
-        player.setOnStateChangeListener(this);
-        player.setOnVideoSizeChangedListener(this);
-        player.setPlayerConfig(playerConfig);
-        setDataSource();
-        player.initPlayer();
-    }
-
-    private void setDataSource() {
-        if (assetFileName != null) {
-            player.setVideoAssetPath(assetFileName);
-        } else if (rawId != 0) {
-            player.setVideoRawPath(rawId);
-        } else {
-            player.setVideoPath(url, headers);
-        }
-    }
-
-    protected void prepareToPlay() {
-
-        initPlayer();
-
-        ViewGroup surfaceContainer = getSurfaceContainer();
-        surfaceContainer.removeAllViews();
-
-        LayoutParams layoutParams =
-                new LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        Gravity.CENTER);
-
-        renderView = newRenderViewInstance(getContext());
-        if (renderView != null) {
-            renderView.setPlayer(player);
-            surfaceContainer.addView(renderView.getRenderView(), layoutParams);
-        }
+        videoController.startVideo();
     }
 
     //region 全屏处理
 
     //视频全屏策略，竖向全屏，横向全屏，还是根据宽高比来选择
     protected int getFullScreenOrientation() {
-        if (playerConfig.screenMode == PlayerConfig.PORTRAIT_FULLSCREEN_MODE) {
-            return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        }
-        if (playerConfig.screenMode == PlayerConfig.AUTO_FULLSCREEN_MODE) {
-            return player.getAspectRation() >= 1 ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        }
-        return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+       return videoController.getFullScreenOrientation();
     }
 
     public boolean isFullScreen() {
@@ -176,7 +109,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
      * @return
      */
     protected boolean isFullScreenInScrollView() {
-        return false;
+        return true;
     }
 
     protected void startFullScreen() {
@@ -230,6 +163,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         originHeight = getHeight();
 
         viewParent = getParent();
+        positionInParent = ((ViewGroup)viewParent).indexOfChild(this);
 
         ViewGroup vp = getRootViewGroup();
 
@@ -244,6 +178,10 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         vp.addView(frameLayout, lpParent);
     }
 
+    /**
+     * 获取到Activity的根布局
+     * @return
+     */
     protected ViewGroup getRootViewGroup() {
         Activity activity = (Activity) getContext();
         if (activity != null) {
@@ -305,7 +243,7 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         setLayoutParams(layoutParams);
 
         if (viewParent != null) {
-            ((ViewGroup) viewParent).addView(this);
+            ((ViewGroup) viewParent).addView(this, positionInParent);
         }
     }
 
@@ -315,69 +253,27 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     //region 播放控制
 
     protected boolean isPlaying() {
-        return player != null && player.isPlaying();
-    }
-
-
-    private boolean isLocalVideo() {
-        return !TextUtils.isEmpty(assetFileName) || rawId != 0 || (!TextUtils.isEmpty(url) && url.startsWith("file"));
+        return videoController.isPlaying();
     }
 
     public void start() {
-        if (isLocalVideo() || VideoUtils.isWifiConnected(getContext())) {
-            startVideo();
-        } else {
-            showMobileDataDialog();
-        }
-    }
-
-    public void showMobileDataDialog() {
-        if (isShowMobileDataDialog) {
-            return;
-        }
-        isShowMobileDataDialog = true;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
-        builder.setMessage(getResources().getString(R.string.mobile_data_tips));
-        builder.setPositiveButton(getResources().getString(R.string.continue_playing), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                startVideo();
-            }
-        });
-        builder.setNegativeButton(getResources().getString(R.string.stop_play), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
+        videoController.start();
     }
 
     public void release() {
-        if (player != null) {
-            player.release();
-        }
+        videoController.release();
     }
 
     protected void replay() {
-        if (player != null) {
-            player.seekTo(0);
-            start();
-        }
+        videoController.replay();
     }
 
     public void destroy() {
-        if (player != null) {
-            player.destroy();
-        }
+        videoController.destroy();
     }
 
     public void pause() {
-        if (player != null) {
-            player.pause();
-        }
+        videoController.pause();
     }
     //endregion
 
@@ -385,63 +281,12 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         post(new Runnable() {
             @Override
             public void run() {
-                resizeTextureView(player.getVideoWidth(), player.getVideoHeight());
+                videoController.resizeTextureView(videoController.getVideoWidth(), videoController.getVideoHeight());
             }
         });
     }
 
-    @Override
-    public void onVideoSizeChanged(int width, int height) {
-        resizeTextureView(width, height);
-    }
-
-    //根据视频内容重新调整视频渲染区域大小
-    protected void resizeTextureView(int width, int height) {
-        if (width == 0 || height == 0 || renderView == null || renderView.getRenderView() == null) {
-            return;
-        }
-        float aspectRation = (float) width / height;
-
-        View surfaceContainer = getSurfaceContainer();
-        int parentWidth = surfaceContainer.getWidth();
-        int parentHeight = surfaceContainer.getHeight();
-
-        int w, h;
-
-        if (aspectRation >= 1) {
-            w = parentWidth;
-            h = (int) (w / aspectRation);
-        } else {
-            h = parentHeight;
-            w = (int) (h * aspectRation);
-        }
-
-        ViewGroup.LayoutParams layoutParams = renderView.getRenderView().getLayoutParams();
-        layoutParams.width = w;
-        layoutParams.height = h;
-        renderView.getRenderView().setLayoutParams(layoutParams);
-    }
-
-    //方便扩展播放器核心
-    protected BasePlayer newPlayerInstance(Context context) {
-        if (playerConfig != null && playerConfig.player != null) {
-            return playerConfig.player;
-        }
-        return new AndroidPlayer(context);
-    }
-
-    //方便扩展播放器渲染界面
-    protected BaseRenderView newRenderViewInstance(Context context) {
-        switch (playerConfig.renderType) {
-            case PlayerConfig.RENDER_TEXTURE_VIEW:
-                return new TextureRenderView(context);
-            case PlayerConfig.RENDER_SURFACE_VIEW:
-                return new SurfaceRenderView(context);
-        }
-        return null;
-    }
-
-    protected abstract ViewGroup getSurfaceContainer();
+    protected abstract @IdRes int getSurfaceContainerId();
 
     protected abstract int getLayoutId();
 
@@ -449,10 +294,51 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
 
     public abstract void setTitle(String titleText);
 
-    @Override
-    public abstract void onStateChange(int state);
+    public abstract void changeUIWithState(int state);
 
     public void setPlayerConfig(PlayerConfig playerConfig) {
-        this.playerConfig = playerConfig;
+        videoController.setPlayerConfig(playerConfig);
+    }
+
+    /**
+     * 默认的VideoController实现，定义了默认的数据连接情况下，弹出提示框
+     */
+    class VideoController extends AbstractVideoController {
+
+        private boolean isShowMobileDataDialog = false;
+
+        private VideoController(ViewGroup surfaceContainer) {
+            super(surfaceContainer);
+        }
+
+        @Override
+        protected void showMobileDataDialog() {
+            if (isShowMobileDataDialog) {
+                return;
+            }
+            isShowMobileDataDialog = true;
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(surfaceContainer.getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
+            builder.setMessage(surfaceContainer.getResources().getString(R.string.mobile_data_tips));
+            builder.setPositiveButton(surfaceContainer.getResources().getString(R.string.continue_playing), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    startVideo();
+                }
+            });
+            builder.setNegativeButton(surfaceContainer.getResources().getString(R.string.stop_play), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            builder.create().show();
+        }
+
+        @Override
+        public void onStateChange(int state) {
+            changeUIWithState(state);
+        }
     }
 }
