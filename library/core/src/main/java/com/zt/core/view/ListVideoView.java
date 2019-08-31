@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.zt.core.base.PlayerConfig;
 import com.zt.core.listener.OnFullScreenChangedListener;
 
 /**
@@ -24,13 +23,6 @@ public class ListVideoView extends StandardVideoView {
 
     public ListVideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-    }
-
-    //滚动视图中，全屏模式变更下
-
-    @Override
-    protected boolean isFullScreenInScrollView() {
-        return true;
     }
 
     @Override

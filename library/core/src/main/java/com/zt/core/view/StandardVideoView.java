@@ -8,7 +8,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
@@ -114,7 +113,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //region 根据状态更新UI
 
     @Override
-    public void changeUIWithState(int state) {
+    public void onStateChange(int state) {
         switch (state) {
             case AndroidPlayer.STATE_IDLE:
                 changeUIWithIdle();
@@ -268,7 +267,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void handleBack() {
-        if (isFullScreen) {
+        if (isFullScreen()) {
             exitFullscreen();
         } else {
             videoController.release();
@@ -277,7 +276,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void handleFullScreen() {
-        if (isFullScreen) {
+        if (isFullScreen()) {
             exitFullscreen();
         } else {
             startFullScreen();
@@ -286,7 +285,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     @Override
     public boolean onBackKeyPressed() {
-        if (isFullScreen) {
+        if (isFullScreen()) {
             exitFullscreen();
             return true;
         }
@@ -298,13 +297,13 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     @Override
-    protected void startFullScreen() {
+    public void startFullScreen() {
         super.startFullScreen();
         resetLockStatus();
     }
 
     @Override
-    protected void exitFullscreen() {
+    public void exitFullscreen() {
         super.exitFullscreen();
         resetLockStatus();
     }
@@ -482,7 +481,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     //默认全屏支持锁定屏幕
     protected boolean isSupportLock() {
-        return isFullScreen && isSupportLock;
+        return isFullScreen() && isSupportLock;
     }
 
     //由外部控制的是否支持锁定屏幕

@@ -2,7 +2,6 @@ package com.zt.core.demo;
 
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.widget.TextView;
@@ -47,11 +46,11 @@ public class NormalVideoActivity extends AppCompatActivity {
     private void initPlayerView() {
         switch (sample.fileType) {
             case "url":
-                videoView.setVideoPath(sample.path);
+                videoView.setVideoUrlPath(sample.path);
                 break;
             case "file":
                 sample.path = getExternalFilesDir(null).getAbsolutePath() + "/assets_test_video.mp4";
-                videoView.setVideoPath("file:///" + sample.path);
+                videoView.setVideoUrlPath("file:///" + sample.path);
                 break;
             case "raw":
                 sample.path = "R.raw.raw_test_video";

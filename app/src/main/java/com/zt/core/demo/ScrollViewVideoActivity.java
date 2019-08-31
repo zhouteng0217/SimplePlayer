@@ -38,10 +38,5 @@ public class ScrollViewVideoActivity extends NormalVideoActivity {
         public ScrollViewStandardVideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
             super(context, attrs, defStyleAttr);
         }
-
-        @Override
-        protected boolean isFullScreenInScrollView() {
-            return true;
-        }
     }
 }
