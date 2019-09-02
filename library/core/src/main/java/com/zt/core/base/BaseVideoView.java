@@ -18,8 +18,10 @@ import com.zt.core.listener.OnFullScreenChangedListener;
 
 import java.util.Map;
 
-
-public abstract class BaseVideoView extends FrameLayout implements IVideoView, IVideoController {
+/**
+ *  构建一个基本的播放器视图View, 实现IVideoView接口，通过BaseVideoController, 实现播放器核心与UI的交互
+ */
+public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
     protected OnFullScreenChangedListener onFullScreenChangeListener;
 
@@ -28,6 +30,12 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView, I
     protected ViewGroup surfaceContainer;
 
     private boolean isShowMobileDataDialog = false;
+
+    private boolean supportSensorRotate = true;
+
+    private boolean rotateWithSystem = false;
+
+    private OrientationHelper orientationHelper;
 
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
@@ -46,6 +54,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView, I
         LayoutInflater.from(context).inflate(getLayoutId(), this);
         surfaceContainer = findViewById(getSurfaceContainerId());
         videoController = new BaseVideoController(this);
+        orientationHelper = new OrientationHelper(this);
     }
 
     @Override
@@ -72,7 +81,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView, I
 
     @Override
     public boolean isFullScreen() {
-        return videoController.isFullScreen;
+        return videoController.isFullScreen();
     }
 
     public void setOnFullScreenChangeListener(OnFullScreenChangedListener onFullScreenChangeListener) {
@@ -179,5 +188,23 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView, I
             }
         });
         builder.create().show();
+    }
+
+    @Override
+    public boolean supportSensorRotate() {
+        return supportSensorRotate;
+    }
+
+    public void setSupportSensorRotate(boolean supportSensorRotate) {
+        this.supportSensorRotate = supportSensorRotate;
+    }
+
+    @Override
+    public boolean rotateWithSystem() {
+        return rotateWithSystem;
+    }
+
+    public void setRotateWithSystem(boolean rotateWithSystem) {
+        this.rotateWithSystem = rotateWithSystem;
     }
 }

@@ -53,6 +53,4 @@ public interface IVideoController {
 
     //获取播放器实例
     BasePlayer getPlayer();
-
-
 }
