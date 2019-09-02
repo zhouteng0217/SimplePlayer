@@ -37,12 +37,6 @@
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
-        <activity
-            android:name="com.zt.core.demo.ScrollViewVideoActivity"
-            android:configChanges="orientation|keyboardHidden|screenSize|locale"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light" />
-
     </application>
 
 </manifest>

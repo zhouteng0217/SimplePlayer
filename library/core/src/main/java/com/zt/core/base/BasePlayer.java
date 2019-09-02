@@ -18,20 +18,10 @@ import com.zt.core.util.VideoUtils;
 import java.io.IOException;
 import java.util.Map;
 
-public abstract class BasePlayer implements PlayerListener {
+public abstract class BasePlayer implements IMediaPlayer {
 
     protected static final int MSG_RELEASE = 101;
     protected static final int MSG_DESTORY = 102;
-
-    public static final int STATE_ERROR = -1;
-    public static final int STATE_IDLE = 0;
-    public static final int STATE_PREPARING = 1;
-    public static final int STATE_PREPARED = 2;
-    public static final int STATE_BUFFERING_START = 3; //暂停播放开始缓冲更多数据
-    public static final int STATE_BUFFERING_END = 4; //缓冲了足够的数据重新开始播放
-    public static final int STATE_PLAYING = 5;
-    public static final int STATE_PAUSED = 6;
-    public static final int STATE_COMPLETED = 7;
 
     protected int currentState = STATE_IDLE;
 

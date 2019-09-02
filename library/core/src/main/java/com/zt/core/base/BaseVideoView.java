@@ -19,7 +19,7 @@ import com.zt.core.listener.OnFullScreenChangedListener;
 import java.util.Map;
 
 
-public abstract class BaseVideoView extends FrameLayout implements IVideoView,IVideoController {
+public abstract class BaseVideoView extends FrameLayout implements IVideoView, IVideoController {
 
     protected OnFullScreenChangedListener onFullScreenChangeListener;
 

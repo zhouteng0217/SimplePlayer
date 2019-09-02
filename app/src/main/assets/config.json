@@ -93,13 +93,6 @@
         "demoType": "recycler",
         "player": 2,
         "renderType": 1
-      },
-      {
-        "title": "ScrollView 视频",
-        "demoType": "scroll",
-        "player": 2,
-        "renderType": 1,
-        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/JackHorner_2010X.mp4"
       }
     ]
   }

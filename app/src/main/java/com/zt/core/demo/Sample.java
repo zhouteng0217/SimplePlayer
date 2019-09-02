@@ -17,6 +17,6 @@ public class Sample implements Serializable {
     public boolean brightnessSupport = true; //是否支持亮度手势调节
     public boolean seekSupport = true; //是否支持手势调节进度(仅限视频，直播流不支持)
 
-    public String demoType = "normal"; // normal 正常视频播放，list listView中列表视频播放, recycler recyclerView中视频播放, scroll scrollview中视频播放
+    public String demoType = "normal"; // normal 正常视频播放，list listView中列表视频播放, recycler recyclerView中视频播放
 
 }
