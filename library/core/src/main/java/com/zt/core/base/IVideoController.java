@@ -27,11 +27,17 @@ public interface IVideoController {
     //播放器是否全屏
     boolean isFullScreen();
 
-    //播放器全屏
-    void startFullScreen();
+    //播放器全屏，默认正方向的全屏
+    void startFullscreen();
 
-    //播放器退出全屏
+    //播放器全屏，有时顺时针方向全屏和逆时针方向的全屏，根据参数
+    void startFullscreenWithOrientation(int orientation);
+
+    //播放器退出全屏,回到竖屏正常状态
     void exitFullscreen();
+
+    //播放器退出全屏,回到竖屏正常状态，根据参数来设置竖向的方向
+    void exitFullscreenWithOrientation(int orientation);
 
     //是否正在播放
     boolean isPlaying();
@@ -53,4 +59,7 @@ public interface IVideoController {
 
     //获取播放器实例
     BasePlayer getPlayer();
+
+    //获取播放器配置实例
+    PlayerConfig getPlayConfig();
 }

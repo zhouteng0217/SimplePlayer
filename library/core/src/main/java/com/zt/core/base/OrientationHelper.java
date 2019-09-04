@@ -55,7 +55,9 @@ public class OrientationHelper {
                 videoView.getPlayView().post(new OrientationRunnable(videoView, screenType));
             }
         };
+    }
 
+    public void start() {
         if (videoView.supportSensorRotate()) {
             orientationEventListener.enable();
         } else {
@@ -80,9 +82,9 @@ public class OrientationHelper {
                 return;
             }
             if (isFullScreenType() && !videoView.isFullScreen()) {
-                videoView.startFullScreen();
+                videoView.startFullscreenWithOrientation(screenType);
             } else if (!isFullScreenType() && videoView.isFullScreen()) {
-                videoView.exitFullscreen();
+                videoView.exitFullscreenWithOrientation(screenType);
             }
         }
 

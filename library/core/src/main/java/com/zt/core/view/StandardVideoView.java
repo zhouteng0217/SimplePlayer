@@ -279,16 +279,20 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         if (isFullScreen()) {
             exitFullscreen();
         } else {
-            startFullScreen();
+            startFullscreen();
         }
     }
 
     @Override
     public boolean onBackKeyPressed() {
+        if (isLocked) {
+            return true;
+        }
         if (isFullScreen()) {
             exitFullscreen();
             return true;
         }
+
         return false;
     }
 
@@ -297,14 +301,26 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     @Override
-    public void startFullScreen() {
-        super.startFullScreen();
+    public void startFullscreen() {
+        super.startFullscreen();
+        resetLockStatus();
+    }
+
+    @Override
+    public void startFullscreenWithOrientation(int orientation) {
+        super.startFullscreenWithOrientation(orientation);
         resetLockStatus();
     }
 
     @Override
     public void exitFullscreen() {
         super.exitFullscreen();
+        resetLockStatus();
+    }
+
+    @Override
+    public void exitFullscreenWithOrientation(int orientation) {
+        super.exitFullscreenWithOrientation(orientation);
         resetLockStatus();
     }
 
@@ -479,12 +495,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     protected boolean isLocked = false; //是否处于锁定屏幕状态
 
-    //默认全屏支持锁定屏幕
     protected boolean isSupportLock() {
         return isFullScreen() && isSupportLock;
     }
 
-    //由外部控制的是否支持锁定屏幕
+    //全屏情况下，是否支持锁定播放器
     public void setSupportLock(boolean supportLock) {
         isSupportLock = supportLock;
     }
@@ -496,6 +511,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         } else {
             setVideoUnlockedIcon();
         }
+        orientationHelper.setOrientationEnable(!isLocked);
         setTopBottomVisi(isLocked ? View.GONE : View.VISIBLE);
     }
 

@@ -119,7 +119,7 @@ public class VideoUtils {
 
     public static void clearFullScreenFlag(Activity activity) {
         WindowManager.LayoutParams attrs = activity.getWindow().getAttributes();
-        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN; //添加FLAG_FULLSCREEN
+        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN; //移除FLAG_FULLSCREEN
         activity.getWindow().setAttributes(attrs);
     }
 

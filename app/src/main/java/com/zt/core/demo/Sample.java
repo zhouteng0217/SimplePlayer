@@ -16,6 +16,9 @@ public class Sample implements Serializable {
     public boolean volumeSupport = true; //是否支持音量手势调节
     public boolean brightnessSupport = true; //是否支持亮度手势调节
     public boolean seekSupport = true; //是否支持手势调节进度(仅限视频，直播流不支持)
+    public boolean lockSupport = true; //是否全屏下支持锁定播放器
+    public boolean sensorRotateSupport = true; //是否支持重力感应旋转屏幕全屏 (仅在fullsceenMode=0,即默认的全屏策略下支持)
+    public boolean rotateWithSystem = true; //重力感应旋转屏幕开启支持的情况下，旋转方向是否跟随系统设置中的旋转方向锁定
 
     public String demoType = "normal"; // normal 正常视频播放，list listView中列表视频播放, recycler recyclerView中视频播放
 

@@ -84,6 +84,8 @@ public class NormalVideoActivity extends AppCompatActivity {
                 .looping(sample.looping)
                 .player(player)  //IjkPlayer,GoogleExoPlayer 需添加对应的依赖
                 .build();
+
+        //在start播放之前，设置playerConfig
         videoView.setPlayerConfig(playerConfig);
 
         //设置是否支持手势调节音量, 默认支持
@@ -96,13 +98,13 @@ public class NormalVideoActivity extends AppCompatActivity {
         videoView.setSupportSeek(sample.seekSupport);
 
         //设置是否支持锁定屏幕，默认全屏的时候支持
-        videoView.setSupportLock(true);
+        videoView.setSupportLock(sample.lockSupport);
 
         //设置是否根据重力感应旋转全屏, 默认支持
-        videoView.setSupportSensorRotate(true);
+        videoView.setSupportSensorRotate(sample.sensorRotateSupport);
 
-        //设置重力感应旋转是否跟随系统设置中的方向锁定，默认支持
-        videoView.setRotateWithSystem(true);
+        //设置重力感应旋转是否跟随系统设置中的方向锁定，默认支持(在上面的选项，开启重力感应旋转屏幕支持后，该项才生效)
+        videoView.setRotateWithSystem(sample.rotateWithSystem);
 
         videoView.start();
     }
@@ -132,15 +134,27 @@ public class NormalVideoActivity extends AppCompatActivity {
         stringBuilder.append("\n");
 
         stringBuilder.append("音量调节手势:");
-        stringBuilder.append(sample.volumeSupport ? "支持" : "不支持");
+        stringBuilder.append(sample.volumeSupport ? "启用" : "关闭");
         stringBuilder.append("\n");
 
         stringBuilder.append("亮度调节手势:");
-        stringBuilder.append(sample.brightnessSupport ? "支持" : "不支持");
+        stringBuilder.append(sample.brightnessSupport ? "启用" : "关闭");
         stringBuilder.append("\n");
 
         stringBuilder.append("进度调节手势:");
-        stringBuilder.append(sample.seekSupport ? "支持" : "不支持");
+        stringBuilder.append(sample.seekSupport ? "启用" : "关闭");
+        stringBuilder.append("\n");
+
+        stringBuilder.append("全屏时锁定屏幕支持:");
+        stringBuilder.append(sample.lockSupport ? "启用" : "关闭");
+        stringBuilder.append("\n");
+
+        stringBuilder.append("重力感应旋转屏幕:");
+        stringBuilder.append(sample.sensorRotateSupport && sample.fullscreenMode == PlayerConfig.LANDSCAPE_FULLSCREEN_MODE  ? "启用" : "关闭");
+        stringBuilder.append("\n");
+
+        stringBuilder.append("重力感应旋转方向跟随系统设置:");
+        stringBuilder.append(sample.rotateWithSystem  ? "启用" : "关闭");
         stringBuilder.append("\n");
 
         descTextView.setText(stringBuilder.toString());

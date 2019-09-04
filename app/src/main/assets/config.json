@@ -6,19 +6,25 @@
         "title": "http",
         "path": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
         "player": 1,
-        "fileType": "url"
+        "fileType": "url",
+        "fullscreenMode": 1,
+        "lockSupport": true,
+        "sensorRotateSupport": true,
+        "rotateWithSystem": true
       },
       {
         "title": "https",
         "path": "https://www.w3schools.com/html/mov_bbb.mp4",
         "player": 2,
-        "fileType": "url"
+        "fileType": "url",
+        "rotateWithSystem": true
       },
       {
         "title": "rtmp",
         "path": "rtmp://58.200.131.2:1935/livetv/hunantv",
         "player": 2,
-        "fileType": "url"
+        "fileType": "url",
+        "rotateWithSystem": false
       },
       {
         "title": "file",
@@ -86,7 +92,6 @@
         "demoType": "list",
         "player": 1,
         "renderType": 0
-
       },
       {
         "title": "RecyclerView 列表视频",

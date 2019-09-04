@@ -19,7 +19,7 @@ import com.zt.core.listener.OnFullScreenChangedListener;
 import java.util.Map;
 
 /**
- *  构建一个基本的播放器视图View, 实现IVideoView接口，通过BaseVideoController, 实现播放器核心与UI的交互
+ * 构建一个基本的播放器视图View, 实现IVideoView接口，通过BaseVideoController, 实现播放器核心与UI的交互
  */
 public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
@@ -91,8 +91,16 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     }
 
     @Override
-    public void startFullScreen() {
-        videoController.startFullScreen();
+    public void startFullscreen() {
+        videoController.startFullscreen();
+        if (onFullScreenChangeListener != null) {
+            onFullScreenChangeListener.onFullScreenChange(true);
+        }
+    }
+
+    @Override
+    public void startFullscreenWithOrientation(int orientation) {
+        videoController.startFullscreenWithOrientation(orientation);
         if (onFullScreenChangeListener != null) {
             onFullScreenChangeListener.onFullScreenChange(true);
         }
@@ -107,12 +115,21 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     }
 
     @Override
+    public void exitFullscreenWithOrientation(int orientation) {
+        videoController.exitFullscreenWithOrientation(orientation);
+        if (onFullScreenChangeListener != null) {
+            onFullScreenChangeListener.onFullScreenChange(false);
+        }
+    }
+
+    @Override
     public boolean isPlaying() {
         return videoController.isPlaying();
     }
 
     @Override
     public void start() {
+        orientationHelper.start();
         videoController.start();
     }
 
@@ -168,6 +185,11 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     }
 
     @Override
+    public PlayerConfig getPlayConfig() {
+        return videoController.getPlayConfig();
+    }
+
+    @Override
     public void showMobileDataDialog() {
         if (isShowMobileDataDialog) {
             return;
@@ -192,9 +214,12 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         builder.create().show();
     }
 
+    /**
+     * @return 控制是否支持重力感旋转屏幕来全屏等操作，竖向全屏模式和智能全屏模式下不开启重力感应旋转屏幕，避免造成奇怪的交互。
+     */
     @Override
     public boolean supportSensorRotate() {
-        return supportSensorRotate;
+        return supportSensorRotate && getPlayConfig().screenMode == PlayerConfig.LANDSCAPE_FULLSCREEN_MODE;
     }
 
     public void setSupportSensorRotate(boolean supportSensorRotate) {

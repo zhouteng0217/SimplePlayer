@@ -100,8 +100,14 @@ protected void onCreate(Bundle savedInstanceState) {
     //设置是否支持手势调节播放进度，默认支持
     videoView.setSupportSeek(true);
 
-    //设置是否支持锁定屏幕，默认全屏的时候支持
+    //设置是否全屏下支持锁定屏幕
     videoView.setSupportLock(true);
+
+    //设置是否根据重力感应旋转全屏, 默认支持
+    videoView.setSupportSensorRotate(true);
+
+    //设置重力感应旋转是否跟随系统设置中的方向锁定，默认支持(在上面的选项，开启重力感应旋转屏幕支持后，该项才生效)
+    videoView.setRotateWithSystem(true);
 
     videoView.start();
 }

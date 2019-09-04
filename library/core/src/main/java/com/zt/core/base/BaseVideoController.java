@@ -80,7 +80,7 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
     }
 
     @Override
-    public void setVideoHeaders(Map<String,String> headers) {
+    public void setVideoHeaders(Map<String, String> headers) {
         this.headers = headers;
     }
 
@@ -169,7 +169,14 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
     //endregion
 
     public void setPlayerConfig(PlayerConfig playerConfig) {
-        this.playerConfig = playerConfig;
+        if (playerConfig != null) {
+            this.playerConfig = playerConfig;
+        }
+    }
+
+    @Override
+    public PlayerConfig getPlayConfig() {
+        return playerConfig;
     }
 
     @Override
@@ -301,7 +308,9 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
 
     //region FullScreen
 
-    //视频全屏策略，竖向全屏，横向全屏，还是根据宽高比来选择
+    /**
+     * 视频全屏策略，竖向全屏，横向全屏，还是根据宽高比来智能选择
+     */
     public int getFullScreenOrientation() {
         if (playerConfig.screenMode == PlayerConfig.PORTRAIT_FULLSCREEN_MODE) {
             return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
@@ -317,7 +326,20 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
         return isFullScreen;
     }
 
-    public void startFullScreen() {
+    /**
+     * 正常情况下，通过点击全屏按钮来全屏
+     */
+    @Override
+    public void startFullscreen() {
+        startFullscreenWithOrientation(getFullScreenOrientation());
+    }
+
+    /**
+     * 通过重力感应，旋转屏幕来全屏
+     * @param orientation
+     */
+    @Override
+    public void startFullscreenWithOrientation(int orientation) {
 
         isFullScreen = true;
 
@@ -327,7 +349,7 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
 
         mSystemUiVisibility = activity.getWindow().getDecorView().getSystemUiVisibility();
 
-        activity.setRequestedOrientation(getFullScreenOrientation());
+        activity.setRequestedOrientation(orientation);
 
         VideoUtils.hideSupportActionBar(activity, true);
         VideoUtils.addFullScreenFlag(activity);
@@ -338,13 +360,19 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
         postRunnableToResizeTexture();
     }
 
+    @Override
     public void exitFullscreen() {
+        exitFullscreenWithOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
+    @Override
+    public void exitFullscreenWithOrientation(int orientation) {
 
         isFullScreen = false;
 
         Activity activity = VideoUtils.getActivity(context);
 
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        activity.setRequestedOrientation(orientation);
 
         VideoUtils.showSupportActionBar(activity, actionBarVisible);
         VideoUtils.clearFullScreenFlag(activity);
