@@ -98,6 +98,12 @@ public class NormalVideoActivity extends AppCompatActivity {
         //设置是否支持锁定屏幕，默认全屏的时候支持
         videoView.setSupportLock(true);
 
+        //设置是否根据重力感应旋转全屏, 默认支持
+        videoView.setSupportSensorRotate(true);
+
+        //设置重力感应旋转是否跟随系统设置中的方向锁定，默认支持
+        videoView.setRotateWithSystem(true);
+
         videoView.start();
     }
 

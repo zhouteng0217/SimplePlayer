@@ -5,6 +5,8 @@ import android.content.pm.ActivityInfo;
 import android.provider.Settings;
 import android.view.OrientationEventListener;
 
+import java.lang.ref.WeakReference;
+
 /**
  * 辅助实现重力感应下视频的旋转操作
  */
@@ -24,10 +26,11 @@ public class OrientationHelper {
 
     private void init() {
         Context context = videoView.getPlayView().getContext();
-        final boolean autoRotateOn = (Settings.System.getInt(context.getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0) == 1);
         orientationEventListener = new OrientationEventListener(context) {
             @Override
             public void onOrientationChanged(int rotation) {
+
+                final boolean autoRotateOn = (Settings.System.getInt(videoView.getPlayView().getContext().getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0) == 1);
 
                 //设置了跟随系统，系统方向锁定的话，不自动旋转方向
                 if (!autoRotateOn && videoView.rotateWithSystem()) {
@@ -49,25 +52,10 @@ public class OrientationHelper {
                 }
 
                 lastScreenType = screenType;
-
-                if (isFullScreenType() && !videoView.isFullScreen()) {
-//                    if (ijkVideoView.isTinyWindow) {
-//                        EventBus.getDefault().post(new EBFloatVideoEntity(EBFloatVideoEntity.CHANGE_TO_TINY_FULLSCREEN));
-//                    } else {
-//                        ijkVideoView.startWindowFullscreen(true, true, screenType);
-//                    }
-                    videoView.startFullScreen();
-                } else if (!isFullScreenType() && videoView.isFullScreen()) {
-//                    if (ijkVideoView.isTinyWindow) {
-//                        EventBus.getDefault().post(new EBFloatVideoEntity(EBFloatVideoEntity.BACK_TINY_VIDEO));
-//                    } else {
-//                        ijkVideoView.exitWindowFullscreen(screenType);
-//                    }
-                    videoView.exitFullscreen();
-                }
+                videoView.getPlayView().post(new OrientationRunnable(videoView, screenType));
             }
-
         };
+
         if (videoView.supportSensorRotate()) {
             orientationEventListener.enable();
         } else {
@@ -75,8 +63,32 @@ public class OrientationHelper {
         }
     }
 
-    private boolean isFullScreenType() {
-        return screenType == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || screenType == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+    private static class OrientationRunnable implements Runnable {
+
+        private WeakReference<IVideoView> weakReference;
+        private int screenType;
+
+        private OrientationRunnable(IVideoView videoView, int screenType) {
+            weakReference = new WeakReference<>(videoView);
+            this.screenType = screenType;
+        }
+
+        @Override
+        public void run() {
+            IVideoView videoView = weakReference.get();
+            if (videoView == null) {
+                return;
+            }
+            if (isFullScreenType() && !videoView.isFullScreen()) {
+                videoView.startFullScreen();
+            } else if (!isFullScreenType() && videoView.isFullScreen()) {
+                videoView.exitFullscreen();
+            }
+        }
+
+        private boolean isFullScreenType() {
+            return screenType == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || screenType == ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE;
+        }
     }
 
     public void setOrientationEnable(boolean enable) {

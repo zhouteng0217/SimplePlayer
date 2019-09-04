@@ -31,11 +31,13 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
     private boolean isShowMobileDataDialog = false;
 
+    //是否支持重力感应自动横竖屏，默认支持
     private boolean supportSensorRotate = true;
 
-    private boolean rotateWithSystem = false;
+    //是否跟随系统的方向锁定，默认跟随
+    private boolean rotateWithSystem = true;
 
-    private OrientationHelper orientationHelper;
+    protected OrientationHelper orientationHelper;
 
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
