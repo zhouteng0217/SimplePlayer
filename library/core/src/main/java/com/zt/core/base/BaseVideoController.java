@@ -56,6 +56,9 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
     //当前view在父视图中的位置
     protected int positionInParent;
 
+    //actionbar可见状态记录
+    private boolean actionBarVisible;
+
     protected Context context;
     private ViewGroup playerView;
 
@@ -320,6 +323,8 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
 
         Activity activity = VideoUtils.getActivity(context);
 
+        actionBarVisible = VideoUtils.isActionBarVisible(activity);
+
         mSystemUiVisibility = activity.getWindow().getDecorView().getSystemUiVisibility();
 
         activity.setRequestedOrientation(getFullScreenOrientation());
@@ -341,7 +346,7 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
 
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        VideoUtils.showSupportActionBar(activity, true);   //根据需要是否显示actionbar和状态栏
+        VideoUtils.showSupportActionBar(activity, actionBarVisible);
         VideoUtils.clearFullScreenFlag(activity);
 
         activity.getWindow().getDecorView().setSystemUiVisibility(mSystemUiVisibility);

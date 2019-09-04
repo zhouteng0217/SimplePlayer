@@ -67,9 +67,17 @@ public class VideoUtils {
         return null;
     }
 
+    public static boolean isActionBarVisible(Activity activity) {
+        if (activity instanceof AppCompatActivity) {
+            ActionBar ab = ((AppCompatActivity) activity).getSupportActionBar();
+            return ab != null && ab.isShowing();
+        }
+        return false;
+    }
+
     public static void showSupportActionBar(Activity activity, boolean actionBar) {
         if (actionBar) {
-            if (activity != null && activity instanceof AppCompatActivity) {
+            if (activity instanceof AppCompatActivity) {
                 ActionBar ab = ((AppCompatActivity) activity).getSupportActionBar();
                 if (ab != null) {
                     ab.setShowHideAnimationEnabled(false);
@@ -81,7 +89,7 @@ public class VideoUtils {
 
     public static void hideSupportActionBar(Activity activity, boolean actionBar) {
         if (actionBar) {
-            if (activity != null && activity instanceof AppCompatActivity) {
+            if (activity instanceof AppCompatActivity) {
                 ActionBar ab = ((AppCompatActivity) activity).getSupportActionBar();
                 if (ab != null) {
                     ab.setShowHideAnimationEnabled(false);
