@@ -13,11 +13,19 @@ public class TextureRenderView extends TextureView implements IRenderView, Textu
 
     protected SurfaceTexture savedSurfaceTexture;
     protected IMediaPlayer player;
+    private int videoWidth, videoHeight;
 
     public TextureRenderView(Context context) {
         super(context);
         setSurfaceTextureListener(this);
         savedSurfaceTexture = null;
+    }
+
+    @Override
+    public void setVideoSize(int width, int height) {
+        videoWidth = width;
+        videoHeight = height;
+        requestLayout();
     }
 
     @Override
@@ -58,5 +66,13 @@ public class TextureRenderView extends TextureView implements IRenderView, Textu
     @Override
     public View getRenderView() {
         return this;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (videoWidth > 0 && videoHeight > 0) {
+            setMeasuredDimension(videoWidth, videoHeight);
+        }
     }
 }

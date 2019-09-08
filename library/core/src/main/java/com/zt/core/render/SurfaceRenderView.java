@@ -12,10 +12,19 @@ public class SurfaceRenderView extends SurfaceView implements IRenderView, Surfa
 
     protected IMediaPlayer player;
 
+    private int videoWidth, videoHeight;
+
     public SurfaceRenderView(Context context) {
         super(context);
         SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
+    }
+
+    @Override
+    public void setVideoSize(int width, int height) {
+        videoWidth = width;
+        videoHeight = height;
+        requestLayout();
     }
 
     @Override
@@ -46,5 +55,14 @@ public class SurfaceRenderView extends SurfaceView implements IRenderView, Surfa
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
 
+    }
+
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (videoWidth > 0 && videoHeight > 0) {
+            setMeasuredDimension(videoWidth, videoHeight);
+        }
     }
 }

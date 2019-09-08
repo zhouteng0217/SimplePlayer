@@ -203,11 +203,7 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
             h = parentHeight;
             w = (int) (h * aspectRation);
         }
-
-        ViewGroup.LayoutParams layoutParams = renderView.getRenderView().getLayoutParams();
-        layoutParams.width = w;
-        layoutParams.height = h;
-        renderView.getRenderView().setLayoutParams(layoutParams);
+        renderView.setVideoSize(w, h);
     }
 
     @Override
@@ -336,6 +332,7 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
 
     /**
      * 通过重力感应，旋转屏幕来全屏
+     *
      * @param orientation
      */
     @Override
