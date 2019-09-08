@@ -6,16 +6,17 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 
-import com.zt.core.base.BaseRenderView;
+import com.zt.core.base.IMediaPlayer;
+import com.zt.core.base.IRenderView;
 
-public class TextureRenderView extends BaseRenderView implements TextureView.SurfaceTextureListener {
+public class TextureRenderView extends TextureView implements IRenderView, TextureView.SurfaceTextureListener {
 
     protected SurfaceTexture savedSurfaceTexture;
-    protected TextureView textureView;
+    protected IMediaPlayer player;
 
     public TextureRenderView(Context context) {
-        textureView = new TextureView(context);
-        textureView.setSurfaceTextureListener(this);
+        super(context);
+        setSurfaceTextureListener(this);
         savedSurfaceTexture = null;
     }
 
@@ -25,7 +26,7 @@ public class TextureRenderView extends BaseRenderView implements TextureView.Sur
             savedSurfaceTexture = surfaceTexture;
             player.setSurface(new Surface(surfaceTexture));
         } else {
-            textureView.setSurfaceTexture(savedSurfaceTexture);
+            setSurfaceTexture(savedSurfaceTexture);
         }
     }
 
@@ -45,7 +46,17 @@ public class TextureRenderView extends BaseRenderView implements TextureView.Sur
     }
 
     @Override
+    public IMediaPlayer getPlayer() {
+        return player;
+    }
+
+    @Override
+    public void setPlayer(IMediaPlayer player) {
+        this.player = player;
+    }
+
+    @Override
     public View getRenderView() {
-        return textureView;
+        return this;
     }
 }

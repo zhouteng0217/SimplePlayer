@@ -40,7 +40,7 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
     private PlayerConfig playerConfig;
 
     //播放器渲染画面视图
-    private BaseRenderView renderView;
+    private IRenderView renderView;
     protected IVideoView videoView;
 
     protected boolean isFullScreen = false;
@@ -149,7 +149,7 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
         }
     }
 
-    protected BaseRenderView newRenderViewInstance(Context context) {
+    protected IRenderView newRenderViewInstance(Context context) {
         switch (playerConfig.renderType) {
             case PlayerConfig.RENDER_TEXTURE_VIEW:
                 return new TextureRenderView(context);

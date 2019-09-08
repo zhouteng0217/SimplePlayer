@@ -1,5 +1,8 @@
 package com.zt.core.base;
 
+import android.view.Surface;
+import android.view.SurfaceHolder;
+
 public interface IMediaPlayer {
 
     int STATE_ERROR = -1;
@@ -23,4 +26,10 @@ public interface IMediaPlayer {
     void destroy();
 
     void seekTo(long position);
+
+    //设置TextureView渲染界面
+    void setSurface(Surface surface);
+
+    //设置SurfaceView渲染界面
+    void setDisplay(SurfaceHolder holder);
 }

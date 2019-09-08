@@ -290,12 +290,6 @@ public abstract class BasePlayer implements IMediaPlayer {
     //跳转到指定播放位置
     protected abstract void seekToImpl(long position);
 
-    //设置TextureView渲染界面
-    public abstract void setSurface(Surface surface);
-
-    //设置SurfaceView渲染界面
-    public abstract void setDisplay(SurfaceHolder holder);
-
     //针对某些播放器内核，比如IjkPlayer，进行的一些额外设置
     public abstract void setOptions();
 
