@@ -189,19 +189,20 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
         if (width == 0 || height == 0 || renderView == null || renderView.getRenderView() == null) {
             return;
         }
-        float aspectRation = (float) width / height;
+
+        float aspectRation = playerConfig.aspectRatio == 0 ? (float) height / width : playerConfig.aspectRatio;
 
         int parentWidth = videoView.getSurfaceContainer().getWidth();
         int parentHeight = videoView.getSurfaceContainer().getHeight();
 
         int w, h;
 
-        if (aspectRation >= 1) {
+        if (aspectRation < 1) {
             w = parentWidth;
-            h = (int) (w / aspectRation);
+            h = (int) (w * aspectRation);
         } else {
             h = parentHeight;
-            w = (int) (h * aspectRation);
+            w = (int) (h / aspectRation);
         }
         renderView.setVideoSize(w, h);
     }
@@ -312,7 +313,7 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
             return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         }
         if (playerConfig.screenMode == PlayerConfig.AUTO_FULLSCREEN_MODE) {
-            return player.getAspectRation() >= 1 ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+            return player.getAspectRation() < 1 ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         }
         return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
     }

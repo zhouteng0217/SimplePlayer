@@ -119,7 +119,7 @@ public class GoogleExoPlayer extends BasePlayer {
 
     @Override
     public float getAspectRation() {
-        return simpleExoPlayer == null || videoHeight == 0 ? 1.0f : (float) videoWidth / videoHeight;
+        return simpleExoPlayer == null || videoWidth == 0 ? 1.0f : (float) videoHeight / videoWidth;
     }
 
     @Override

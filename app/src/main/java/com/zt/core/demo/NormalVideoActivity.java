@@ -39,7 +39,8 @@ public class NormalVideoActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Video Play");
     }
 
-    protected @LayoutRes int getLayoutId() {
+    protected @LayoutRes
+    int getLayoutId() {
         return R.layout.aty_normal_video;
     }
 
@@ -82,6 +83,7 @@ public class NormalVideoActivity extends AppCompatActivity {
                 .fullScreenMode(sample.fullscreenMode)
                 .renderType(renderType)
                 .looping(sample.looping)
+                .aspectRatio(sample.aspectRatio)
                 .player(player)  //IjkPlayer,GoogleExoPlayer 需添加对应的依赖
                 .build();
 
@@ -124,6 +126,10 @@ public class NormalVideoActivity extends AppCompatActivity {
         stringBuilder.append(sample.path);
         stringBuilder.append("\n");
 
+        stringBuilder.append("画面比例:");
+        stringBuilder.append(sample.aspectRatio == 0 ? "自适应" : sample.aspectRatio);
+        stringBuilder.append("\n");
+
         stringBuilder.append("全屏模式: ");
         stringBuilder.append(sample.fullscreenMode == 0 ? "横向全屏"
                 : sample.fullscreenMode == 1 ? "竖向全屏" : "根据视频比例来设定全屏方向");
@@ -150,11 +156,11 @@ public class NormalVideoActivity extends AppCompatActivity {
         stringBuilder.append("\n");
 
         stringBuilder.append("重力感应旋转屏幕:");
-        stringBuilder.append(sample.sensorRotateSupport && sample.fullscreenMode == PlayerConfig.LANDSCAPE_FULLSCREEN_MODE  ? "启用" : "关闭");
+        stringBuilder.append(sample.sensorRotateSupport && sample.fullscreenMode == PlayerConfig.LANDSCAPE_FULLSCREEN_MODE ? "启用" : "关闭");
         stringBuilder.append("\n");
 
         stringBuilder.append("重力感应旋转方向跟随系统设置:");
-        stringBuilder.append(sample.rotateWithSystem  ? "启用" : "关闭");
+        stringBuilder.append(sample.rotateWithSystem ? "启用" : "关闭");
         stringBuilder.append("\n");
 
         descTextView.setText(stringBuilder.toString());

@@ -90,7 +90,7 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
 
     @Override
     public float getAspectRation() {
-        return mediaPlayer == null || mediaPlayer.getVideoHeight() == 0 ? 1.0f : (float) mediaPlayer.getVideoWidth() / mediaPlayer.getVideoHeight();
+        return mediaPlayer == null || mediaPlayer.getVideoWidth() == 0 ? 1.0f : (float) mediaPlayer.getVideoHeight() / mediaPlayer.getVideoWidth();
     }
 
     @Override

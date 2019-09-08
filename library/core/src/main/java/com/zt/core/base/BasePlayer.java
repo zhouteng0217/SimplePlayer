@@ -8,8 +8,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.RawRes;
 import android.text.TextUtils;
-import android.view.Surface;
-import android.view.SurfaceHolder;
 
 import com.zt.core.listener.OnStateChangedListener;
 import com.zt.core.listener.onVideoSizeChangedListener;
@@ -272,7 +270,7 @@ public abstract class BasePlayer implements IMediaPlayer {
     //销毁播放器
     protected abstract void destroyImpl();
 
-    //获取视频内容宽高比
+    //获取视频内容高宽比
     public abstract float getAspectRation();
 
     //获取视频内容宽度

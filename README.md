@@ -8,6 +8,7 @@
 * 支持手势调节音量，亮度，播放进度
 * 支持竖屏全屏和横屏全屏，以及根据宽高比自动实现全屏策略
 * 支持根据重力感应自动旋转屏幕全屏等操作
+* 支持调整视频画面比例
 * 支持在ListView和RecyclerView中播放，全屏等操作
 * 支持SurfaceView和TextureView播放
 * 支持[ijkplayer](https://github.com/bilibili/ijkplayer)播放扩展, 默认Android原生播放器播放

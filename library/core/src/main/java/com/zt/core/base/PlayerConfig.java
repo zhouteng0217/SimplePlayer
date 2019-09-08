@@ -31,6 +31,7 @@ public class PlayerConfig {
     public final boolean enableMediaCodec;  //是否启用硬解码
     public final boolean enableOpenSLES;   //是否启用OpenSL ES
     public final boolean looping; //是否循环播放
+    public final float aspectRatio; //正常模式下播放画面的高宽比
     public final BasePlayer player;  //自定义播放器播放
 
     private PlayerConfig(PlayerConfig.Builder builder) {
@@ -40,6 +41,7 @@ public class PlayerConfig {
         this.enableOpenSLES = builder.enableOpenSLES;
         this.player = builder.player;
         this.looping = builder.looping;
+        this.aspectRatio = builder.aspectRatio;
     }
 
     public static class Builder {
@@ -48,6 +50,7 @@ public class PlayerConfig {
         private boolean enableMediaCodec;
         private boolean enableOpenSLES;
         private boolean looping;
+        private float aspectRatio; //播放画面高宽比
         private BasePlayer player;
 
         public Builder fullScreenMode(@FullScreeMode int screenMode) {
@@ -72,6 +75,11 @@ public class PlayerConfig {
 
         public Builder looping(boolean isLooping) {
             this.looping = isLooping;
+            return this;
+        }
+
+        public Builder aspectRatio(float aspectRatio) {
+            this.aspectRatio = aspectRatio;
             return this;
         }
 

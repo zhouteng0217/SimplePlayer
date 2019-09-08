@@ -183,7 +183,7 @@ public class AndroidPlayer extends BasePlayer implements MediaPlayer.OnPreparedL
 
     @Override
     public float getAspectRation() {
-        return mediaPlayer == null || mediaPlayer.getVideoHeight() == 0 ? 1.0f : (float) mediaPlayer.getVideoWidth() / mediaPlayer.getVideoHeight();
+        return mediaPlayer == null || mediaPlayer.getVideoWidth() == 0 ? 1.0f : (float) mediaPlayer.getVideoHeight() / mediaPlayer.getVideoWidth();
     }
 
     @Override

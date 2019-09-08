@@ -11,7 +11,8 @@
         "renderType": 0,
         "lockSupport": true,
         "sensorRotateSupport": true,
-        "rotateWithSystem": true
+        "rotateWithSystem": true,
+        "aspectRatio": 0
       },
       {
         "title": "https",
@@ -30,7 +31,8 @@
       {
         "title": "file",
         "player": 1,
-        "fileType": "file"
+        "fileType": "file",
+        "aspectRatio": 0.75
       },
       {
         "title": "raw",
