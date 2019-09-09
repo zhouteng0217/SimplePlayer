@@ -10,7 +10,7 @@ import android.support.annotation.RawRes;
 import android.text.TextUtils;
 
 import com.zt.core.listener.OnStateChangedListener;
-import com.zt.core.listener.onVideoSizeChangedListener;
+import com.zt.core.listener.OnVideoSizeChangedListener;
 import com.zt.core.util.VideoUtils;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public abstract class BasePlayer implements IMediaPlayer {
     protected String assetFileName;
 
     protected OnStateChangedListener onStateChangeListener;
-    protected onVideoSizeChangedListener onVideoSizeChangedListener;
+    protected OnVideoSizeChangedListener onVideoSizeChangedListener;
 
     protected Context context;
 
@@ -101,7 +101,7 @@ public abstract class BasePlayer implements IMediaPlayer {
         this.onStateChangeListener = onStateChangeListener;
     }
 
-    public void setOnVideoSizeChangedListener(onVideoSizeChangedListener onVideoSizeChangedListener) {
+    public void setOnVideoSizeChangedListener(OnVideoSizeChangedListener onVideoSizeChangedListener) {
         this.onVideoSizeChangedListener = onVideoSizeChangedListener;
     }
 

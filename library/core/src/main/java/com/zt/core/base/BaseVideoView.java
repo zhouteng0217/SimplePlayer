@@ -14,7 +14,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.zt.core.R;
-import com.zt.core.listener.OnFullScreenChangedListener;
+import com.zt.core.listener.OnFullscreenChangedListener;
+import com.zt.core.listener.OnStateChangedListener;
+import com.zt.core.listener.OnVideoSizeChangedListener;
 
 import java.util.Map;
 
@@ -23,7 +25,8 @@ import java.util.Map;
  */
 public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
-    protected OnFullScreenChangedListener onFullScreenChangeListener;
+    protected OnFullscreenChangedListener onFullScreenChangeListener;
+    protected OnStateChangedListener onStateChangedListener;
 
     protected BaseVideoController videoController;
 
@@ -86,15 +89,26 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         return videoController.isFullScreen();
     }
 
-    public void setOnFullScreenChangeListener(OnFullScreenChangedListener onFullScreenChangeListener) {
-        this.onFullScreenChangeListener = onFullScreenChangeListener;
+    @Override
+    public void setOnFullscreenChangeListener(OnFullscreenChangedListener onFullscreenChangeListener) {
+        this.onFullScreenChangeListener = onFullscreenChangeListener;
+    }
+
+    @Override
+    public void setOnStateChangedListener(OnStateChangedListener onStateChangedListener) {
+        this.onStateChangedListener = onStateChangedListener;
+    }
+
+    @Override
+    public void setOnVideoSizeChangedListener(OnVideoSizeChangedListener onVideoSizeChangedListener) {
+        videoController.setOnVideoSizeChangedListener(onVideoSizeChangedListener);
     }
 
     @Override
     public void startFullscreen() {
         videoController.startFullscreen();
         if (onFullScreenChangeListener != null) {
-            onFullScreenChangeListener.onFullScreenChange(true);
+            onFullScreenChangeListener.onFullscreenChange(true);
         }
     }
 
@@ -102,7 +116,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     public void startFullscreenWithOrientation(int orientation) {
         videoController.startFullscreenWithOrientation(orientation);
         if (onFullScreenChangeListener != null) {
-            onFullScreenChangeListener.onFullScreenChange(true);
+            onFullScreenChangeListener.onFullscreenChange(true);
         }
     }
 
@@ -110,7 +124,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     public void exitFullscreen() {
         videoController.exitFullscreen();
         if (onFullScreenChangeListener != null) {
-            onFullScreenChangeListener.onFullScreenChange(false);
+            onFullScreenChangeListener.onFullscreenChange(false);
         }
     }
 
@@ -118,7 +132,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     public void exitFullscreenWithOrientation(int orientation) {
         videoController.exitFullscreenWithOrientation(orientation);
         if (onFullScreenChangeListener != null) {
-            onFullScreenChangeListener.onFullScreenChange(false);
+            onFullScreenChangeListener.onFullscreenChange(false);
         }
     }
 
@@ -163,7 +177,11 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
     public abstract void setTitle(String titleText);
 
-    public abstract void onStateChange(int state);
+    public void onStateChange(int state) {
+        if (onStateChangedListener != null) {
+            onStateChangedListener.onStateChange(state);
+        }
+    }
 
     public void setPlayerConfig(PlayerConfig playerConfig) {
         videoController.setPlayerConfig(playerConfig);

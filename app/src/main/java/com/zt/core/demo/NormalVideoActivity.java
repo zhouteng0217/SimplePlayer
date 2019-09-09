@@ -4,17 +4,23 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.TextView;
 
 import com.zt.core.base.BasePlayer;
 import com.zt.core.base.PlayerConfig;
+import com.zt.core.listener.OnFullscreenChangedListener;
+import com.zt.core.listener.OnStateChangedListener;
+import com.zt.core.listener.OnVideoSizeChangedListener;
 import com.zt.core.player.AndroidPlayer;
 import com.zt.core.view.StandardVideoView;
 import com.zt.exoplayer.GoogleExoPlayer;
 import com.zt.ijkplayer.IjkPlayer;
 
 public class NormalVideoActivity extends AppCompatActivity {
+
+    private static final String TAG = "NormalVideoActivity";
 
     private Sample sample;
 
@@ -122,6 +128,30 @@ public class NormalVideoActivity extends AppCompatActivity {
 
         //设置重力感应旋转是否跟随系统设置中的方向锁定，默认支持(在上面的选项，开启重力感应旋转屏幕支持后，该项才生效)
         videoView.setRotateWithSystem(sample.rotateWithSystem);
+
+        //监听播放器状态变化
+        videoView.setOnStateChangedListener(new OnStateChangedListener() {
+            @Override
+            public void onStateChange(int state) {
+                Log.d(TAG, "onStateChange state =" + state);
+            }
+        });
+
+        //监听播放器全屏状态变化
+        videoView.setOnFullscreenChangeListener(new OnFullscreenChangedListener() {
+            @Override
+            public void onFullscreenChange(boolean isFullscreen) {
+                Log.d(TAG, "onFullscreenChange isFullScreen =" + isFullscreen);
+            }
+        });
+
+        //监听播放器画面大小变化
+        videoView.setOnVideoSizeChangedListener(new OnVideoSizeChangedListener() {
+            @Override
+            public void onVideoSizeChanged(int width, int height) {
+                Log.d(TAG, "onVideoSizeChanged width =" + width + ", height=" + height);
+            }
+        });
 
         videoView.start();
     }

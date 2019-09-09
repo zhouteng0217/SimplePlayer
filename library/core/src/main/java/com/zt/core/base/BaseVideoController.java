@@ -14,7 +14,7 @@ import android.view.Window;
 import android.widget.FrameLayout;
 
 import com.zt.core.listener.OnStateChangedListener;
-import com.zt.core.listener.onVideoSizeChangedListener;
+import com.zt.core.listener.OnVideoSizeChangedListener;
 import com.zt.core.player.AndroidPlayer;
 import com.zt.core.render.SurfaceRenderView;
 import com.zt.core.render.TextureRenderView;
@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  * 播放器UI层和播放层桥梁，连接播放器UI视图和播放器播放逻辑
  */
-public class BaseVideoController implements IVideoController, onVideoSizeChangedListener, OnStateChangedListener {
+public class BaseVideoController implements IVideoController, OnVideoSizeChangedListener, OnStateChangedListener {
 
     protected String url;
 
@@ -61,6 +61,8 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
 
     protected Context context;
     private ViewGroup playerView;
+
+    protected OnVideoSizeChangedListener onVideoSizeChangedListener;
 
     public BaseVideoController(IVideoView videoView) {
         playerConfig = new PlayerConfig.Builder().build();
@@ -179,8 +181,15 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
         return playerConfig;
     }
 
+    public void setOnVideoSizeChangedListener(OnVideoSizeChangedListener onVideoSizeChangedListener) {
+        this.onVideoSizeChangedListener = onVideoSizeChangedListener;
+    }
+
     @Override
     public void onVideoSizeChanged(int width, int height) {
+        if (onVideoSizeChangedListener != null) {
+            onVideoSizeChangedListener.onVideoSizeChanged(width, height);
+        }
         resizeTextureView(width, height);
     }
 

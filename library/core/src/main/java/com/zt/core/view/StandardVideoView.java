@@ -101,7 +101,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     @Override
-    protected @IdRes int getSurfaceContainerId() {
+    protected @IdRes
+    int getSurfaceContainerId() {
         return R.id.surface_container;
     }
 
@@ -114,6 +115,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     @Override
     public void onStateChange(int state) {
+        super.onStateChange(state);
         switch (state) {
             case AndroidPlayer.STATE_IDLE:
                 changeUIWithIdle();
