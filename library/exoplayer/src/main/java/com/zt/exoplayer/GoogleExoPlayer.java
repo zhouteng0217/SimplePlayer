@@ -103,9 +103,25 @@ public class GoogleExoPlayer extends BasePlayer {
     }
 
     @Override
+    public void release() {
+        super.release();
+        if (simpleExoPlayer != null) {
+            simpleExoPlayer.removeListener(playerEventListener);
+            simpleExoPlayer.removeVideoListener(videoListener);
+        }
+    }
+
+    @Override
     protected void releaseImpl() {
         if (simpleExoPlayer != null) {
             simpleExoPlayer.release();
+        }
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        if (simpleExoPlayer != null) {
             simpleExoPlayer.removeListener(playerEventListener);
             simpleExoPlayer.removeVideoListener(videoListener);
         }
