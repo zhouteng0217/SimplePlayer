@@ -12,14 +12,15 @@
         "lockSupport": true,
         "sensorRotateSupport": true,
         "rotateWithSystem": true,
-        "aspectRatio": 0
+        "aspectRatio": ""
       },
       {
         "title": "https",
         "path": "https://www.w3schools.com/html/mov_bbb.mp4",
         "player": 2,
         "fileType": "url",
-        "rotateWithSystem": true
+        "rotateWithSystem": true,
+        "aspectRatio": ""
       },
       {
         "title": "rtmp",
@@ -32,7 +33,7 @@
         "title": "file",
         "player": 1,
         "fileType": "file",
-        "aspectRatio": 0.75
+        "aspectRatio": "3:4"
       },
       {
         "title": "raw",

@@ -19,7 +19,7 @@ public class Sample implements Serializable {
     public boolean lockSupport = true; //是否全屏下支持锁定播放器
     public boolean sensorRotateSupport = true; //是否支持重力感应旋转屏幕全屏 (仅在fullsceenMode=0,即默认的全屏策略下支持)
     public boolean rotateWithSystem = true; //重力感应旋转屏幕开启支持的情况下，旋转方向是否跟随系统设置中的旋转方向锁定
-    public float aspectRatio; //正常竖屏下，播放器画面的高宽比，默认为视频画面的实际高宽比
+    public String aspectRatio; //正常竖屏下，播放器画面的高宽比，默认为视频画面的实际高宽比
 
     public String demoType = "normal"; // normal 正常视频播放，list listView中列表视频播放, recycler recyclerView中视频播放
 

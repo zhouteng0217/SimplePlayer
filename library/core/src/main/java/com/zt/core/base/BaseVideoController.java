@@ -185,7 +185,7 @@ public class BaseVideoController implements IVideoController, onVideoSizeChanged
     }
 
     //根据视频内容重新调整视频渲染区域大小
-    public void resizeTextureView(int width, int height) {
+    protected void resizeTextureView(int width, int height) {
         if (width == 0 || height == 0 || renderView == null || renderView.getRenderView() == null) {
             return;
         }

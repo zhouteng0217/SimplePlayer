@@ -3,6 +3,7 @@ package com.zt.core.demo;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.widget.TextView;
 
@@ -78,12 +79,16 @@ public class NormalVideoActivity extends AppCompatActivity {
 
         int renderType = sample.renderType == 0 ? PlayerConfig.RENDER_TEXTURE_VIEW : PlayerConfig.RENDER_SURFACE_VIEW;
 
-        //设置全屏策略，设置视频渲染界面类型,设置是否循环播放，设置自定义播放器
+        float aspectRatio = TextUtils.isEmpty(sample.aspectRatio) ? 0 :
+                Float.parseFloat(sample.aspectRatio.substring(0, sample.aspectRatio.indexOf(":"))) /
+                        Float.parseFloat(sample.aspectRatio.substring(sample.aspectRatio.indexOf(":") + 1));
+
+        //设置全屏策略，设置视频渲染界面类型,设置是否循环播放，设置播放器画面高宽比例，设置自定义播放器核心
         PlayerConfig playerConfig = new PlayerConfig.Builder()
                 .fullScreenMode(sample.fullscreenMode)
                 .renderType(renderType)
                 .looping(sample.looping)
-                .aspectRatio(sample.aspectRatio)
+                .aspectRatio(aspectRatio)
                 .player(player)  //IjkPlayer,GoogleExoPlayer 需添加对应的依赖
                 .build();
 
@@ -122,12 +127,12 @@ public class NormalVideoActivity extends AppCompatActivity {
         stringBuilder.append(sample.renderType == 0 ? "TextureView" : "SurfaceView");
         stringBuilder.append("\n");
 
-        stringBuilder.append("播放地址:");
+        stringBuilder.append("播放地址: ");
         stringBuilder.append(sample.path);
         stringBuilder.append("\n");
 
-        stringBuilder.append("画面比例:");
-        stringBuilder.append(sample.aspectRatio == 0 ? "自适应" : sample.aspectRatio);
+        stringBuilder.append("画面比例(高宽比): ");
+        stringBuilder.append(TextUtils.isEmpty(sample.aspectRatio) ? "自适应" : sample.aspectRatio);
         stringBuilder.append("\n");
 
         stringBuilder.append("全屏模式: ");
@@ -135,31 +140,31 @@ public class NormalVideoActivity extends AppCompatActivity {
                 : sample.fullscreenMode == 1 ? "竖向全屏" : "根据视频比例来设定全屏方向");
         stringBuilder.append("\n");
 
-        stringBuilder.append("循环播放:");
+        stringBuilder.append("循环播放: ");
         stringBuilder.append(sample.looping ? "是" : "否");
         stringBuilder.append("\n");
 
-        stringBuilder.append("音量调节手势:");
+        stringBuilder.append("音量调节手势: ");
         stringBuilder.append(sample.volumeSupport ? "启用" : "关闭");
         stringBuilder.append("\n");
 
-        stringBuilder.append("亮度调节手势:");
+        stringBuilder.append("亮度调节手势: ");
         stringBuilder.append(sample.brightnessSupport ? "启用" : "关闭");
         stringBuilder.append("\n");
 
-        stringBuilder.append("进度调节手势:");
+        stringBuilder.append("进度调节手势: ");
         stringBuilder.append(sample.seekSupport ? "启用" : "关闭");
         stringBuilder.append("\n");
 
-        stringBuilder.append("全屏时锁定屏幕支持:");
+        stringBuilder.append("全屏时锁定屏幕支持: ");
         stringBuilder.append(sample.lockSupport ? "启用" : "关闭");
         stringBuilder.append("\n");
 
-        stringBuilder.append("重力感应旋转屏幕:");
+        stringBuilder.append("重力感应旋转屏幕: ");
         stringBuilder.append(sample.sensorRotateSupport && sample.fullscreenMode == PlayerConfig.LANDSCAPE_FULLSCREEN_MODE ? "启用" : "关闭");
         stringBuilder.append("\n");
 
-        stringBuilder.append("重力感应旋转方向跟随系统设置:");
+        stringBuilder.append("重力感应旋转方向跟随系统设置: ");
         stringBuilder.append(sample.rotateWithSystem ? "启用" : "关闭");
         stringBuilder.append("\n");
 
