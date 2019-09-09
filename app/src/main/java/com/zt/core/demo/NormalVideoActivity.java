@@ -77,7 +77,17 @@ public class NormalVideoActivity extends AppCompatActivity {
                 break;
         }
 
-        int renderType = sample.renderType == 0 ? PlayerConfig.RENDER_TEXTURE_VIEW : PlayerConfig.RENDER_SURFACE_VIEW;
+        int renderType;
+        switch (sample.renderType) {
+            case 0:
+                renderType = PlayerConfig.RENDER_TEXTURE_VIEW;
+                break;
+            case 1:
+                renderType = PlayerConfig.RENDER_SURFACE_VIEW;
+                break;
+            default:
+                renderType = PlayerConfig.RENDER_NONE;
+        }
 
         float aspectRatio = TextUtils.isEmpty(sample.aspectRatio) ? 0 :
                 Float.parseFloat(sample.aspectRatio.substring(0, sample.aspectRatio.indexOf(":"))) /
@@ -124,7 +134,7 @@ public class NormalVideoActivity extends AppCompatActivity {
         stringBuilder.append("\n");
 
         stringBuilder.append("Render: ");
-        stringBuilder.append(sample.renderType == 0 ? "TextureView" : "SurfaceView");
+        stringBuilder.append(sample.renderType == 0 ? "TextureView" : sample.renderType == 1 ? "SurfaceView" : "None");
         stringBuilder.append("\n");
 
         stringBuilder.append("播放地址: ");

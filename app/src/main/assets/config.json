@@ -44,6 +44,14 @@
         "title": "assets",
         "fileType": "assets",
         "player": 0
+      },
+      {
+        "title": "mp3",
+        "path": "https://public.dm.files.1drv.com/y4m6JMr7mMNi9qff35sT_ZVbxm0TsUHOxX5OG1j3TW58gmJ0cnJppTX4oc4cVoeVhVE6JMz5fIHsK-wS6TN10QdaIgtXlnabX_T38Bt4pRl8zHHn8oPUiH-cwXBl-sXJLq26a33cn-BkwjTch5UFd8-h1pvZye_5Iy-Lt_eCqKu9gChxTVsSmsLg9eLZw0NeOfx?",
+        "player": 2,
+        "fileType": "url",
+        "renderType": 2,
+        "sensorRotateSupport": false
       }
     ]
   },

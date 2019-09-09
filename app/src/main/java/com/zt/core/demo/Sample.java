@@ -8,7 +8,7 @@ public class Sample implements Serializable {
 
     public String title;
     public String path;
-    public int renderType = 0; // 0表示 TextureView, 1表示 SurfaceView
+    public int renderType = 0; // 0表示 TextureView, 1表示 SurfaceView, 2表示没有渲染界面
     public int player = 0; //0 表示 Android MediaPlayer, 1表示 IjkPlayer, 2表示ExoPlayer
     public String fileType = "url"; //url, file, raw, assets
     public boolean looping = false; //是否循环播放
