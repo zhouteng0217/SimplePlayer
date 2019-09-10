@@ -6,6 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.widget.TextView;
 
 import com.zt.core.base.BasePlayer;
@@ -14,11 +15,12 @@ import com.zt.core.listener.OnFullscreenChangedListener;
 import com.zt.core.listener.OnStateChangedListener;
 import com.zt.core.listener.OnVideoSizeChangedListener;
 import com.zt.core.player.AndroidPlayer;
+import com.zt.core.player.FloatVideoManager;
 import com.zt.core.view.StandardVideoView;
 import com.zt.exoplayer.GoogleExoPlayer;
 import com.zt.ijkplayer.IjkPlayer;
 
-public class NormalVideoActivity extends AppCompatActivity {
+public class NormalVideoActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "NormalVideoActivity";
 
@@ -36,6 +38,8 @@ public class NormalVideoActivity extends AppCompatActivity {
 
         videoView = findViewById(R.id.video_view);
         videoView.setTitle(sample.title);
+
+        findViewById(R.id.btn_float).setOnClickListener(this);
 
         initPlayerView();
 
@@ -232,5 +236,20 @@ public class NormalVideoActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         videoView.pause();
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_float:
+                startFloatVideoView();
+                break;
+        }
+    }
+
+    private void startFloatVideoView() {
+        videoView.setTinyVideoViewWidth(600);
+        videoView.setTinyVideoViewHeight(600);
+        FloatVideoManager.getInstance().startFloatVideo(videoView);
     }
 }
