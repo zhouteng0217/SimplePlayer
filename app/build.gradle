@@ -42,6 +42,7 @@ dependencies {
     implementation project(':library:ijkplayer')
     implementation project(':library:ijkplayer-armv7a')
     implementation project(':library:ijkplayer-arm64')
+    implementation project(':library:ijkplayer-x86')
     implementation project(':library:exoplayer')
 
 

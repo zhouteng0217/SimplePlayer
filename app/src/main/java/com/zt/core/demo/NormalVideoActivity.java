@@ -249,7 +249,7 @@ public class NormalVideoActivity extends AppCompatActivity implements View.OnCli
 
     private void startFloatVideoView() {
         videoView.setTinyVideoViewWidth(600);
-        videoView.setTinyVideoViewHeight(600);
+        videoView.setTinyVideoViewHeight(336);
         FloatVideoManager.getInstance().startFloatVideo(videoView);
     }
 }

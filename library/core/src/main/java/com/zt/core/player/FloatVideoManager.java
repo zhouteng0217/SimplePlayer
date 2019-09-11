@@ -7,6 +7,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.view.Gravity;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowManager;
 
 import com.zt.core.base.IVideoView;
@@ -57,6 +59,11 @@ public class FloatVideoManager {
                 context.startActivity(intent);
                 return;
             }
+        }
+
+        ViewParent viewParent = videoView.getPlayView().getParent();
+        if (viewParent != null) {
+            ((ViewGroup)viewParent).removeView(videoView.getPlayView());
         }
 
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
