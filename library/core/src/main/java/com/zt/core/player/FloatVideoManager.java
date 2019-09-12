@@ -3,9 +3,12 @@ package com.zt.core.player;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.view.Gravity;
+import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.view.WindowManager;
 
 import com.zt.core.base.IVideoView;
@@ -27,7 +30,7 @@ public class FloatVideoManager {
 
     private static FloatVideoManager instance;
 
-    public FloatVideoManager getInstance() {
+    public static FloatVideoManager getInstance() {
         if (instance == null) {
             instance = new FloatVideoManager();
         }
@@ -47,14 +50,20 @@ public class FloatVideoManager {
             return;
         }
 
-        Context context = videoView.getPlayView().getContext().getApplicationContext();
+        Context context = videoView.getPlayView().getContext();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(context)) {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                intent.setData(Uri.parse("package:" + context.getPackageName()));
                 context.startActivity(intent);
                 return;
             }
+        }
+
+        ViewParent viewParent = videoView.getPlayView().getParent();
+        if (viewParent != null) {
+            ((ViewGroup)viewParent).removeView(videoView.getPlayView());
         }
 
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);

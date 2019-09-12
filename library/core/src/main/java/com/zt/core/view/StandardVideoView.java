@@ -818,4 +818,29 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     //endregion
 
+    //region 小窗口管理
+
+    private int tinyVideoViewWidth, tinyVideoViewHeight;
+
+    @Override
+    public void setTinyVideoViewWidth(int tinyVideoViewWidth) {
+        this.tinyVideoViewWidth = tinyVideoViewWidth;
+    }
+
+    @Override
+    public void setTinyVideoViewHeight(int tinyVideoViewHeight) {
+        this.tinyVideoViewHeight = tinyVideoViewHeight;
+    }
+
+    @Override
+    public int getTinyVideoViewWidth() {
+        return tinyVideoViewWidth;
+    }
+
+    @Override
+    public int getTinyVideoViewHeight() {
+        return tinyVideoViewHeight;
+    }
+
+    //endregion
 }
