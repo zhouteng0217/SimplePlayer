@@ -99,7 +99,6 @@ public class ListVideoManager {
             containerView.removeAllViews();
             containerView.addView(currentVideoView);
             currentVideoView.setVideoUrlPath(url);
-            currentVideoView.setTitle(title);
             currentVideoView.invalidate();
             currentVideoView.start();
         }

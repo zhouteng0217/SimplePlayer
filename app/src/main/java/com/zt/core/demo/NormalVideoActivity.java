@@ -10,12 +10,14 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.zt.core.base.BasePlayer;
+import com.zt.core.base.ITinyVideoView;
 import com.zt.core.base.PlayerConfig;
 import com.zt.core.listener.OnFullscreenChangedListener;
 import com.zt.core.listener.OnStateChangedListener;
 import com.zt.core.listener.OnVideoSizeChangedListener;
 import com.zt.core.player.AndroidPlayer;
 import com.zt.core.player.FloatVideoManager;
+import com.zt.core.view.FloatVideoView;
 import com.zt.core.view.StandardVideoView;
 import com.zt.exoplayer.GoogleExoPlayer;
 import com.zt.ijkplayer.IjkPlayer;
@@ -248,8 +250,11 @@ public class NormalVideoActivity extends AppCompatActivity implements View.OnCli
     }
 
     private void startFloatVideoView() {
-        videoView.setTinyVideoViewWidth(600);
-        videoView.setTinyVideoViewHeight(336);
-        FloatVideoManager.getInstance().startFloatVideo(videoView);
+        FloatVideoView floatVideoView = new FloatVideoView(this);
+        ITinyVideoView.VideoLayoutParams videoLayoutParams = new ITinyVideoView.VideoLayoutParams(600, 336);
+        videoLayoutParams.x = 20;
+        videoLayoutParams.y = 20;
+        floatVideoView.setVideoLayoutParams(videoLayoutParams);
+        FloatVideoManager.getInstance().startFloatVideo(floatVideoView);
     }
 }

@@ -175,8 +175,6 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
     public abstract boolean onBackKeyPressed();
 
-    public abstract void setTitle(String titleText);
-
     public void onStateChange(int state) {
         if (onStateChangedListener != null) {
             onStateChangedListener.onStateChange(state);

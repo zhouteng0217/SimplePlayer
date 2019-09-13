@@ -7,11 +7,13 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
 
-import com.zt.core.base.IVideoView;
+import com.zt.core.base.ITinyVideoView;
+import com.zt.core.util.VideoUtils;
 
 import java.lang.ref.WeakReference;
 
@@ -20,15 +22,16 @@ import java.lang.ref.WeakReference;
  * <p>
  * 悬浮视频管理
  */
-public class FloatVideoManager {
+public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
 
-    private WeakReference<IVideoView> weakReference;
+    private WeakReference<ITinyVideoView> weakReference;
 
     private WindowManager windowManager;
 
-    private int originX, originY;
+    private ITinyVideoView.VideoLayoutParams videoLayoutParams;
 
     private static FloatVideoManager instance;
+    private WindowManager.LayoutParams wmParams;
 
     public static FloatVideoManager getInstance() {
         if (instance == null) {
@@ -37,18 +40,18 @@ public class FloatVideoManager {
         return instance;
     }
 
-    public void startFloatVideo(IVideoView videoView) {
+    public void startFloatVideo(ITinyVideoView videoView) {
         weakReference = new WeakReference<>(videoView);
-        originX = 0;
-        originY = 0;
+        videoLayoutParams = videoView.getVideoLayoutParams();
         createFloatVideo();
     }
 
     private void createFloatVideo() {
-        IVideoView videoView = weakReference.get();
+        ITinyVideoView videoView = weakReference.get();
         if (videoView == null) {
             return;
         }
+        videoView.setTinyVideoViewListener(this);
 
         Context context = videoView.getPlayView().getContext();
 
@@ -63,23 +66,73 @@ public class FloatVideoManager {
 
         ViewParent viewParent = videoView.getPlayView().getParent();
         if (viewParent != null) {
-            ((ViewGroup)viewParent).removeView(videoView.getPlayView());
+            ((ViewGroup) viewParent).removeView(videoView.getPlayView());
         }
 
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
-        WindowManager.LayoutParams wmParams = new WindowManager.LayoutParams();
+        wmParams = new WindowManager.LayoutParams();
         wmParams.type = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                 : WindowManager.LayoutParams.TYPE_SYSTEM_ALERT;
         wmParams.format = PixelFormat.RGBA_8888;
         wmParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
         wmParams.gravity = Gravity.TOP | Gravity.LEFT | Gravity.START;
-        wmParams.width = videoView.getTinyVideoViewWidth();
-        wmParams.height = videoView.getTinyVideoViewHeight();
-        wmParams.x = originX;
-        wmParams.y = originY;
+        wmParams.width = videoLayoutParams.width;
+        wmParams.height = videoLayoutParams.height;
+        wmParams.x = videoLayoutParams.x;
+        wmParams.y = videoLayoutParams.y;
 
         windowManager.addView(videoView.getPlayView(), wmParams);
         windowManager.updateViewLayout(videoView.getPlayView(), wmParams);
     }
+
+    @Override
+    public void closeVideoView() {
+        ITinyVideoView videoView = weakReference.get();
+        if (videoView != null) {
+            windowManager.removeViewImmediate(videoView.getPlayView());
+        }
+    }
+
+    @Override
+    public void backToNormalView() {
+
+    }
+
+    //region  移动小窗体
+
+    private float xInScreen;
+    private float yInScreen;
+
+    private float xInView;
+    private float yInView;
+
+    @Override
+    public boolean onTouch(MotionEvent event) {
+
+        xInScreen = event.getRawX();
+        yInScreen = event.getRawY() - VideoUtils.getStatusBarHeight(weakReference.get().getPlayView().getContext());
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                xInView = event.getX();
+                yInView = event.getY();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                updateViewPosition();
+                break;
+            case MotionEvent.ACTION_UP:
+                break;
+        }
+        return true;
+    }
+
+    private void updateViewPosition() {
+
+        wmParams.y = (int) (yInScreen - yInView);
+        wmParams.x = (int) (xInScreen - xInView);
+        windowManager.updateViewLayout(weakReference.get().getPlayView(), wmParams);
+    }
+
+    //endregion
 }

@@ -7,7 +7,7 @@ import android.view.ViewGroup;
  * <p>
  * 自定义播放器时，通过实现该接口，来提供VideoController层所需
  */
-public interface IVideoView extends IVideoController, IVideoCallback, ITinyVideoView {
+public interface IVideoView extends IVideoController, IVideoCallback {
 
     /**
      * @return 播放器视图中承载画面渲染的容器视图
