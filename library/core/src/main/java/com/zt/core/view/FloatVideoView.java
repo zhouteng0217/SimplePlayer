@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.zt.core.R;
 import com.zt.core.base.BaseVideoView;
@@ -21,6 +22,7 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
 
     private VideoLayoutParams videoLayoutParams;
     private TinyVideoViewListenr listenr;
+    private ImageView playBtn;
 
     public FloatVideoView(@NonNull Context context) {
         this(context, null);
@@ -47,6 +49,9 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
 
         View fullscreenView = findViewById(R.id.fullscreen);
         fullscreenView.setOnClickListener(this);
+
+        playBtn = findViewById(R.id.start);
+        playBtn.setOnClickListener(this);
 
         surfaceContainer.setOnTouchListener(this);
 
@@ -92,14 +97,17 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.close) {
+        int viewId = v.getId();
+        if (viewId == R.id.close) {
             if (listenr != null) {
                 listenr.closeVideoView();
             }
-        } else if (v.getId() == R.id.fullscreen) {
+        } else if (viewId == R.id.fullscreen) {
             if (listenr != null) {
                 listenr.backToNormalView();
             }
+        } else if (viewId == R.id.start) {
+            start();
         }
     }
 
@@ -109,5 +117,15 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
             return listenr.onTouch(event);
         }
         return false;
+    }
+
+    @Override
+    protected void setPlayingIcon() {
+        playBtn.setImageResource(R.drawable.ic_pause);
+    }
+
+    @Override
+    protected void setPausedIcon() {
+        playBtn.setImageResource(R.drawable.ic_play);
     }
 }

@@ -224,6 +224,9 @@ public class MainActivity extends AppCompatActivity implements ExpandableListVie
             case "recycler":
                 intent = new Intent(this, RecyclerViewVideoActivity.class);
                 break;
+            case "float":
+                intent = new Intent(this, FloatVideoActivity.class);
+                break;
             default:
                 intent = new Intent(this, NormalVideoActivity.class);
                 break;

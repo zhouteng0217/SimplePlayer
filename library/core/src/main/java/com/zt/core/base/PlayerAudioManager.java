@@ -59,9 +59,9 @@ public class PlayerAudioManager {
         }
     };
 
-    public PlayerAudioManager(Context context, IMediaPlayer playerListener) {
+    public PlayerAudioManager(Context context, IMediaPlayer mediaPlayer) {
         this.context = context;
-        this.mediaPlayer = playerListener;
+        this.mediaPlayer = mediaPlayer;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         headsetBroadcastReceiver = new HeadsetBroadcastReceiver();
         registerHeadsetReceiver();

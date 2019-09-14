@@ -17,6 +17,7 @@ import com.zt.core.R;
 import com.zt.core.listener.OnFullscreenChangedListener;
 import com.zt.core.listener.OnStateChangedListener;
 import com.zt.core.listener.OnVideoSizeChangedListener;
+import com.zt.core.player.AndroidPlayer;
 
 import java.util.Map;
 
@@ -179,10 +180,31 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         if (onStateChangedListener != null) {
             onStateChangedListener.onStateChange(state);
         }
+        updatePlayIcon(state);
     }
 
     public void setPlayerConfig(PlayerConfig playerConfig) {
         videoController.setPlayerConfig(playerConfig);
+    }
+
+    protected void updatePlayIcon(int state) {
+        if (state == AndroidPlayer.STATE_PLAYING) {
+            setPlayingIcon();
+        } else if (state == AndroidPlayer.STATE_ERROR) {
+            setPausedIcon();
+        } else {
+            setPausedIcon();
+        }
+    }
+
+    //设置播放时，播放按钮图标
+    protected abstract void setPlayingIcon();
+
+    //设置暂停时，播放按钮图标
+    protected abstract void setPausedIcon();
+
+    public IRenderView getRenderView() {
+        return videoController.getRenderView();
     }
 
     @Override
@@ -191,7 +213,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     }
 
     @Override
-    public ViewGroup getPlayView() {
+    public BaseVideoView getPlayView() {
         return this;
     }
 

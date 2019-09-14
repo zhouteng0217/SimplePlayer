@@ -139,11 +139,9 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 changeUIWithError();
                 break;
             case AndroidPlayer.STATE_BUFFERING_START:
-//            case AndroidPlayer.STATE_SEEK_START:
                 changeUiWithBufferingStart();
                 break;
             case AndroidPlayer.STATE_BUFFERING_END:
-//            case AndroidPlayer.STATE_SEEK_END:
                 changeUiWithBufferingEnd();
                 break;
         }
@@ -158,48 +156,35 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void changeUIWithPlaying() {
-        updatePlayIcon(AndroidPlayer.STATE_PLAYING);
         startProgressTimer();
         setViewsVisible(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithPause() {
-        updatePlayIcon(AndroidPlayer.STATE_PAUSED);
         cancelProgressTimer();
         cancelControlViewTimer();
         setViewsVisible(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithError() {
-        updatePlayIcon(AndroidPlayer.STATE_ERROR);
         cancelProgressTimer();
         setViewsVisible(View.VISIBLE, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithComplete() {
-        updatePlayIcon(AndroidPlayer.STATE_COMPLETED);
         cancelProgressTimer();
         setViewsVisible(View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE, View.VISIBLE);
         seekBar.setProgress(100);
         currentTimeText.setText(totalTimeText.getText());
     }
 
-    protected void updatePlayIcon(int state) {
-        if (state == AndroidPlayer.STATE_PLAYING) {
-            setPlayingIcon();
-        } else if (state == AndroidPlayer.STATE_ERROR) {
-            setPausedIcon();
-        } else {
-            setPausedIcon();
-        }
-    }
-
+    @Override
     protected void setPlayingIcon() {
         start.setImageResource(R.drawable.ic_pause);
     }
 
+    @Override
     protected void setPausedIcon() {
-        start.setImageResource(R.drawable.ic_play);
     }
 
     protected void resetProgressAndTime() {
@@ -209,7 +194,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     protected void changeUIWithIdle() {
         cancelProgressTimer();
-        updatePlayIcon(AndroidPlayer.STATE_IDLE);
         setViewsVisible(View.VISIBLE, View.GONE, View.GONE, View.GONE, View.VISIBLE, View.GONE);
     }
 

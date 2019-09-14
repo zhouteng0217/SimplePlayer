@@ -21,6 +21,6 @@ public class Sample implements Serializable {
     public boolean rotateWithSystem = true; //重力感应旋转屏幕开启支持的情况下，旋转方向是否跟随系统设置中的旋转方向锁定
     public String aspectRatio; //正常竖屏下，播放器画面的高宽比，默认为视频画面的实际高宽比
 
-    public String demoType = "normal"; // normal 正常视频播放，list listView中列表视频播放, recycler recyclerView中视频播放
+    public String demoType = "normal"; // normal 正常视频播放，list listView中列表视频播放, recycler recyclerView中视频播放, float小窗口视频
 
 }

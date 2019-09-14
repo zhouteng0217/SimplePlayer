@@ -47,8 +47,8 @@
       },
       {
         "title": "mp3",
-        "path": "http://m7.music.126.net/20190913175209/a7cf2f6c442eef548c9542d619efc453/ymusic/0ca4/1dd7/df4b/86e8bf58a5a367aad23e84bef976bba3.mp3",
-        "player": 2,
+        "path": "http://storage.live.com/items/6928E43C22C03C53!186212:/%e5%91%a8%e6%9d%b0%e4%bc%a6-%e5%90%ac%e5%a6%88%e5%a6%88%e7%9a%84%e8%af%9d.mp3?authkey=AJe_G5qKL8pWMCg",
+        "player": 1,
         "fileType": "url",
         "renderType": 2,
         "sensorRotateSupport": false
@@ -93,6 +93,12 @@
         "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
         "player": 2,
         "renderType": 0
+      },
+      {
+        "title": "小窗口播放",
+        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
+        "player": 2,
+        "demoType": "float"
       }
     ]
   },

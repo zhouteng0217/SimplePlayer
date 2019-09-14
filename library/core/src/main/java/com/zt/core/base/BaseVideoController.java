@@ -151,6 +151,10 @@ public class BaseVideoController implements IVideoController, OnVideoSizeChanged
         }
     }
 
+    public IRenderView getRenderView() {
+        return renderView;
+    }
+
     protected IRenderView newRenderViewInstance(Context context) {
         switch (playerConfig.renderType) {
             case PlayerConfig.RENDER_TEXTURE_VIEW:

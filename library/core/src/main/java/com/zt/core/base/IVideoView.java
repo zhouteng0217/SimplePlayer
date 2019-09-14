@@ -17,7 +17,7 @@ public interface IVideoView extends IVideoController, IVideoCallback {
     /**
      * @return 播放器视图
      */
-    ViewGroup getPlayView();
+    BaseVideoView getPlayView();
 
     /**
      * @param state 播放器状态回调
