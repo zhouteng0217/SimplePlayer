@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.WindowManager;
 
+import com.zt.core.base.BasePlayer;
 import com.zt.core.base.IRenderView;
 import com.zt.core.base.ITinyVideoView;
 import com.zt.core.util.VideoUtils;
@@ -29,6 +30,7 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
 
     private WeakReference<ITinyVideoView> videoViewWeakReference;
     private WeakReference<IRenderView> renderViewWeakReference;
+    private WeakReference<BasePlayer> playerWeakReference;
 
     private WindowManager windowManager;
 
@@ -44,9 +46,10 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
         return instance;
     }
 
-    public void startFloatVideo(ITinyVideoView videoView, IRenderView renderView) {
+    public void startFloatVideo(ITinyVideoView videoView, IRenderView renderView, BasePlayer player) {
         videoViewWeakReference = new WeakReference<>(videoView);
         renderViewWeakReference = new WeakReference<>(renderView);
+        playerWeakReference = new WeakReference<>(player);
 
         videoLayoutParams = videoView.getVideoLayoutParams();
         createFloatVideo();
@@ -78,8 +81,13 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
         IRenderView renderView = renderViewWeakReference.get();
         if (renderView != null && renderView.getRenderView() != null) {
             ViewParent renderParent = renderView.getRenderView().getParent();
-            ((ViewGroup)renderParent).removeView(renderView.getRenderView());
+            ((ViewGroup) renderParent).removeView(renderView.getRenderView());
             videoView.setRenderView(renderView);
+        }
+
+        BasePlayer player = playerWeakReference.get();
+        if (player != null) {
+            videoView.setPlayer(player);
         }
 
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);

@@ -12,8 +12,14 @@ public class FloatVideoActivity extends NormalVideoActivity {
 
     @Override
     protected void onDestroy() {
-        startFloatVideoView();
         super.onDestroy();
+        startFloatVideoView();
+    }
+
+    //小窗口视频播放时，不销毁原来的播放器
+    @Override
+    protected void destroyVideoView() {
+
     }
 
     private void startFloatVideoView() {
@@ -22,7 +28,7 @@ public class FloatVideoActivity extends NormalVideoActivity {
         videoLayoutParams.x = 20;
         videoLayoutParams.y = 20;
         floatVideoView.setVideoLayoutParams(videoLayoutParams);
-        FloatVideoManager.getInstance().startFloatVideo(floatVideoView, videoView.getRenderView());
+        FloatVideoManager.getInstance().startFloatVideo(floatVideoView, videoView.getRenderView(), videoView.getPlayer());
         floatVideoView.start();
         finish();
     }

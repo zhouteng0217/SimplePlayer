@@ -229,6 +229,10 @@ public class NormalVideoActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        destroyVideoView();
+    }
+
+    protected void destroyVideoView() {
         videoView.destroy();
     }
 

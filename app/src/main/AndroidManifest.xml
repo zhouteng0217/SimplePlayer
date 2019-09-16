@@ -12,6 +12,7 @@
         android:theme="@style/Theme.AppCompat.Light">
         <activity
             android:name="com.zt.core.demo.MainActivity"
+            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden|screenSize|locale">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

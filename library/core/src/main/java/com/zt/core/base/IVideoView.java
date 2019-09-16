@@ -20,11 +20,6 @@ public interface IVideoView extends IVideoController, IVideoCallback {
     BaseVideoView getPlayView();
 
     /**
-     * @param state 播放器状态回调
-     */
-    void onStateChange(int state);
-
-    /**
      * 数据网络下，弹出提示具体实现
      */
     void showMobileDataDialog();

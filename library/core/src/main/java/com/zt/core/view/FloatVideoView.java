@@ -57,6 +57,8 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
 
     }
 
+
+
     //禁止重力感应旋转
     @Override
     public boolean supportSensorRotate() {

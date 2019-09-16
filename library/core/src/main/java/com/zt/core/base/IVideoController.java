@@ -60,6 +60,9 @@ public interface IVideoController {
     //获取播放器实例
     BasePlayer getPlayer();
 
+    //设置播放器实例
+    void setPlayer(BasePlayer player);
+
     //获取播放器配置实例
     PlayerConfig getPlayConfig();
 
