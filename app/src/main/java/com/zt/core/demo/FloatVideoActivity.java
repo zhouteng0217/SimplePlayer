@@ -12,6 +12,7 @@ public class FloatVideoActivity extends NormalVideoActivity {
 
     @Override
     protected void onDestroy() {
+        startFloatVideoView();
         super.onDestroy();
     }
 
@@ -21,7 +22,8 @@ public class FloatVideoActivity extends NormalVideoActivity {
         videoLayoutParams.x = 20;
         videoLayoutParams.y = 20;
         floatVideoView.setVideoLayoutParams(videoLayoutParams);
-        FloatVideoManager.getInstance().startFloatVideo(floatVideoView);
+        FloatVideoManager.getInstance().startFloatVideo(floatVideoView, videoView.getRenderView());
+        floatVideoView.start();
         finish();
     }
 }

@@ -208,6 +208,11 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     }
 
     @Override
+    public void setRenderView(IRenderView renderView) {
+        videoController.setRenderView(renderView);
+    }
+
+    @Override
     public ViewGroup getSurfaceContainer() {
         return surfaceContainer;
     }

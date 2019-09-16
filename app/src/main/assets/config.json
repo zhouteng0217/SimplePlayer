@@ -44,14 +44,6 @@
         "title": "assets",
         "fileType": "assets",
         "player": 0
-      },
-      {
-        "title": "mp3",
-        "path": "http://storage.live.com/items/6928E43C22C03C53!186212:/%e5%91%a8%e6%9d%b0%e4%bc%a6-%e5%90%ac%e5%a6%88%e5%a6%88%e7%9a%84%e8%af%9d.mp3?authkey=AJe_G5qKL8pWMCg",
-        "player": 1,
-        "fileType": "url",
-        "renderType": 2,
-        "sensorRotateSupport": false
       }
     ]
   },

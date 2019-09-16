@@ -77,7 +77,9 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
 
         IRenderView renderView = renderViewWeakReference.get();
         if (renderView != null && renderView.getRenderView() != null) {
-
+            ViewParent renderParent = renderView.getRenderView().getParent();
+            ((ViewGroup)renderParent).removeView(renderView.getRenderView());
+            videoView.setRenderView(renderView);
         }
 
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);

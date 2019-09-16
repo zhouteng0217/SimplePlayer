@@ -62,4 +62,11 @@ public interface IVideoController {
 
     //获取播放器配置实例
     PlayerConfig getPlayConfig();
+
+    //获取渲染界面实例
+    IRenderView getRenderView();
+
+    //外部设置渲染界面实例
+    void setRenderView(IRenderView renderView);
+
 }

@@ -155,7 +155,19 @@ public class BaseVideoController implements IVideoController, OnVideoSizeChanged
         return renderView;
     }
 
+    @Override
+    public void setRenderView(IRenderView renderView) {
+        this.renderView = renderView;
+    }
+
+    public void clearRenderView() {
+        renderView = null;
+    }
+
     protected IRenderView newRenderViewInstance(Context context) {
+        if (renderView != null) {
+            return renderView;
+        }
         switch (playerConfig.renderType) {
             case PlayerConfig.RENDER_TEXTURE_VIEW:
                 return new TextureRenderView(context);
@@ -242,6 +254,7 @@ public class BaseVideoController implements IVideoController, OnVideoSizeChanged
 
     @Override
     public void destroy() {
+        clearRenderView();
         if (player != null) {
             player.destroy();
         }
