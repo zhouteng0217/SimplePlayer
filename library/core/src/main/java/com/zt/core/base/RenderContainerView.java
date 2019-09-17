@@ -44,7 +44,7 @@ public class RenderContainerView extends FrameLayout implements OnVideoSizeChang
     //播放器渲染画面视图
     private IRenderView renderView;
 
-    //播放器界面
+    //播放器控制层界面
     private IVideoView videoView;
 
     public RenderContainerView(@NonNull Context context) {
@@ -64,17 +64,18 @@ public class RenderContainerView extends FrameLayout implements OnVideoSizeChang
         super(context, attrs, defStyleAttr, defStyleRes);
     }
 
-    public void setVideoView(IVideoView videoView) {
+    protected void setVideoView(IVideoView videoView) {
         this.videoView = videoView;
     }
 
     //region 播放器行为
 
     public void start() {
+        //本地视频，wifi连接下直接播放
         if (isLocalVideo() || VideoUtils.isWifiConnected(getContext())) {
             startVideo();
         } else {
-            videoView.showMobileDataDialog();
+            videoView.handleMobileData();
         }
     }
 

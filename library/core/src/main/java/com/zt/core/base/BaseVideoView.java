@@ -2,9 +2,7 @@ package com.zt.core.base;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Build;
@@ -21,7 +19,6 @@ import android.view.ViewParent;
 import android.view.Window;
 import android.widget.FrameLayout;
 
-import com.zt.core.R;
 import com.zt.core.listener.OnFullscreenChangedListener;
 import com.zt.core.listener.OnStateChangedListener;
 import com.zt.core.listener.OnVideoSizeChangedListener;
@@ -49,13 +46,11 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     private PlayerConfig playerConfig;
 
     //播放器播放画面视图
-    private RenderContainerView renderContainerView;
+    protected RenderContainerView renderContainerView;
 
     protected OnVideoSizeChangedListener onVideoSizeChangedListener;
     protected OnFullscreenChangedListener onFullScreenChangeListener;
     protected OnStateChangedListener onStateChangedListener;
-
-    private boolean isShowMobileDataDialog = false;
 
     private boolean isFullScreen = false;
 
@@ -118,17 +113,22 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         playerConfig = new PlayerConfig.Builder().build();
         orientationHelper = new OrientationHelper(this);
 
-        renderContainerView = new RenderContainerView(context);
+        renderContainerView = newRenderContainerView();
         addRenderContainer(renderContainerView);
-
-        renderContainerView.setVideoView(this);
     }
 
     //添加播放器画面视图，到播放器界面上
     @Override
     public void addRenderContainer(RenderContainerView renderContainerView) {
+        this.renderContainerView = renderContainerView;
         surfaceContainer.removeAllViews();
         surfaceContainer.addView(renderContainerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        renderContainerView.setVideoView(this);
+        renderContainerView.setPlayerConfig(playerConfig);
+    }
+
+    protected RenderContainerView newRenderContainerView() {
+        return new RenderContainerView(getContext());
     }
 
     @Override
@@ -148,6 +148,16 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     public void onStateChange(int state) {
         if (onStateChangedListener != null) {
             onStateChangedListener.onStateChange(state);
+        }
+        Context context = getContext();
+        switch (state) {
+            case BasePlayer.STATE_PLAYING:
+            case BasePlayer.STATE_BUFFERING_START:
+                VideoUtils.keepScreenOn(context);
+                break;
+            default:
+                VideoUtils.removeScreenOn(context);
+                break;
         }
         updatePlayIcon(state);
     }
@@ -180,6 +190,8 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     int getLayoutId();
 
     public abstract boolean onBackKeyPressed();
+
+    public abstract void setTitle(String title);
 
     /**
      * @return 控制是否支持重力感旋转屏幕来全屏等操作，竖向全屏模式和智能全屏模式下不开启重力感应旋转屏幕，避免造成奇怪的交互。
@@ -227,6 +239,10 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     public void start() {
         orientationHelper.start();
         renderContainerView.start();
+    }
+
+    public void startVideo() {
+        renderContainerView.startVideo();
     }
 
     public void pause() {
@@ -296,31 +312,11 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     //endregion
 
     /**
-     * 数据网络下，默认提示框
+     * 数据网络下，默认情况下直接播放
      */
     @Override
-    public void showMobileDataDialog() {
-        if (isShowMobileDataDialog) {
-            return;
-        }
-        isShowMobileDataDialog = true;
-        Context context = getContext();
-        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
-        builder.setMessage(context.getString(R.string.mobile_data_tips));
-        builder.setPositiveButton(context.getString(R.string.continue_playing), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                renderContainerView.startVideo();
-            }
-        });
-        builder.setNegativeButton(context.getString(R.string.stop_play), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
+    public void handleMobileData() {
+        startVideo();
     }
 
     //region 全屏处理

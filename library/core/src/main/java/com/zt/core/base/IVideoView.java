@@ -45,9 +45,9 @@ public interface IVideoView {
     void onVideoSizeChanged(int width, int height);
 
     /**
-     * 数据网络下，弹出提示具体实现
+     * 数据网络情况下的提示
      */
-    void showMobileDataDialog();
+    void handleMobileData();
 
     /**
      * 根据传入的方向来全屏

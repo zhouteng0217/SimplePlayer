@@ -13,9 +13,9 @@ public interface ITinyVideoView  extends IVideoView{
      *
      * @param layoutParams
      */
-    void setVideoLayoutParams(VideoLayoutParams layoutParams);
+    void setFloatVideoLayoutParams(LayoutParams layoutParams);
 
-    VideoLayoutParams getVideoLayoutParams();
+    LayoutParams getFloatVideoLayoutParams();
 
     void setTinyVideoViewListener(TinyVideoViewListenr listener);
 
@@ -37,17 +37,17 @@ public interface ITinyVideoView  extends IVideoView{
         boolean onTouch(MotionEvent event);
     }
 
-    class VideoLayoutParams {
+    class LayoutParams {
         public int x;
         public int y;
         public int width;
         public int height;
 
-        public VideoLayoutParams() {
+        public LayoutParams() {
 
         }
 
-        public VideoLayoutParams(int width, int height) {
+        public LayoutParams(int width, int height) {
             this.width = width;
             this.height = height;
         }

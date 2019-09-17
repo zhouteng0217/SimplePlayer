@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.zt.core.base.BaseVideoView;
-import com.zt.core.base.RenderContainerView;
 import com.zt.core.view.ListVideoView;
 
 public class ListVideoManager {
@@ -100,6 +99,7 @@ public class ListVideoManager {
             containerView.removeAllViews();
             containerView.addView(currentVideoView);
             currentVideoView.setVideoUrlPath(url);
+            currentVideoView.setTitle(title);
             currentVideoView.invalidate();
             currentVideoView.start();
         }

@@ -50,7 +50,7 @@ public class GoogleExoPlayer extends BasePlayer {
 
     @Override
     protected void initPlayerImpl() {
-        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context);
+        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context.getApplicationContext());
         simpleExoPlayer.addListener(playerEventListener);
         simpleExoPlayer.addVideoListener(videoListener);
         simpleExoPlayer.setRepeatMode(isLooping() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);

@@ -143,11 +143,17 @@ public class VideoUtils {
     }
 
     public static void keepScreenOn(Context context) {
-        getActivity(context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Activity activity = getActivity(context);
+        if (activity != null) {
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     public static void removeScreenOn(Context context) {
-        getActivity(context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Activity activity = getActivity(context);
+        if (activity != null) {
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     //是否是横屏

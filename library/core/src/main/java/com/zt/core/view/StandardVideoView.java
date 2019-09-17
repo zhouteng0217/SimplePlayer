@@ -1,6 +1,8 @@
 package com.zt.core.view;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -52,6 +54,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     protected ControlViewTimerTask controlViewTimerTask;
 
     protected boolean isLiveVideo = false; // 表示是直播类的视频，没有播放进度
+
+    private boolean isShowMobileDataDialog = false;
 
     public StandardVideoView(@NonNull Context context) {
         this(context, null);
@@ -283,6 +287,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         return false;
     }
 
+    @Override
     public void setTitle(String titleText) {
         title.setText(titleText);
     }
@@ -308,8 +313,40 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     @Override
     public void destroy() {
         super.destroy();
+        destroyVideoView();
+    }
+
+    /**
+     * 仅仅销毁UI层面上需要销毁的逻辑，不去销毁播放器
+     */
+    public void destroyVideoView() {
         cancelControlViewTimer();
         cancelProgressTimer();
+    }
+
+    @Override
+    public void handleMobileData() {
+        if (isShowMobileDataDialog) {
+            return;
+        }
+        isShowMobileDataDialog = true;
+        Context context = getContext();
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage(context.getString(R.string.mobile_data_tips));
+        builder.setPositiveButton(context.getString(R.string.continue_playing), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                startVideo();
+            }
+        });
+        builder.setNegativeButton(context.getString(R.string.stop_play), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
     }
 
     //region 点击屏幕，显示隐藏控制栏

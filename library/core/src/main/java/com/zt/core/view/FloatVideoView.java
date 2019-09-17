@@ -20,7 +20,7 @@ import com.zt.core.util.VideoUtils;
  */
 public class FloatVideoView extends BaseVideoView implements ITinyVideoView, View.OnClickListener, View.OnTouchListener {
 
-    private VideoLayoutParams videoLayoutParams;
+    private ITinyVideoView.LayoutParams videoLayoutParams;
     private TinyVideoViewListenr listenr;
     private ImageView playBtn;
 
@@ -38,7 +38,7 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
     }
 
     private void initView(Context context) {
-        videoLayoutParams = new VideoLayoutParams();
+        videoLayoutParams = new ITinyVideoView.LayoutParams();
         videoLayoutParams.x = 0;
         videoLayoutParams.y = 0;
         videoLayoutParams.width = VideoUtils.dp2px(context, 200);
@@ -56,8 +56,6 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
         surfaceContainer.setOnTouchListener(this);
 
     }
-
-
 
     //禁止重力感应旋转
     @Override
@@ -81,14 +79,14 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
     }
 
     @Override
-    public void setVideoLayoutParams(VideoLayoutParams layoutParams) {
+    public void setFloatVideoLayoutParams(ITinyVideoView.LayoutParams layoutParams) {
         if (layoutParams != null) {
             videoLayoutParams = layoutParams;
         }
     }
 
     @Override
-    public VideoLayoutParams getVideoLayoutParams() {
+    public ITinyVideoView.LayoutParams getFloatVideoLayoutParams() {
         return videoLayoutParams;
     }
 
@@ -129,5 +127,10 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
     @Override
     protected void setPausedIcon() {
         playBtn.setImageResource(R.drawable.ic_play);
+    }
+
+    @Override
+    public void setTitle(String title) {
+
     }
 }

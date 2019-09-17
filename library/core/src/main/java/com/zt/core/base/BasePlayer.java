@@ -11,7 +11,6 @@ import android.text.TextUtils;
 
 import com.zt.core.listener.OnStateChangedListener;
 import com.zt.core.listener.OnVideoSizeChangedListener;
-import com.zt.core.util.VideoUtils;
 
 import java.io.IOException;
 import java.util.Map;
@@ -63,8 +62,11 @@ public abstract class BasePlayer implements IMediaPlayer {
     }
 
     public BasePlayer(Context context) {
-        this.context = context;
-        playerAudioManager = new PlayerAudioManager(context, this);
+
+        //使用application的context避免内存泄露
+        this.context = context.getApplicationContext();
+
+        playerAudioManager = new PlayerAudioManager(this.context, this);
 
         HandlerThread handlerThread = new HandlerThread(this.getClass().getName());
         handlerThread.start();
@@ -141,7 +143,6 @@ public abstract class BasePlayer implements IMediaPlayer {
     @Override
     public void play() {
         playerAudioManager.requestAudioFocus();
-        VideoUtils.keepScreenOn(context);
         onStateChange(STATE_PLAYING);
         playImpl();
     }
@@ -151,7 +152,6 @@ public abstract class BasePlayer implements IMediaPlayer {
         if (!isPlaying()) {
             return;
         }
-        VideoUtils.removeScreenOn(context);
         onStateChange(STATE_PAUSED);
         pauseImpl();
     }
@@ -177,7 +177,6 @@ public abstract class BasePlayer implements IMediaPlayer {
     @Override
     public void release() {
         playerAudioManager.abandonAudioFocus();
-        VideoUtils.removeScreenOn(context);
         isPrepared = false;
         onStateChange(STATE_IDLE);
 
@@ -189,7 +188,6 @@ public abstract class BasePlayer implements IMediaPlayer {
     @Override
     public void destroy() {
         playerAudioManager.destroy();
-        VideoUtils.removeScreenOn(context);
         isPrepared = false;
         onStateChange(STATE_IDLE);
 
@@ -213,7 +211,6 @@ public abstract class BasePlayer implements IMediaPlayer {
     //onCompletion的具体实现
     protected void onCompletionImpl() {
         playerAudioManager.abandonAudioFocus();
-        VideoUtils.removeScreenOn(context);
         onStateChange(STATE_COMPLETED);
     }
 
