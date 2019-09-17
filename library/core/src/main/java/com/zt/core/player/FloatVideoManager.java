@@ -15,6 +15,8 @@ import android.view.WindowManager;
 import com.zt.core.base.BasePlayer;
 import com.zt.core.base.IRenderView;
 import com.zt.core.base.ITinyVideoView;
+import com.zt.core.base.IVideoView;
+import com.zt.core.base.RenderContainerView;
 import com.zt.core.util.VideoUtils;
 
 import java.lang.ref.WeakReference;
@@ -28,9 +30,8 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
 
     public static final int REQUEST_DRAWOVERLAYS_CODE = 10000;
 
-    private WeakReference<ITinyVideoView> videoViewWeakReference;
-    private WeakReference<IRenderView> renderViewWeakReference;
-    private WeakReference<BasePlayer> playerWeakReference;
+    private WeakReference<ITinyVideoView> tinyVideoViewWeakReference;
+    private WeakReference<IVideoView> videoViewWeakReference;
 
     private WindowManager windowManager;
 
@@ -46,23 +47,22 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
         return instance;
     }
 
-    public void startFloatVideo(ITinyVideoView videoView, IRenderView renderView, BasePlayer player) {
+    public void startFloatVideo(ITinyVideoView tinyVideoView, IVideoView videoView) {
+        tinyVideoViewWeakReference = new WeakReference<>(tinyVideoView);
         videoViewWeakReference = new WeakReference<>(videoView);
-        renderViewWeakReference = new WeakReference<>(renderView);
-        playerWeakReference = new WeakReference<>(player);
 
-        videoLayoutParams = videoView.getVideoLayoutParams();
+        videoLayoutParams = tinyVideoView.getVideoLayoutParams();
         createFloatVideo();
     }
 
     private void createFloatVideo() {
-        ITinyVideoView videoView = videoViewWeakReference.get();
-        if (videoView == null) {
+        ITinyVideoView tinyVideoView = tinyVideoViewWeakReference.get();
+        if (tinyVideoView == null) {
             return;
         }
-        videoView.setTinyVideoViewListener(this);
+        tinyVideoView.setTinyVideoViewListener(this);
 
-        Context context = videoView.getPlayView().getContext();
+        Context context = tinyVideoView.getPlayView().getContext();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!Settings.canDrawOverlays(context)) {
@@ -73,24 +73,19 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
             }
         }
 
-        ViewParent viewParent = videoView.getPlayView().getParent();
+        ViewParent viewParent = tinyVideoView.getPlayView().getParent();
         if (viewParent != null) {
-            ((ViewGroup) viewParent).removeView(videoView.getPlayView());
+            ((ViewGroup) viewParent).removeView(tinyVideoView.getPlayView());
         }
 
-        IRenderView renderView = renderViewWeakReference.get();
-        if (renderView != null && renderView.getRenderView() != null) {
-            ViewParent renderParent = renderView.getRenderView().getParent();
-            ((ViewGroup) renderParent).removeView(renderView.getRenderView());
-            videoView.setRenderView(renderView);
+        IVideoView videoView = videoViewWeakReference.get();
+        if (videoView != null && videoView.getRenderContainerView() != null) {
+            ViewParent renderParent = videoView.getRenderContainerView().getParent();
+            ((ViewGroup) renderParent).removeView(videoView.getRenderContainerView());
+            tinyVideoView.addRenderContainer(videoView.getRenderContainerView());
         }
 
-        BasePlayer player = playerWeakReference.get();
-        if (player != null) {
-            videoView.setPlayer(player);
-        }
-
-        windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        windowManager = (WindowManager) context.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
 
         wmParams = new WindowManager.LayoutParams();
         wmParams.type = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -103,13 +98,13 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
         wmParams.x = videoLayoutParams.x;
         wmParams.y = videoLayoutParams.y;
 
-        windowManager.addView(videoView.getPlayView(), wmParams);
-        windowManager.updateViewLayout(videoView.getPlayView(), wmParams);
+        windowManager.addView(tinyVideoView.getPlayView(), wmParams);
+        windowManager.updateViewLayout(tinyVideoView.getPlayView(), wmParams);
     }
 
     @Override
     public void closeVideoView() {
-        ITinyVideoView videoView = videoViewWeakReference.get();
+        ITinyVideoView videoView = tinyVideoViewWeakReference.get();
         if (videoView != null) {
             windowManager.removeViewImmediate(videoView.getPlayView());
         }
@@ -133,7 +128,7 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
     public boolean onTouch(MotionEvent event) {
 
         xInScreen = event.getRawX();
-        yInScreen = event.getRawY() - VideoUtils.getStatusBarHeight(videoViewWeakReference.get().getPlayView().getContext());
+        yInScreen = event.getRawY() - VideoUtils.getStatusBarHeight(tinyVideoViewWeakReference.get().getPlayView().getContext());
 
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
@@ -153,7 +148,7 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
 
         wmParams.y = (int) (yInScreen - yInView);
         wmParams.x = (int) (xInScreen - xInView);
-        windowManager.updateViewLayout(videoViewWeakReference.get().getPlayView(), wmParams);
+        windowManager.updateViewLayout(tinyVideoViewWeakReference.get().getPlayView(), wmParams);
     }
 
     //endregion

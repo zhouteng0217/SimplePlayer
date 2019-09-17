@@ -88,7 +88,7 @@
       },
       {
         "title": "小窗口播放",
-        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
+        "fileType": "raw",
         "player": 2,
         "demoType": "float"
       }

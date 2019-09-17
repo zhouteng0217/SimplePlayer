@@ -14,8 +14,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.zt.core.R;
-import com.zt.core.player.AndroidPlayer;
 import com.zt.core.base.BaseVideoView;
+import com.zt.core.player.AndroidPlayer;
 import com.zt.core.util.VideoUtils;
 
 import java.lang.ref.WeakReference;

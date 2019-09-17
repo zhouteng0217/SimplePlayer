@@ -6,7 +6,7 @@ import android.view.MotionEvent;
  * Created by zhouteng on 2019-09-14
  * 小窗口模式接口
  */
-public interface ITinyVideoView extends IVideoView {
+public interface ITinyVideoView  extends IVideoView{
 
     /**
      * 设置小窗口视频的大小和位置参数

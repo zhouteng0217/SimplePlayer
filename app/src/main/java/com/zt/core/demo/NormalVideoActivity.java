@@ -236,9 +236,13 @@ public class NormalVideoActivity extends AppCompatActivity {
         videoView.destroy();
     }
 
+    protected void pauseVideoView() {
+        videoView.pause();
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
-        videoView.pause();
+        pauseVideoView();
     }
 }

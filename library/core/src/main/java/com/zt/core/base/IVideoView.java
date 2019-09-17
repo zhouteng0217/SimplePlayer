@@ -1,28 +1,25 @@
 package com.zt.core.base;
 
-import android.view.ViewGroup;
-
 /**
- * 视频播放器视图层接口, 提供给VideoController层
- * <p>
- * 自定义播放器时，通过实现该接口，来提供VideoController层所需
+ * Created by zhouteng on 2019-09-18
  */
-public interface IVideoView extends IVideoController, IVideoCallback {
-
-    /**
-     * @return 播放器视图中承载画面渲染的容器视图
-     */
-    ViewGroup getSurfaceContainer();
-
+public interface IVideoView {
     /**
      * @return 播放器视图
      */
     BaseVideoView getPlayView();
 
     /**
-     * 数据网络下，弹出提示具体实现
+     * 播放器画面视图
+     * @return
      */
-    void showMobileDataDialog();
+    RenderContainerView getRenderContainerView();
+
+    /**
+     *  添加播放器画面视图，到播放器界面上
+     * @param renderContainerView
+     */
+    void addRenderContainer(RenderContainerView renderContainerView);
 
     /**
      * @return 是否支持重力感应旋转屏幕
@@ -33,4 +30,40 @@ public interface IVideoView extends IVideoController, IVideoCallback {
      * @return 开启了重力感应旋转屏幕后，是否跟随系统方向锁定
      */
     boolean rotateWithSystem();
+
+    /**
+     * 播放器状态回调
+     * @param state
+     */
+    void onStateChange(int state);
+
+    /**
+     * 播放器画面大小回调
+     * @param width
+     * @param height
+     */
+    void onVideoSizeChanged(int width, int height);
+
+    /**
+     * 数据网络下，弹出提示具体实现
+     */
+    void showMobileDataDialog();
+
+    /**
+     * 根据传入的方向来全屏
+     * @param orientation
+     */
+    void startFullscreenWithOrientation(int orientation);
+
+    /**
+     * 根据传入的方向竖屏
+     * @param orientation
+     */
+    void exitFullscreenWithOrientation(int orientation);
+
+    /**
+     * 是否全屏
+     * @return
+     */
+    boolean isFullScreen();
 }
