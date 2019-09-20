@@ -83,10 +83,13 @@ public class FloatVideoActivity extends BaseDemoActivity implements CompoundButt
     protected void onDestroy() {
         super.onDestroy();
 
-        //只销毁播放器UI控制层上面相关要销毁的要素，不销毁播放器和渲染界面实例，用于添加到window层
-        videoView.destroyVideoView();
-
-        startFloatVideoView();
+        if (checkBox.isChecked()) {
+            //只销毁播放器UI控制层上面相关要销毁的要素，不销毁播放器和渲染界面实例，用于添加到window层
+            videoView.destroyVideoView();
+            startFloatVideoView();
+        } else {
+            videoView.destroy();
+        }
     }
 
     private void startFloatVideoView() {
@@ -99,8 +102,7 @@ public class FloatVideoActivity extends BaseDemoActivity implements CompoundButt
         floatVideoView.setFloatVideoLayoutParams(layoutParams);
 
         //将正在播放的VideoView的RenderContainer层从原来界面剥离出来，添加到自定义的悬浮窗VideoView上
-        RenderContainerView renderContainerView = videoView.getRenderContainerView();
-        ((ViewGroup) renderContainerView.getParent()).removeView(renderContainerView);
+        RenderContainerView renderContainerView = videoView.getRenderContainerViewOffParent();
 
         floatVideoView.addRenderContainer(renderContainerView);
 

@@ -10,7 +10,13 @@ public interface IVideoView {
     BaseVideoView getPlayView();
 
     /**
-     * 播放器画面视图
+     * 播放器渲染画面容器视图，从父控件剥离后，返回
+     * @return
+     */
+    RenderContainerView getRenderContainerViewOffParent();
+
+    /**
+     * 播放器渲染画面容器视图
      * @return
      */
     RenderContainerView getRenderContainerView();

@@ -107,6 +107,28 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         return renderContainerView;
     }
 
+    /**
+     * 从父控件中剥离出来，将变量置空后，返回，防止内存泄漏
+     *
+     * 用于将播放器画面剥离出来，添加到另外的控制层界面上，实现窗口画面的转移，比如小窗口播放
+     *
+     * @return
+     */
+    @Override
+    public RenderContainerView getRenderContainerViewOffParent() {
+        ViewParent parent = renderContainerView.getParent();
+        if (parent instanceof ViewGroup) {
+            ((ViewGroup) parent).removeView(renderContainerView);
+        }
+        RenderContainerView result = renderContainerView;
+
+        //renderContainerView和playConfig会被剥离出去的renderContainerView实例持有引用，因此置空，防止内存泄漏
+        renderContainerView = null;
+        playerConfig = null;
+
+        return result;
+    }
+
     protected void init(Context context) {
         LayoutInflater.from(context).inflate(getLayoutId(), this);
         surfaceContainer = findViewById(getSurfaceContainerId());
