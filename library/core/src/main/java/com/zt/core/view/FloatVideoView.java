@@ -21,7 +21,7 @@ import com.zt.core.util.VideoUtils;
 public class FloatVideoView extends BaseVideoView implements ITinyVideoView, View.OnClickListener, View.OnTouchListener {
 
     private ITinyVideoView.LayoutParams videoLayoutParams;
-    private TinyVideoViewListenr listenr;
+    private TinyVideoViewListenr listener;
     private ImageView playBtn;
 
     public FloatVideoView(@NonNull Context context) {
@@ -92,19 +92,19 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
 
     @Override
     public void setTinyVideoViewListener(TinyVideoViewListenr listener) {
-        this.listenr = listener;
+        this.listener = listener;
     }
 
     @Override
     public void onClick(View v) {
         int viewId = v.getId();
         if (viewId == R.id.close) {
-            if (listenr != null) {
-                listenr.closeVideoView();
+            if (listener != null) {
+                listener.closeVideoView();
             }
         } else if (viewId == R.id.fullscreen) {
-            if (listenr != null) {
-                listenr.backToNormalView();
+            if (listener != null) {
+                listener.backToNormalView();
             }
         } else if (viewId == R.id.start) {
             start();
@@ -113,8 +113,8 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (listenr != null) {
-            return listenr.onTouch(event);
+        if (listener != null) {
+            return listener.onTouch(event);
         }
         return false;
     }
