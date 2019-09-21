@@ -2,7 +2,6 @@ package com.zt.core.demo;
 
 import android.support.annotation.LayoutRes;
 import android.view.KeyEvent;
-import android.widget.TextView;
 
 import com.zt.core.view.StandardVideoView;
 
@@ -14,11 +13,13 @@ public class NormalVideoActivity extends BaseDemoActivity {
     protected void initView() {
         setActionBarTitle();
 
-        TextView descTextView = findViewById(R.id.desc);
-        initDescView(descTextView);
+        initDescView(findViewById(R.id.desc));
 
         videoView = findViewById(R.id.video_view);
+
         initPlayerView(videoView);
+
+        videoView.start();
     }
 
 

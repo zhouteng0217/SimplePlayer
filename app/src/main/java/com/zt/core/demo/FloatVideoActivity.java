@@ -21,6 +21,8 @@ import com.zt.core.view.StandardVideoView;
 
 /**
  * Created by zhouteng on 2019-09-14
+ * <p>
+ * 用于展示小窗口视频播放实例demo
  */
 public class FloatVideoActivity extends BaseDemoActivity implements CompoundButton.OnCheckedChangeListener {
 
@@ -29,24 +31,60 @@ public class FloatVideoActivity extends BaseDemoActivity implements CompoundButt
     private StandardVideoView videoView;
     private CheckBox checkBox;
 
+    //正在播放的小窗口视频画面层
+    private RenderContainerView floatRender;
+
     @Override
     protected void initView() {
+
         FrameLayout container = findViewById(R.id.video_view_container);
 
-        //由于要将RenderContainerView层添加到window层，为防止内存泄露，重写了newRenderContainerView, 用application的context来构建
+        initDescView(findViewById(R.id.desc));
+
+        checkBox = findViewById(R.id.checkbox);
+        initCheckBox();
+
+        floatRender = FloatVideoManager.getInstance().getRenderContainerViewOffParent();
+
         videoView = new StandardVideoView(this) {
             @Override
             protected RenderContainerView newRenderContainerView() {
+
+                //将悬浮小窗口中视频画面取出来，放置
+                if (floatRender != null) {
+                    return floatRender;
+                }
+
+                //否则，就是没有小窗口，新建一个
+                //由于后面要将RenderContainerView层添加到window层，为防止内存泄露，重写了newRenderContainerView, 用application的context来构建
                 return new RenderContainerView(getApplicationContext());
             }
         };
 
         container.addView(videoView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        initPlayerView(videoView);
-        initDescView(findViewById(R.id.desc));
 
-        checkBox = findViewById(R.id.checkbox);
-        initCheckBox();
+        initPlayerView(videoView);
+
+        if (floatRender != null) {
+            //有正常播放的小窗口时
+            videoView.setPlayerStatus(FloatVideoManager.getInstance().getCurrentPlayState());
+            FloatVideoManager.getInstance().destroyVideoView();
+
+        } else {
+            videoView.start();
+        }
+    }
+
+    @Override
+    protected BasePlayer getPlayer() {
+
+        //有当前正在播放的小窗口视频时，获取到当前的播放器实例
+        if (floatRender != null) {
+            return floatRender.getPlayer();
+        }
+
+        //没有正在播放的小窗口
+        return super.getPlayer();
     }
 
     private void initCheckBox() {
@@ -86,7 +124,7 @@ public class FloatVideoActivity extends BaseDemoActivity implements CompoundButt
 
         if (checkBox.isChecked()) {
             //只销毁播放器UI控制层上面相关要销毁的要素，不销毁播放器和渲染界面实例，用于添加到window层
-            videoView.destroyVideoView();
+            videoView.destroyPlayerController();
             startFloatVideoView();
         } else {
             videoView.destroy();

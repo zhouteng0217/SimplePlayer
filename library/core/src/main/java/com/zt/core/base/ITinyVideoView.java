@@ -9,6 +9,11 @@ import android.view.MotionEvent;
 public interface ITinyVideoView  extends IVideoView{
 
     /**
+     * 销毁播放控制层，不销毁RenderContainer层逻辑
+     */
+    void destroyPlayerController();
+
+    /**
      * 设置小窗口视频的大小和位置参数
      *
      * @param layoutParams

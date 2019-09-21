@@ -100,6 +100,7 @@ public abstract class BaseDemoActivity extends AppCompatActivity {
     }
 
     protected void initPlayerView(StandardVideoView videoView) {
+
         videoView.setTitle(sample.title);
 
         switch (sample.fileType) {
@@ -120,18 +121,6 @@ public abstract class BaseDemoActivity extends AppCompatActivity {
                 break;
         }
 
-        BasePlayer player;
-        switch (sample.player) {
-            case 0:
-                player = new AndroidPlayer(this);
-                break;
-            case 1:
-                player = new IjkPlayer(this);
-                break;
-            default:
-                player = new GoogleExoPlayer(this);
-                break;
-        }
 
         int renderType;
         switch (sample.renderType) {
@@ -155,7 +144,7 @@ public abstract class BaseDemoActivity extends AppCompatActivity {
                 .renderType(renderType)
                 .looping(sample.looping)
                 .aspectRatio(aspectRatio)
-                .player(player)  //IjkPlayer,GoogleExoPlayer 需添加对应的依赖
+                .player(getPlayer())  //IjkPlayer,GoogleExoPlayer 需添加对应的依赖
                 .build();
 
         //在start播放之前，设置playerConfig
@@ -202,7 +191,21 @@ public abstract class BaseDemoActivity extends AppCompatActivity {
                 Log.d(TAG, "onVideoSizeChanged width =" + width + ", height=" + height);
             }
         });
+    }
 
-        videoView.start();
+    protected BasePlayer getPlayer() {
+        BasePlayer player;
+        switch (sample.player) {
+            case 0:
+                player = new AndroidPlayer(this);
+                break;
+            case 1:
+                player = new IjkPlayer(this);
+                break;
+            default:
+                player = new GoogleExoPlayer(this);
+                break;
+        }
+        return player;
     }
 }

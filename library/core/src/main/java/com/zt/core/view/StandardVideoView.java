@@ -53,8 +53,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     protected Timer controlViewTimer;
     protected ControlViewTimerTask controlViewTimerTask;
 
-    protected boolean isLiveVideo = false; // 表示是直播类的视频，没有播放进度
-
     private boolean isShowMobileDataDialog = false;
 
     public StandardVideoView(@NonNull Context context) {
@@ -149,6 +147,15 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 changeUiWithBufferingEnd();
                 break;
         }
+        updateProgressStatus();
+    }
+
+    protected void updateProgressStatus() {
+        if (isPlaying()) {
+            startProgressTimer();
+        } else {
+            cancelProgressTimer();
+        }
     }
 
     protected void changeUiWithBufferingStart() {
@@ -165,18 +172,15 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void changeUIWithPause() {
-        cancelProgressTimer();
         cancelControlViewTimer();
         setViewsVisible(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithError() {
-        cancelProgressTimer();
         setViewsVisible(View.VISIBLE, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithComplete() {
-        cancelProgressTimer();
         setViewsVisible(View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE, View.VISIBLE);
         seekBar.setProgress(100);
         currentTimeText.setText(totalTimeText.getText());
@@ -198,7 +202,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void changeUIWithIdle() {
-        cancelProgressTimer();
         setViewsVisible(View.VISIBLE, View.GONE, View.GONE, View.GONE, View.VISIBLE, View.GONE);
     }
 
@@ -216,7 +219,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             //表示直播类的视频，没有进度条
             visible = View.INVISIBLE;
 
-            isLiveVideo = true;
         }
 
         startControlViewTimer();
@@ -313,13 +315,13 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     @Override
     public void destroy() {
         super.destroy();
-        destroyVideoView();
+        destroyPlayerController();
     }
 
     /**
-     * 仅仅销毁UI层面上需要销毁的逻辑，不去销毁播放器
+     * 仅仅销毁播放器控制层逻辑，但是不去销毁RenderContainer层
      */
-    public void destroyVideoView() {
+    public void destroyPlayerController() {
         cancelControlViewTimer();
         cancelProgressTimer();
         orientationHelper.setOrientationEnable(false);
@@ -478,8 +480,13 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
+    //是否是直播类视频
+    protected boolean isLive() {
+        return getDuration() <= 0;
+    }
+
     protected void startProgressTimer() {
-        if (isLiveVideo) {
+        if (isLive()) {
             return;
         }
         cancelProgressTimer();
@@ -666,7 +673,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             }
         }
 
-        if (isSeekGesture && !isLiveVideo && isSupportSeek) {
+        if (isSeekGesture && !isLive() && isSupportSeek) {
             changeProgress(dx);
             return;
         }

@@ -173,6 +173,12 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         return currentState;
     }
 
+    //重新设置播放器状态
+    public void setPlayerStatus(int status) {
+        currentState = status;
+        onStateChange(status);
+    }
+
     @Override
     public void onStateChange(int state) {
         currentState = state;
@@ -284,7 +290,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
     public boolean isPlaying() {
         BasePlayer player = getPlayer();
-        return player != null && player.isPlaying();
+        return player != null && player.isInPlaybackState() && player.isPlaying();
     }
 
     public void release() {

@@ -7,7 +7,9 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.WindowManager;
 
+import com.zt.core.base.BasePlayer;
 import com.zt.core.base.ITinyVideoView;
+import com.zt.core.base.RenderContainerView;
 import com.zt.core.util.VideoUtils;
 
 /**
@@ -68,13 +70,37 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
     public void closeVideoView() {
         if (videoView != null) {
             windowManager.removeViewImmediate(videoView.getPlayView());
+            videoView.getPlayView().destroy();
+            videoView = null;
+            windowManager = null;
         }
-        videoView.getPlayView().destroy();
     }
 
     @Override
     public void backToNormalView() {
 
+    }
+
+    public int getCurrentPlayState() {
+        return videoView != null ? videoView.getPlayView().getCurrentState() : BasePlayer.STATE_IDLE;
+    }
+
+    //销毁当前小窗口的控制层,并从窗体移除掉
+    public void destroyVideoView() {
+        if (videoView != null) {
+            videoView.destroyPlayerController();
+            windowManager.removeViewImmediate(videoView.getPlayView());
+            videoView = null;
+            windowManager = null;
+        }
+    }
+
+    //将当前小窗口播放器的画面层剥离出来
+    public RenderContainerView getRenderContainerViewOffParent() {
+        if (videoView == null) {
+            return null;
+        }
+        return videoView.getRenderContainerViewOffParent();
     }
 
     //region  移动小窗体
@@ -87,6 +113,10 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
 
     @Override
     public boolean onTouch(MotionEvent event) {
+
+        if (videoView == null || videoView.getPlayView() == null) {
+            return false;
+        }
 
         xInScreen = event.getRawX();
         yInScreen = event.getRawY() - VideoUtils.getStatusBarHeight(videoView.getPlayView().getContext());

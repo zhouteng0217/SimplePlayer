@@ -232,14 +232,14 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
 
     }
 
-    //重新设置播放器状态
-    public void setPlayerStatus(int status) {
-        onStateChange(status);
-    }
-
     @Override
     public void destroy() {
         super.destroy();
+        destroyPlayerController();
+    }
+
+    @Override
+    public void destroyPlayerController() {
         cancelControlViewTimer();
     }
 }
