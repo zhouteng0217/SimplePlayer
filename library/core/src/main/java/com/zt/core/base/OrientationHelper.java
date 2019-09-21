@@ -1,6 +1,5 @@
 package com.zt.core.base;
 
-import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.provider.Settings;
 import android.view.OrientationEventListener;
@@ -12,7 +11,7 @@ import java.lang.ref.WeakReference;
  */
 public class OrientationHelper {
 
-    private IVideoView videoView;
+    private WeakReference<IVideoView> videoViewWeakReference;
     private OrientationEventListener orientationEventListener;
 
     private int screenType = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
@@ -20,15 +19,22 @@ public class OrientationHelper {
     private int lastScreenType = -1;
 
     public OrientationHelper(IVideoView videoView) {
-        this.videoView = videoView;
+        videoViewWeakReference = new WeakReference<>(videoView);
         init();
     }
 
     private void init() {
-        Context context = videoView.getPlayView().getContext();
-        orientationEventListener = new OrientationEventListener(context) {
+        IVideoView videoView = videoViewWeakReference.get();
+        if (videoView == null) {
+            return;
+        }
+        orientationEventListener = new OrientationEventListener(videoView.getPlayView().getContext()) {
             @Override
             public void onOrientationChanged(int rotation) {
+                IVideoView videoView = videoViewWeakReference.get();
+                if (videoView == null) {
+                    return;
+                }
 
                 final boolean autoRotateOn = (Settings.System.getInt(videoView.getPlayView().getContext().getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 0) == 1);
 
@@ -58,6 +64,10 @@ public class OrientationHelper {
     }
 
     public void start() {
+        IVideoView videoView = videoViewWeakReference.get();
+        if (videoView == null) {
+            return;
+        }
         if (videoView.supportSensorRotate()) {
             orientationEventListener.enable();
         } else {

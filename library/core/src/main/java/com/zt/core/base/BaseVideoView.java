@@ -291,10 +291,11 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         if (player != null) {
             player.destroy();
         }
+        orientationHelper.setOrientationEnable(false);
     }
 
     public long getDuration() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = renderContainerView == null ? null : renderContainerView.getPlayer();
         return player == null ? 0 : player.getDuration();
     }
 
@@ -306,7 +307,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     }
 
     public long getCurrentPosition() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = renderContainerView == null ? null : renderContainerView.getPlayer();
         return player == null ? 0 : player.getCurrentPosition();
     }
 

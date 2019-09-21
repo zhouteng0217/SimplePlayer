@@ -322,6 +322,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     public void destroyVideoView() {
         cancelControlViewTimer();
         cancelProgressTimer();
+        orientationHelper.setOrientationEnable(false);
     }
 
     @Override
