@@ -9,9 +9,14 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.zt.core.R;
+import com.zt.core.base.BasePlayer;
 import com.zt.core.base.BaseVideoView;
 import com.zt.core.base.ITinyVideoView;
 import com.zt.core.util.VideoUtils;
+
+import java.lang.ref.WeakReference;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by zhouteng on 2019-09-13
@@ -23,6 +28,11 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
     private ITinyVideoView.LayoutParams videoLayoutParams;
     private TinyVideoViewListenr listener;
     private ImageView playBtn;
+    private View replayLayout;
+    private View topLayout;
+
+    protected Timer controlViewTimer;
+    protected ControlViewTimerTask controlViewTimerTask;
 
     public FloatVideoView(@NonNull Context context) {
         this(context, null);
@@ -39,6 +49,8 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
 
     private void initView(Context context) {
         videoLayoutParams = new ITinyVideoView.LayoutParams();
+
+        //默认位置和大小
         videoLayoutParams.x = 0;
         videoLayoutParams.y = 0;
         videoLayoutParams.width = VideoUtils.dp2px(context, 200);
@@ -50,11 +62,16 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
         View fullscreenView = findViewById(R.id.fullscreen);
         fullscreenView.setOnClickListener(this);
 
+        surfaceContainer.setOnClickListener(this);
+        surfaceContainer.setOnTouchListener(this);
+
+        topLayout = findViewById(R.id.top_layout);
+
         playBtn = findViewById(R.id.start);
         playBtn.setOnClickListener(this);
 
-        surfaceContainer.setOnTouchListener(this);
-
+        replayLayout = findViewById(R.id.reply_layout);
+        replayLayout.setOnClickListener(this);
     }
 
     //禁止重力感应旋转
@@ -96,6 +113,14 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
     }
 
     @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (listener != null) {
+            return listener.onTouch(event);
+        }
+        return false;
+    }
+
+    @Override
     public void onClick(View v) {
         int viewId = v.getId();
         if (viewId == R.id.close) {
@@ -108,15 +133,88 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
             }
         } else if (viewId == R.id.start) {
             start();
+        } else if (viewId == R.id.reply_layout) {
+            replay();
+        } else if (viewId == getSurfaceContainerId()) {
+            if (!isInPlaybackState()) {
+                return;
+            }
+            toggleControlView();
+            startControlViewTimer();
         }
     }
 
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (listener != null) {
-            return listener.onTouch(event);
+    protected void toggleControlView() {
+        int visi = topLayout.getVisibility() == VISIBLE ? GONE : VISIBLE;
+        topLayout.setVisibility(visi);
+        playBtn.setVisibility(visi);
+    }
+
+    protected void startControlViewTimer() {
+        cancelControlViewTimer();
+        controlViewTimer = new Timer();
+        controlViewTimerTask = new ControlViewTimerTask(this);
+        controlViewTimer.schedule(controlViewTimerTask, 2500);
+    }
+
+    protected void cancelControlViewTimer() {
+        if (controlViewTimer != null) {
+            controlViewTimer.cancel();
         }
-        return false;
+        if (controlViewTimerTask != null) {
+            controlViewTimerTask.cancel();
+        }
+    }
+
+    protected static class ControlViewTimerTask extends TimerTask {
+
+        private WeakReference<FloatVideoView> weakReference;
+
+        private ControlViewTimerTask(FloatVideoView videoView) {
+            weakReference = new WeakReference<>(videoView);
+        }
+
+        @Override
+        public void run() {
+            FloatVideoView videoView = weakReference.get();
+            if (videoView != null) {
+                videoView.post(new ControlViewRunnable(videoView));
+            }
+        }
+    }
+
+    private static class ControlViewRunnable implements Runnable {
+
+        private final WeakReference<FloatVideoView> weakReference;
+
+        private ControlViewRunnable(FloatVideoView videoView) {
+            weakReference = new WeakReference<>(videoView);
+        }
+
+        @Override
+        public void run() {
+            FloatVideoView videoView = weakReference.get();
+            if (videoView != null) {
+                videoView.hideControlView();
+            }
+        }
+    }
+
+    private void hideControlView() {
+        topLayout.setVisibility(View.GONE);
+        playBtn.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onStateChange(int state) {
+        super.onStateChange(state);
+        if (state == BasePlayer.STATE_COMPLETED) {
+            replayLayout.setVisibility(View.VISIBLE);
+            playBtn.setVisibility(View.GONE);
+            topLayout.setVisibility(View.GONE);
+        } else {
+            replayLayout.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -132,5 +230,16 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
     @Override
     public void setTitle(String title) {
 
+    }
+
+    //重新设置播放器状态
+    public void setPlayerStatus(int status) {
+        onStateChange(status);
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        cancelControlViewTimer();
     }
 }

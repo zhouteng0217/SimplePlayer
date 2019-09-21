@@ -143,8 +143,8 @@ public abstract class BasePlayer implements IMediaPlayer {
     @Override
     public void play() {
         playerAudioManager.requestAudioFocus();
-        onStateChange(STATE_PLAYING);
         playImpl();
+        onStateChange(STATE_PLAYING);
     }
 
     @Override
@@ -152,8 +152,8 @@ public abstract class BasePlayer implements IMediaPlayer {
         if (!isPlaying()) {
             return;
         }
-        onStateChange(STATE_PAUSED);
         pauseImpl();
+        onStateChange(STATE_PAUSED);
     }
 
     public void initPlayer() {

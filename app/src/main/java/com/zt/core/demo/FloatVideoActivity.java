@@ -12,6 +12,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 
+import com.zt.core.base.BasePlayer;
 import com.zt.core.base.ITinyVideoView;
 import com.zt.core.base.RenderContainerView;
 import com.zt.core.player.FloatVideoManager;
@@ -105,6 +106,8 @@ public class FloatVideoActivity extends BaseDemoActivity implements CompoundButt
         RenderContainerView renderContainerView = videoView.getRenderContainerViewOffParent();
 
         floatVideoView.addRenderContainer(renderContainerView);
+
+        floatVideoView.setPlayerStatus(videoView.getCurrentState());
 
         FloatVideoManager.getInstance().startFloatVideo(floatVideoView);
 

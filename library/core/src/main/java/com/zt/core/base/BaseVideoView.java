@@ -68,6 +68,9 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     //actionbar可见状态记录
     private boolean actionBarVisible;
 
+    //当前播放器状态
+    private int currentState;
+
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
     }
@@ -109,7 +112,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
     /**
      * 从父控件中剥离出来，将变量置空后，返回，防止内存泄漏
-     *
+     * <p>
      * 用于将播放器画面剥离出来，添加到另外的控制层界面上，实现窗口画面的转移，比如小窗口播放
      *
      * @return
@@ -166,8 +169,13 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         resizeTextureView(width, height);
     }
 
+    public int getCurrentState() {
+        return currentState;
+    }
+
     @Override
     public void onStateChange(int state) {
+        currentState = state;
         if (onStateChangedListener != null) {
             onStateChangedListener.onStateChange(state);
         }
@@ -181,13 +189,13 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
                 VideoUtils.removeScreenOn(context);
                 break;
         }
-        updatePlayIcon(state);
+        updatePlayIcon();
     }
 
-    protected void updatePlayIcon(int state) {
-        if (state == BasePlayer.STATE_PLAYING) {
+    protected void updatePlayIcon() {
+        if (isPlaying()) {
             setPlayingIcon();
-        } else if (state != BasePlayer.STATE_BUFFERING_START && state != BasePlayer.STATE_BUFFERING_END) {
+        } else {
             setPausedIcon();
         }
     }
@@ -251,7 +259,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     //region 播放器相关
 
     public void replay() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         if (player != null) {
             player.seekTo(0);
             start();
@@ -268,26 +276,26 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     }
 
     public void pause() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         if (player != null) {
             player.pause();
         }
     }
 
     public boolean isPlaying() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         return player != null && player.isPlaying();
     }
 
     public void release() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         if (player != null) {
             player.release();
         }
     }
 
     public void destroy() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         if (player != null) {
             player.destroy();
         }
@@ -295,42 +303,46 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     }
 
     public long getDuration() {
-        BasePlayer player = renderContainerView == null ? null : renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         return player == null ? 0 : player.getDuration();
     }
 
     public void seekTo(long position) {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         if (player != null) {
             player.seekTo(position);
         }
     }
 
     public long getCurrentPosition() {
-        BasePlayer player = renderContainerView == null ? null : renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         return player == null ? 0 : player.getCurrentPosition();
     }
 
     public int getStreamMaxVolume() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         return player == null ? 0 : player.getStreamMaxVolume();
     }
 
     public boolean isInPlaybackState() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         return player != null && player.isInPlaybackState();
     }
 
     public int getStreamVolume() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         return player != null ? player.getStreamVolume() : 0;
     }
 
     public void setStreamVolume(int value) {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         if (player != null) {
             player.setStreamVolume(value);
         }
+    }
+
+    public BasePlayer getPlayer() {
+        return renderContainerView == null ? null : renderContainerView.getPlayer();
     }
     //endregion
 
@@ -392,12 +404,12 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
     }
 
     private int getVideoWidth() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         return player == null ? 0 : player.getVideoWidth();
     }
 
     private int getVideoHeight() {
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         return player == null ? 0 : player.getVideoHeight();
     }
 
@@ -524,7 +536,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         if (playerConfig.screenMode == PlayerConfig.PORTRAIT_FULLSCREEN_MODE) {
             return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         }
-        BasePlayer player = renderContainerView.getPlayer();
+        BasePlayer player = getPlayer();
         if (playerConfig.screenMode == PlayerConfig.AUTO_FULLSCREEN_MODE && player != null) {
             return player.getAspectRation() < 1 ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
         }

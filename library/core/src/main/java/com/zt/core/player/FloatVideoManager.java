@@ -102,7 +102,7 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
             case MotionEvent.ACTION_UP:
                 break;
         }
-        return true;
+        return false;
     }
 
     private void updateViewPosition() {
