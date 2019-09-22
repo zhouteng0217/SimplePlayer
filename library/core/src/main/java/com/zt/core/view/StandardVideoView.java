@@ -1,21 +1,23 @@
 package com.zt.core.view;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.zt.core.R;
-import com.zt.core.player.AndroidPlayer;
 import com.zt.core.base.BaseVideoView;
+import com.zt.core.player.AndroidPlayer;
 import com.zt.core.util.VideoUtils;
 
 import java.lang.ref.WeakReference;
@@ -28,7 +30,6 @@ import java.util.TimerTask;
 
 public class StandardVideoView extends BaseVideoView implements View.OnClickListener, SeekBar.OnSeekBarChangeListener, View.OnTouchListener {
 
-    protected FrameLayout surfaceContainer;
     protected ImageView thumbView;
     protected ViewGroup bottomLayout;
     protected ViewGroup topLayout;
@@ -52,7 +53,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     protected Timer controlViewTimer;
     protected ControlViewTimerTask controlViewTimerTask;
 
-    protected boolean isLiveVideo = false; // 表示是直播类的视频，没有播放进度
+    private boolean isShowMobileDataDialog = false;
 
     public StandardVideoView(@NonNull Context context) {
         this(context, null);
@@ -68,7 +69,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void initView() {
-        surfaceContainer = findViewById(R.id.surface_container);
         surfaceContainer.setOnClickListener(this);
         surfaceContainer.setOnTouchListener(this);
 
@@ -103,8 +103,9 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     @Override
-    protected ViewGroup getSurfaceContainer() {
-        return surfaceContainer;
+    protected @IdRes
+    int getSurfaceContainerId() {
+        return R.id.surface_container;
     }
 
     @Override
@@ -116,6 +117,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     @Override
     public void onStateChange(int state) {
+        super.onStateChange(state);
         switch (state) {
             case AndroidPlayer.STATE_IDLE:
                 changeUIWithIdle();
@@ -139,13 +141,20 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 changeUIWithError();
                 break;
             case AndroidPlayer.STATE_BUFFERING_START:
-//            case AndroidPlayer.STATE_SEEK_START:
                 changeUiWithBufferingStart();
                 break;
             case AndroidPlayer.STATE_BUFFERING_END:
-//            case AndroidPlayer.STATE_SEEK_END:
                 changeUiWithBufferingEnd();
                 break;
+        }
+        updateProgressStatus();
+    }
+
+    protected void updateProgressStatus() {
+        if (isPlaying()) {
+            startProgressTimer();
+        } else {
+            cancelProgressTimer();
         }
     }
 
@@ -158,46 +167,31 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void changeUIWithPlaying() {
-        updatePlayIcon(AndroidPlayer.STATE_PLAYING);
         startProgressTimer();
         setViewsVisible(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithPause() {
-        updatePlayIcon(AndroidPlayer.STATE_PAUSED);
-        cancelProgressTimer();
         cancelControlViewTimer();
         setViewsVisible(View.VISIBLE, View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithError() {
-        updatePlayIcon(AndroidPlayer.STATE_ERROR);
-        cancelProgressTimer();
         setViewsVisible(View.VISIBLE, View.GONE, View.VISIBLE, View.GONE, View.GONE, View.GONE);
     }
 
     protected void changeUIWithComplete() {
-        updatePlayIcon(AndroidPlayer.STATE_COMPLETED);
-        cancelProgressTimer();
         setViewsVisible(View.VISIBLE, View.GONE, View.GONE, View.GONE, View.GONE, View.VISIBLE);
         seekBar.setProgress(100);
         currentTimeText.setText(totalTimeText.getText());
     }
 
-    protected void updatePlayIcon(int state) {
-        if (state == AndroidPlayer.STATE_PLAYING) {
-            setPlayingIcon();
-        } else if (state == AndroidPlayer.STATE_ERROR) {
-            setPausedIcon();
-        } else {
-            setPausedIcon();
-        }
-    }
-
+    @Override
     protected void setPlayingIcon() {
         start.setImageResource(R.drawable.ic_pause);
     }
 
+    @Override
     protected void setPausedIcon() {
         start.setImageResource(R.drawable.ic_play);
     }
@@ -208,8 +202,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void changeUIWithIdle() {
-        cancelProgressTimer();
-        updatePlayIcon(AndroidPlayer.STATE_IDLE);
         setViewsVisible(View.VISIBLE, View.GONE, View.GONE, View.GONE, View.VISIBLE, View.GONE);
     }
 
@@ -222,12 +214,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
         int visible = View.VISIBLE;
 
-        if (player.getDuration() <= 0) {
+        if (getDuration() <= 0) {
 
             //表示直播类的视频，没有进度条
             visible = View.INVISIBLE;
 
-            isLiveVideo = true;
         }
 
         startControlViewTimer();
@@ -269,44 +260,49 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void handleBack() {
-        if (isFullScreen) {
+        if (isFullScreen()) {
             exitFullscreen();
         } else {
-            player.release();
+            release();
             VideoUtils.getActivity(getContext()).finish();
         }
     }
 
     protected void handleFullScreen() {
-        if (isFullScreen) {
+        if (isFullScreen()) {
             exitFullscreen();
         } else {
-            startFullScreen();
+            startFullscreen();
         }
     }
 
     @Override
     public boolean onBackKeyPressed() {
-        if (isFullScreen) {
+        if (isLocked) {
+            return true;
+        }
+        if (isFullScreen()) {
             exitFullscreen();
             return true;
         }
+
         return false;
     }
 
+    @Override
     public void setTitle(String titleText) {
         title.setText(titleText);
     }
 
     @Override
-    protected void startFullScreen() {
-        super.startFullScreen();
+    public void startFullscreenWithOrientation(int orientation) {
+        super.startFullscreenWithOrientation(orientation);
         resetLockStatus();
     }
 
     @Override
-    protected void exitFullscreen() {
-        super.exitFullscreen();
+    public void exitFullscreenWithOrientation(int orientation) {
+        super.exitFullscreenWithOrientation(orientation);
         resetLockStatus();
     }
 
@@ -316,9 +312,49 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         seekBar.setProgress(0);
     }
 
+    @Override
+    public void destroy() {
+        super.destroy();
+        destroyPlayerController();
+    }
+
+    /**
+     * 仅仅销毁播放器控制层逻辑，但是不去销毁RenderContainer层
+     */
+    public void destroyPlayerController() {
+        cancelControlViewTimer();
+        cancelProgressTimer();
+        orientationHelper.setOrientationEnable(false);
+    }
+
+    @Override
+    public void handleMobileData() {
+        if (isShowMobileDataDialog) {
+            return;
+        }
+        isShowMobileDataDialog = true;
+        Context context = getContext();
+        AlertDialog.Builder builder = new AlertDialog.Builder(context, R.style.Theme_AppCompat_Light_Dialog_Alert);
+        builder.setMessage(context.getString(R.string.mobile_data_tips));
+        builder.setPositiveButton(context.getString(R.string.continue_playing), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                startVideo();
+            }
+        });
+        builder.setNegativeButton(context.getString(R.string.stop_play), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.create().show();
+    }
+
     //region 点击屏幕，显示隐藏控制栏
     protected void surfaceContainerClick() {
-        if (player == null || !player.isInPlaybackState()) {
+        if (!isInPlaybackState()) {
             return;
         }
         toggleControlView();
@@ -352,7 +388,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //region top,bottom控制栏隐藏任务
 
     private void hideControlView() {
-        if (player != null && player.isInPlaybackState()) {
+        if (isInPlaybackState()) {
             setTopBottomVisi(View.GONE);
             setVideoLockLayoutVisi(View.INVISIBLE);
         }
@@ -444,8 +480,13 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         }
     }
 
+    //是否是直播类视频
+    protected boolean isLive() {
+        return getDuration() <= 0;
+    }
+
     protected void startProgressTimer() {
-        if (isLiveVideo) {
+        if (isLive()) {
             return;
         }
         cancelProgressTimer();
@@ -464,8 +505,8 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     }
 
     protected void setProgressAndText() {
-        int position = (int) player.getCurrentPosition();
-        int duration = (int) player.getDuration();
+        int position = (int) getCurrentPosition();
+        int duration = (int) getDuration();
         int progress = position * 100 / (duration == 0 ? 1 : duration);
         if (progress != 0 && !touchScreen) {
             seekBar.setProgress(progress);
@@ -481,12 +522,11 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     protected boolean isLocked = false; //是否处于锁定屏幕状态
 
-    //默认全屏支持锁定屏幕
     protected boolean isSupportLock() {
-        return isFullScreen && isSupportLock;
+        return isFullScreen() && isSupportLock;
     }
 
-    //由外部控制的是否支持锁定屏幕
+    //全屏情况下，是否支持锁定播放器
     public void setSupportLock(boolean supportLock) {
         isSupportLock = supportLock;
     }
@@ -498,6 +538,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         } else {
             setVideoUnlockedIcon();
         }
+        orientationHelper.setOrientationEnable(!isLocked);
         setTopBottomVisi(isLocked ? View.GONE : View.VISIBLE);
     }
 
@@ -570,7 +611,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (player == null || !player.isInPlaybackState()) {
+        if (!isInPlaybackState()) {
             return false;
         }
         switch (event.getAction()) {
@@ -578,9 +619,9 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
                 touchScreen = true;
                 downX = event.getX();
                 downY = event.getY();
-                downVolume = player.getStreamVolume();
+                downVolume = getStreamVolume();
                 downBrightness = VideoUtils.getScreenBrightness(getContext());
-                downVideoPosition = player.getCurrentPosition();
+                downVideoPosition = getCurrentPosition();
                 isChangedProgress = false;
 
                 isSeekGesture = false;
@@ -632,7 +673,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             }
         }
 
-        if (isSeekGesture && !isLiveVideo && isSupportSeek) {
+        if (isSeekGesture && !isLive() && isSupportSeek) {
             changeProgress(dx);
             return;
         }
@@ -650,7 +691,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //region 播放进度手势处理
     protected void seekToNewVideoPosition() {
         if (isChangedProgress) {
-            player.seekTo(newVideoPosition);
+            seekTo(newVideoPosition);
             isChangedProgress = false;
 
             startProgressTimer();
@@ -661,7 +702,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         cancelProgressTimer();
 
         int distance = getWidth();
-        long videoDuration = player.getDuration();
+        long videoDuration = getDuration();
         newVideoPosition = downVideoPosition + (int) (dx / distance * videoDuration);
         if (newVideoPosition >= videoDuration) {
             newVideoPosition = videoDuration;
@@ -695,13 +736,13 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     public void onStartTrackingTouch(SeekBar seekBar) {
         cancelProgressTimer();
         cancelControlViewTimer();
-        downVideoPosition = player.getCurrentPosition();
+        downVideoPosition = getCurrentPosition();
     }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         if (fromUser) {
-            long videoDuration = player.getDuration();
+            long videoDuration = getDuration();
             newVideoPosition = progress * videoDuration / 100;
             String progressText = VideoUtils.stringForTime(newVideoPosition) + "/" + VideoUtils.stringForTime(videoDuration);
             showSeekDialog(progressText, progress);
@@ -710,7 +751,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        player.seekTo(newVideoPosition);
+        seekTo(newVideoPosition);
         hideSeekDialog();
         startProgressTimer();
         startControlViewTimer();
@@ -762,7 +803,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //region 音量手势操作处理
     protected void changeVolume(float dy) {
 
-        int maxVolume = player.getStreamMaxVolume();
+        int maxVolume = getStreamMaxVolume();
 
         int distance = getHeight();
 
@@ -775,7 +816,7 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
             newVolume = maxVolume;
         }
 
-        player.setStreamVolume((int) newVolume);
+        setStreamVolume((int) newVolume);
 
         showVolumeDialog((int) (newVolume / maxVolume * 100));
     }
@@ -801,5 +842,4 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
     //endregion
 
     //endregion
-
 }

@@ -6,8 +6,7 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.zt.core.base.PlayerConfig;
-import com.zt.core.listener.OnFullScreenChangedListener;
+import com.zt.core.listener.OnFullscreenChangedListener;
 
 /**
  * 专为列表视频播放定制的播放器,可以自己按需实现
@@ -26,13 +25,6 @@ public class ListVideoView extends StandardVideoView {
         super(context, attrs, defStyleAttr);
     }
 
-    //滚动视图中，全屏模式变更下
-
-    @Override
-    protected boolean isFullScreenInScrollView() {
-        return true;
-    }
-
     @Override
     protected void initView() {
         super.initView();
@@ -41,13 +33,13 @@ public class ListVideoView extends StandardVideoView {
         isSupportBrightness = false;
         isSupportSeek = false;
 
-        setOnFullScreenChangeListener(new OnFullScreenChangedListener() {
+        setOnFullscreenChangeListener(new OnFullscreenChangedListener() {
             @Override
-            public void onFullScreenChange(boolean isFullScreen) {
-                back.setVisibility(isFullScreen ? View.VISIBLE : View.GONE);
-                isSupportVolume = isFullScreen;
-                isSupportBrightness = isFullScreen;
-                isSupportSeek = isFullScreen;
+            public void onFullscreenChange(boolean isFullscreen) {
+                back.setVisibility(isFullscreen ? View.VISIBLE : View.GONE);
+                isSupportVolume = isFullscreen;
+                isSupportBrightness = isFullscreen;
+                isSupportSeek = isFullscreen;
             }
         });
     }

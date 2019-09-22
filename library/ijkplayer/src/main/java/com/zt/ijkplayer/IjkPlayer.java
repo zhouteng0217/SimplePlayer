@@ -9,6 +9,7 @@ import android.view.SurfaceHolder;
 import com.zt.core.base.BasePlayer;
 
 import java.io.IOException;
+import java.util.Map;
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IjkMediaPlayer;
@@ -53,7 +54,7 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
         } else if (rawId != 0) {
             mediaPlayer.setDataSource(new RawDataSourceProvider(context.getResources().openRawResourceFd(rawId)));
         } else {
-            mediaPlayer.setDataSource(context, uri, headers);
+            mediaPlayer.setDataSource(context, uri, null);
         }
     }
 
@@ -89,7 +90,7 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
 
     @Override
     public float getAspectRation() {
-        return mediaPlayer == null || mediaPlayer.getVideoHeight() == 0 ? 1.0f : (float) mediaPlayer.getVideoWidth() / mediaPlayer.getVideoHeight();
+        return mediaPlayer == null || mediaPlayer.getVideoWidth() == 0 ? 1.0f : (float) mediaPlayer.getVideoHeight() / mediaPlayer.getVideoWidth();
     }
 
     @Override
@@ -154,8 +155,29 @@ public class IjkPlayer extends BasePlayer implements IMediaPlayer.OnPreparedList
             setEnableMediaCodec(playerConfig.enableMediaCodec);
             setEnableOpenSLES(playerConfig.enableOpenSLES);
             mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER, "enable-accurate-seek", 1);
-//            mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_PLAYER,"reconnect",5);
+            //服务器中断自动重连
             mediaPlayer.setOption(IjkMediaPlayer.OPT_CATEGORY_FORMAT, "reconnect", 1);
+            setHeaders();
+        }
+    }
+
+    /**
+     * 通过IjkMediaPlayer的setOption方法，来设置headers, 避免setDataSource设置headers受到protocol_whitelist配置的影响
+     */
+    private void setHeaders() {
+        if (headers == null) {
+            return;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            sb.append(entry.getKey());
+            sb.append(":");
+            String value = entry.getValue();
+            if (!TextUtils.isEmpty(value)) {
+                sb.append(entry.getValue());
+            }
+            sb.append("\r\n");
+            mediaPlayer.setOption(1, "headers", sb.toString());
         }
     }
 

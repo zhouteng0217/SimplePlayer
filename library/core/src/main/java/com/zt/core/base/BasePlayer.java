@@ -8,30 +8,17 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.RawRes;
 import android.text.TextUtils;
-import android.view.Surface;
-import android.view.SurfaceHolder;
 
 import com.zt.core.listener.OnStateChangedListener;
-import com.zt.core.listener.onVideoSizeChangedListener;
-import com.zt.core.util.VideoUtils;
+import com.zt.core.listener.OnVideoSizeChangedListener;
 
 import java.io.IOException;
 import java.util.Map;
 
-public abstract class BasePlayer implements PlayerListener {
+public abstract class BasePlayer implements IMediaPlayer {
 
     protected static final int MSG_RELEASE = 101;
     protected static final int MSG_DESTORY = 102;
-
-    public static final int STATE_ERROR = -1;
-    public static final int STATE_IDLE = 0;
-    public static final int STATE_PREPARING = 1;
-    public static final int STATE_PREPARED = 2;
-    public static final int STATE_BUFFERING_START = 3; //暂停播放开始缓冲更多数据
-    public static final int STATE_BUFFERING_END = 4; //缓冲了足够的数据重新开始播放
-    public static final int STATE_PLAYING = 5;
-    public static final int STATE_PAUSED = 6;
-    public static final int STATE_COMPLETED = 7;
 
     protected int currentState = STATE_IDLE;
 
@@ -41,7 +28,7 @@ public abstract class BasePlayer implements PlayerListener {
     protected String assetFileName;
 
     protected OnStateChangedListener onStateChangeListener;
-    protected onVideoSizeChangedListener onVideoSizeChangedListener;
+    protected OnVideoSizeChangedListener onVideoSizeChangedListener;
 
     protected Context context;
 
@@ -75,8 +62,11 @@ public abstract class BasePlayer implements PlayerListener {
     }
 
     public BasePlayer(Context context) {
-        this.context = context;
-        playerAudioManager = new PlayerAudioManager(context, this);
+
+        //使用application的context避免内存泄露
+        this.context = context.getApplicationContext();
+
+        playerAudioManager = new PlayerAudioManager(this.context, this);
 
         HandlerThread handlerThread = new HandlerThread(this.getClass().getName());
         handlerThread.start();
@@ -113,7 +103,7 @@ public abstract class BasePlayer implements PlayerListener {
         this.onStateChangeListener = onStateChangeListener;
     }
 
-    public void setOnVideoSizeChangedListener(onVideoSizeChangedListener onVideoSizeChangedListener) {
+    public void setOnVideoSizeChangedListener(OnVideoSizeChangedListener onVideoSizeChangedListener) {
         this.onVideoSizeChangedListener = onVideoSizeChangedListener;
     }
 
@@ -153,9 +143,8 @@ public abstract class BasePlayer implements PlayerListener {
     @Override
     public void play() {
         playerAudioManager.requestAudioFocus();
-        VideoUtils.keepScreenOn(context);
-        onStateChange(STATE_PLAYING);
         playImpl();
+        onStateChange(STATE_PLAYING);
     }
 
     @Override
@@ -163,9 +152,8 @@ public abstract class BasePlayer implements PlayerListener {
         if (!isPlaying()) {
             return;
         }
-        VideoUtils.removeScreenOn(context);
-        onStateChange(STATE_PAUSED);
         pauseImpl();
+        onStateChange(STATE_PAUSED);
     }
 
     public void initPlayer() {
@@ -189,7 +177,6 @@ public abstract class BasePlayer implements PlayerListener {
     @Override
     public void release() {
         playerAudioManager.abandonAudioFocus();
-        VideoUtils.removeScreenOn(context);
         isPrepared = false;
         onStateChange(STATE_IDLE);
 
@@ -201,7 +188,6 @@ public abstract class BasePlayer implements PlayerListener {
     @Override
     public void destroy() {
         playerAudioManager.destroy();
-        VideoUtils.removeScreenOn(context);
         isPrepared = false;
         onStateChange(STATE_IDLE);
 
@@ -225,7 +211,6 @@ public abstract class BasePlayer implements PlayerListener {
     //onCompletion的具体实现
     protected void onCompletionImpl() {
         playerAudioManager.abandonAudioFocus();
-        VideoUtils.removeScreenOn(context);
         onStateChange(STATE_COMPLETED);
     }
 
@@ -282,7 +267,7 @@ public abstract class BasePlayer implements PlayerListener {
     //销毁播放器
     protected abstract void destroyImpl();
 
-    //获取视频内容宽高比
+    //获取视频内容高宽比
     public abstract float getAspectRation();
 
     //获取视频内容宽度
@@ -299,12 +284,6 @@ public abstract class BasePlayer implements PlayerListener {
 
     //跳转到指定播放位置
     protected abstract void seekToImpl(long position);
-
-    //设置TextureView渲染界面
-    public abstract void setSurface(Surface surface);
-
-    //设置SurfaceView渲染界面
-    public abstract void setDisplay(SurfaceHolder holder);
 
     //针对某些播放器内核，比如IjkPlayer，进行的一些额外设置
     public abstract void setOptions();

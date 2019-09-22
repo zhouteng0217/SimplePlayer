@@ -5,23 +5,42 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 
-import com.zt.core.base.BaseRenderView;
+import com.zt.core.base.IMediaPlayer;
+import com.zt.core.base.IRenderView;
 
-public class SurfaceRenderView extends BaseRenderView implements SurfaceHolder.Callback {
+public class SurfaceRenderView extends SurfaceView implements IRenderView, SurfaceHolder.Callback {
 
-    protected SurfaceView surfaceView;
+    protected IMediaPlayer player;
+
+    private int videoWidth, videoHeight;
 
     public SurfaceRenderView(Context context) {
-        surfaceView = new SurfaceView(context);
-        SurfaceHolder surfaceHolder = surfaceView.getHolder();
+        super(context);
+        SurfaceHolder surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
     }
 
     @Override
-    public View getRenderView() {
-        return surfaceView;
+    public void setVideoSize(int width, int height) {
+        videoWidth = width;
+        videoHeight = height;
+        requestLayout();
     }
 
+    @Override
+    public View getRenderView() {
+        return this;
+    }
+
+    @Override
+    public IMediaPlayer getPlayer() {
+        return player;
+    }
+
+    @Override
+    public void setPlayer(IMediaPlayer player) {
+        this.player = player;
+    }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -36,5 +55,14 @@ public class SurfaceRenderView extends BaseRenderView implements SurfaceHolder.C
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
 
+    }
+
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        if (videoWidth > 0 && videoHeight > 0) {
+            setMeasuredDimension(videoWidth, videoHeight);
+        }
     }
 }

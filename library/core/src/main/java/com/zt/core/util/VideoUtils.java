@@ -67,9 +67,17 @@ public class VideoUtils {
         return null;
     }
 
+    public static boolean isActionBarVisible(Activity activity) {
+        if (activity instanceof AppCompatActivity) {
+            ActionBar ab = ((AppCompatActivity) activity).getSupportActionBar();
+            return ab != null && ab.isShowing();
+        }
+        return false;
+    }
+
     public static void showSupportActionBar(Activity activity, boolean actionBar) {
         if (actionBar) {
-            if (activity != null && activity instanceof AppCompatActivity) {
+            if (activity instanceof AppCompatActivity) {
                 ActionBar ab = ((AppCompatActivity) activity).getSupportActionBar();
                 if (ab != null) {
                     ab.setShowHideAnimationEnabled(false);
@@ -81,7 +89,7 @@ public class VideoUtils {
 
     public static void hideSupportActionBar(Activity activity, boolean actionBar) {
         if (actionBar) {
-            if (activity != null && activity instanceof AppCompatActivity) {
+            if (activity instanceof AppCompatActivity) {
                 ActionBar ab = ((AppCompatActivity) activity).getSupportActionBar();
                 if (ab != null) {
                     ab.setShowHideAnimationEnabled(false);
@@ -111,7 +119,7 @@ public class VideoUtils {
 
     public static void clearFullScreenFlag(Activity activity) {
         WindowManager.LayoutParams attrs = activity.getWindow().getAttributes();
-        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN; //添加FLAG_FULLSCREEN
+        attrs.flags &= ~WindowManager.LayoutParams.FLAG_FULLSCREEN; //移除FLAG_FULLSCREEN
         activity.getWindow().setAttributes(attrs);
     }
 
@@ -135,11 +143,17 @@ public class VideoUtils {
     }
 
     public static void keepScreenOn(Context context) {
-        getActivity(context).getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Activity activity = getActivity(context);
+        if (activity != null) {
+            activity.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     public static void removeScreenOn(Context context) {
-        getActivity(context).getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        Activity activity = getActivity(context);
+        if (activity != null) {
+            activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        }
     }
 
     //是否是横屏
@@ -213,5 +227,21 @@ public class VideoUtils {
             e.printStackTrace();
         }
         return (float) brightness / 255;
+    }
+
+    /**
+     * 获取状态栏高度
+     *
+     * @param context 上下文
+     * @return 状态栏高度
+     */
+    public static int getStatusBarHeight(Context context) {
+        int result = 0;
+        int resourceId = context.getResources()
+                .getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
     }
 }

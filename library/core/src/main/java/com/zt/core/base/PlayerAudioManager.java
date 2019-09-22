@@ -13,7 +13,7 @@ public class PlayerAudioManager {
 
     private Context context;
     private AudioManager audioManager;
-    private PlayerListener playerListener;
+    private IMediaPlayer mediaPlayer;
     private HeadsetBroadcastReceiver headsetBroadcastReceiver;
 
     protected final AudioManager.OnAudioFocusChangeListener onAudioFocusChangeListener = new AudioManager.OnAudioFocusChangeListener() {
@@ -23,13 +23,13 @@ public class PlayerAudioManager {
                 case AudioManager.AUDIOFOCUS_GAIN:
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS:
-                    if (playerListener != null) {
-                        playerListener.pause();
+                    if (mediaPlayer != null) {
+                        mediaPlayer.pause();
                     }
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                    if (playerListener != null) {
-                        playerListener.pause();
+                    if (mediaPlayer != null) {
+                        mediaPlayer.pause();
                     }
                     break;
                 case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
@@ -45,13 +45,13 @@ public class PlayerAudioManager {
                 int mediaStatus = intent.getIntExtra(HeadsetBroadcastReceiver.MEDIA_KEY, -1);
                 switch (mediaStatus) {
                     case HeadsetBroadcastReceiver.MEDIA_PAUSE:
-                        if (playerListener != null) {
-                            playerListener.pause();
+                        if (mediaPlayer != null) {
+                            mediaPlayer.pause();
                         }
                         break;
                     case HeadsetBroadcastReceiver.MEDIA_PLAY:
-                        if (playerListener != null) {
-                            playerListener.play();
+                        if (mediaPlayer != null) {
+                            mediaPlayer.play();
                         }
                         break;
                 }
@@ -59,9 +59,9 @@ public class PlayerAudioManager {
         }
     };
 
-    public PlayerAudioManager(Context context, PlayerListener playerListener) {
+    public PlayerAudioManager(Context context, IMediaPlayer mediaPlayer) {
         this.context = context;
-        this.playerListener = playerListener;
+        this.mediaPlayer = mediaPlayer;
         audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         headsetBroadcastReceiver = new HeadsetBroadcastReceiver();
         registerHeadsetReceiver();

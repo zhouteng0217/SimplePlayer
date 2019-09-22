@@ -1,17 +1,17 @@
 package com.zt.core.base;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
+import android.os.Build;
+import android.support.annotation.IdRes;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RawRes;
-import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,45 +19,57 @@ import android.view.ViewParent;
 import android.view.Window;
 import android.widget.FrameLayout;
 
-import com.zt.core.R;
-import com.zt.core.listener.OnFullScreenChangedListener;
+import com.zt.core.listener.OnFullscreenChangedListener;
 import com.zt.core.listener.OnStateChangedListener;
-import com.zt.core.listener.onVideoSizeChangedListener;
-import com.zt.core.player.AndroidPlayer;
-import com.zt.core.render.SurfaceRenderView;
-import com.zt.core.render.TextureRenderView;
+import com.zt.core.listener.OnVideoSizeChangedListener;
 import com.zt.core.util.VideoUtils;
 
 import java.util.Map;
 
+/**
+ * Created by zhouteng on 2019-09-18
+ * <p>
+ * 播放器布局基类，用于添加播放器画面视图
+ */
+public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
-public abstract class BaseVideoView extends FrameLayout implements OnStateChangedListener, onVideoSizeChangedListener {
+    protected ViewGroup surfaceContainer;
+    protected OrientationHelper orientationHelper;
 
-    protected BasePlayer player;
+    //是否支持重力感应自动横竖屏，默认支持
+    private boolean supportSensorRotate = true;
 
-    private BaseRenderView renderView;
+    //是否跟随系统的方向锁定，默认跟随
+    private boolean rotateWithSystem = true;
 
-    protected boolean isFullScreen = false;
-    protected OnFullScreenChangedListener onFullScreenChangeListener;
-
-    //正常状态下控件的宽高
-    protected int originWidth;
-    protected int originHeight;
-
-    protected ViewParent viewParent;
-
-    protected int mSystemUiVisibility;
-
-    protected boolean isShowMobileDataDialog = false;
-
+    //播放器配置
     private PlayerConfig playerConfig;
 
-    private String url;
-    private Map<String, String> headers;
-    protected @RawRes
-    int rawId;
-    protected String assetFileName;
+    //播放器播放画面视图
+    protected RenderContainerView renderContainerView;
 
+    protected OnVideoSizeChangedListener onVideoSizeChangedListener;
+    protected OnFullscreenChangedListener onFullScreenChangeListener;
+    protected OnStateChangedListener onStateChangedListener;
+
+    private boolean isFullScreen = false;
+
+    private int mSystemUiVisibility;
+
+    //全屏之前，正常状态下控件的宽高
+    private int originWidth;
+    private int originHeight;
+
+    //父视图
+    private ViewParent viewParent;
+    //当前view在父视图中的位置
+    private int positionInParent;
+
+    //actionbar可见状态记录
+    private boolean actionBarVisible;
+
+    //当前播放器状态
+    private int currentState;
 
     public BaseVideoView(@NonNull Context context) {
         this(context, null);
@@ -68,183 +80,399 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
     }
 
     public BaseVideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        this(context, attrs, defStyleAttr, 0);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public BaseVideoView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
         init(context);
+    }
+
+    public void setVideoUrlPath(String url) {
+        renderContainerView.setVideoUrlPath(url);
+    }
+
+    public void setVideoRawPath(@RawRes int rawId) {
+        renderContainerView.setVideoRawPath(rawId);
+    }
+
+    public void setVideoAssetPath(String assetFileName) {
+        renderContainerView.setVideoAssetPath(assetFileName);
+    }
+
+    public void setVideoHeaders(Map<String, String> headers) {
+        renderContainerView.setVideoHeaders(headers);
+    }
+
+    @Override
+    public RenderContainerView getRenderContainerView() {
+        return renderContainerView;
+    }
+
+    /**
+     * 从父控件中剥离出来，将变量置空后，返回，防止内存泄漏
+     * <p>
+     * 用于将播放器画面剥离出来，添加到另外的控制层界面上，实现窗口画面的转移，比如小窗口播放
+     *
+     * @return
+     */
+    @Override
+    public RenderContainerView getRenderContainerViewOffParent() {
+        ViewParent parent = renderContainerView.getParent();
+        if (parent instanceof ViewGroup) {
+            ((ViewGroup) parent).removeView(renderContainerView);
+        }
+        RenderContainerView result = renderContainerView;
+
+        //renderContainerView和playConfig会被剥离出去的renderContainerView实例持有引用，因此置空，防止内存泄漏
+        renderContainerView = null;
+        playerConfig = null;
+
+        return result;
     }
 
     protected void init(Context context) {
         LayoutInflater.from(context).inflate(getLayoutId(), this);
+        surfaceContainer = findViewById(getSurfaceContainerId());
         playerConfig = new PlayerConfig.Builder().build();
+        orientationHelper = new OrientationHelper(this);
+
+        renderContainerView = newRenderContainerView();
+        addRenderContainer(renderContainerView);
     }
 
-    //region DataSource
-    public void setVideoPath(String url) {
-        setVideoPath(url, null);
+    //添加播放器画面视图，到播放器界面上
+    @Override
+    public void addRenderContainer(RenderContainerView renderContainerView) {
+        this.renderContainerView = renderContainerView;
+        surfaceContainer.removeAllViews();
+        surfaceContainer.addView(renderContainerView, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        renderContainerView.setVideoView(this);
+        renderContainerView.setPlayerConfig(playerConfig);
     }
 
-    public void setVideoPath(String url, Map<String, String> headers) {
-        this.url = url;
-        this.headers = headers;
+    protected RenderContainerView newRenderContainerView() {
+        return new RenderContainerView(getContext());
     }
 
-    //设置raw下视频的路径
-    public void setVideoRawPath(@RawRes int rawId) {
-        this.rawId = rawId;
+    @Override
+    public BaseVideoView getPlayView() {
+        return this;
     }
 
-    //设置assets下视频的路径
-    public void setVideoAssetPath(String assetFileName) {
-        this.assetFileName = assetFileName;
+    @Override
+    public void onVideoSizeChanged(int width, int height) {
+        if (onVideoSizeChangedListener != null) {
+            onVideoSizeChangedListener.onVideoSizeChanged(width, height);
+        }
+        resizeTextureView(width, height);
     }
 
-    //endregion
+    public int getCurrentState() {
+        return currentState;
+    }
+
+    //重新设置播放器状态
+    public void setPlayerStatus(int status) {
+        currentState = status;
+        onStateChange(status);
+    }
+
+    @Override
+    public void onStateChange(int state) {
+        currentState = state;
+        if (onStateChangedListener != null) {
+            onStateChangedListener.onStateChange(state);
+        }
+        Context context = getContext();
+        switch (state) {
+            case BasePlayer.STATE_PLAYING:
+            case BasePlayer.STATE_BUFFERING_START:
+                VideoUtils.keepScreenOn(context);
+                break;
+            default:
+                VideoUtils.removeScreenOn(context);
+                break;
+        }
+        updatePlayIcon();
+    }
+
+    protected void updatePlayIcon() {
+        if (isPlaying()) {
+            setPlayingIcon();
+        } else {
+            setPausedIcon();
+        }
+    }
+
+    //设置播放时，播放按钮图标
+    protected abstract void setPlayingIcon();
+
+    //设置暂停时，播放按钮图标
+    protected abstract void setPausedIcon();
+
+    public void setPlayerConfig(PlayerConfig playerConfig) {
+        if (playerConfig != null) {
+            this.playerConfig = playerConfig;
+            renderContainerView.setPlayerConfig(playerConfig);
+        }
+    }
+
+    protected abstract @IdRes
+    int getSurfaceContainerId();
+
+    protected abstract @LayoutRes
+    int getLayoutId();
+
+    public abstract boolean onBackKeyPressed();
+
+    public abstract void setTitle(String title);
+
+    /**
+     * @return 控制是否支持重力感旋转屏幕来全屏等操作，竖向全屏模式和智能全屏模式下不开启重力感应旋转屏幕，避免造成奇怪的交互。
+     */
+    @Override
+    public boolean supportSensorRotate() {
+        return supportSensorRotate && playerConfig.screenMode == PlayerConfig.LANDSCAPE_FULLSCREEN_MODE;
+    }
+
+    public void setSupportSensorRotate(boolean supportSensorRotate) {
+        this.supportSensorRotate = supportSensorRotate;
+    }
+
+    @Override
+    public boolean rotateWithSystem() {
+        return rotateWithSystem;
+    }
+
+    public void setRotateWithSystem(boolean rotateWithSystem) {
+        this.rotateWithSystem = rotateWithSystem;
+    }
+
+    public void setOnStateChangedListener(OnStateChangedListener onStateChangedListener) {
+        this.onStateChangedListener = onStateChangedListener;
+    }
+
+    public void setOnFullscreenChangeListener(OnFullscreenChangedListener onFullScreenChangeListener) {
+        this.onFullScreenChangeListener = onFullScreenChangeListener;
+    }
+
+    public void setOnVideoSizeChangedListener(OnVideoSizeChangedListener onVideoSizeChangedListener) {
+        this.onVideoSizeChangedListener = onVideoSizeChangedListener;
+    }
+
+    //region 播放器相关
+
+    public void replay() {
+        BasePlayer player = getPlayer();
+        if (player != null) {
+            player.seekTo(0);
+            start();
+        }
+    }
+
+    public void start() {
+        orientationHelper.start();
+        renderContainerView.start();
+    }
 
     public void startVideo() {
-        int currentState = player == null ? BasePlayer.STATE_IDLE : player.getCurrentState();
-        if (currentState == BasePlayer.STATE_IDLE || currentState == BasePlayer.STATE_ERROR) {
-            prepareToPlay();
-        } else if (player.isPlaying()) {
+        renderContainerView.startVideo();
+    }
+
+    public void pause() {
+        BasePlayer player = getPlayer();
+        if (player != null) {
             player.pause();
-        } else {
-            player.play();
         }
     }
 
-    private void initPlayer() {
-        player = newPlayerInstance(getContext());
-        player.setOnStateChangeListener(this);
-        player.setOnVideoSizeChangedListener(this);
-        player.setPlayerConfig(playerConfig);
-        setDataSource();
-        player.initPlayer();
+    public boolean isPlaying() {
+        BasePlayer player = getPlayer();
+        return player != null && player.isInPlaybackState() && player.isPlaying();
     }
 
-    private void setDataSource() {
-        if (assetFileName != null) {
-            player.setVideoAssetPath(assetFileName);
-        } else if (rawId != 0) {
-            player.setVideoRawPath(rawId);
-        } else {
-            player.setVideoPath(url, headers);
+    public void release() {
+        BasePlayer player = getPlayer();
+        if (player != null) {
+            player.release();
         }
     }
 
-    protected void prepareToPlay() {
-
-        initPlayer();
-
-        ViewGroup surfaceContainer = getSurfaceContainer();
-        surfaceContainer.removeAllViews();
-
-        LayoutParams layoutParams =
-                new LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        Gravity.CENTER);
-
-        renderView = newRenderViewInstance(getContext());
-        if (renderView != null) {
-            renderView.setPlayer(player);
-            surfaceContainer.addView(renderView.getRenderView(), layoutParams);
+    public void destroy() {
+        BasePlayer player = getPlayer();
+        if (player != null) {
+            player.destroy();
         }
+        orientationHelper.setOrientationEnable(false);
+    }
+
+    public long getDuration() {
+        BasePlayer player = getPlayer();
+        return player == null ? 0 : player.getDuration();
+    }
+
+    public void seekTo(long position) {
+        BasePlayer player = getPlayer();
+        if (player != null) {
+            player.seekTo(position);
+        }
+    }
+
+    public long getCurrentPosition() {
+        BasePlayer player = getPlayer();
+        return player == null ? 0 : player.getCurrentPosition();
+    }
+
+    public int getStreamMaxVolume() {
+        BasePlayer player = getPlayer();
+        return player == null ? 0 : player.getStreamMaxVolume();
+    }
+
+    public boolean isInPlaybackState() {
+        BasePlayer player = getPlayer();
+        return player != null && player.isInPlaybackState();
+    }
+
+    public int getStreamVolume() {
+        BasePlayer player = getPlayer();
+        return player != null ? player.getStreamVolume() : 0;
+    }
+
+    public void setStreamVolume(int value) {
+        BasePlayer player = getPlayer();
+        if (player != null) {
+            player.setStreamVolume(value);
+        }
+    }
+
+    public BasePlayer getPlayer() {
+        return renderContainerView == null ? null : renderContainerView.getPlayer();
+    }
+    //endregion
+
+    /**
+     * 数据网络下，默认情况下直接播放
+     */
+    @Override
+    public void handleMobileData() {
+        startVideo();
     }
 
     //region 全屏处理
 
-    //视频全屏策略，竖向全屏，横向全屏，还是根据宽高比来选择
-    protected int getFullScreenOrientation() {
-        if (playerConfig.screenMode == PlayerConfig.PORTRAIT_FULLSCREEN_MODE) {
-            return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        }
-        if (playerConfig.screenMode == PlayerConfig.AUTO_FULLSCREEN_MODE) {
-            return player.getAspectRation() >= 1 ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
-        }
-        return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
-    }
-
-    public boolean isFullScreen() {
-        return isFullScreen;
-    }
-
-    public void setOnFullScreenChangeListener(OnFullScreenChangedListener onFullScreenChangeListener) {
-        this.onFullScreenChangeListener = onFullScreenChangeListener;
+    /**
+     * 正常情况下，通过点击全屏按钮来全屏
+     */
+    public void startFullscreen() {
+        startFullscreenWithOrientation(getFullScreenOrientation());
     }
 
     /**
-     * 表示是否要在滚动控件(scrollview,listview ,recyclerview) 里面播放视频来全屏操作
+     * 通过重力感应，旋转屏幕来全屏
      *
-     * @return
+     * @param orientation
      */
-    protected boolean isFullScreenInScrollView() {
-        return false;
-    }
-
-    protected void startFullScreen() {
+    @Override
+    public void startFullscreenWithOrientation(int orientation) {
 
         isFullScreen = true;
 
         Activity activity = VideoUtils.getActivity(getContext());
 
+        actionBarVisible = VideoUtils.isActionBarVisible(activity);
+
         mSystemUiVisibility = activity.getWindow().getDecorView().getSystemUiVisibility();
 
-        activity.setRequestedOrientation(getFullScreenOrientation());
+        activity.setRequestedOrientation(orientation);
 
         VideoUtils.hideSupportActionBar(activity, true);
         VideoUtils.addFullScreenFlag(activity);
         VideoUtils.hideNavKey(activity);
 
-        if (isFullScreenInScrollView()) {
-            changeToFullScreenInScrollView();
-        } else {
-            changeToFullScreen();
-        }
+        changeToFullScreen();
 
         postRunnableToResizeTexture();
 
         if (onFullScreenChangeListener != null) {
-            onFullScreenChangeListener.onFullScreenChange(true);
+            onFullScreenChangeListener.onFullscreenChange(true);
         }
     }
 
-    //正常全屏操作
-    protected void changeToFullScreen() {
-        originWidth = getWidth();
-        originHeight = getHeight();
+    private void postRunnableToResizeTexture() {
+        post(new Runnable() {
+            @Override
+            public void run() {
+                resizeTextureView(getVideoWidth(), getVideoHeight());
+            }
+        });
+    }
 
-        ViewGroup.LayoutParams layoutParams = getLayoutParams();
-        layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT;
-        layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT;
-        setLayoutParams(layoutParams);
+    private int getVideoWidth() {
+        BasePlayer player = getPlayer();
+        return player == null ? 0 : player.getVideoWidth();
+    }
+
+    private int getVideoHeight() {
+        BasePlayer player = getPlayer();
+        return player == null ? 0 : player.getVideoHeight();
+    }
+
+    //根据视频内容重新调整视频渲染区域大小
+    private void resizeTextureView(int width, int height) {
+        IRenderView renderView = renderContainerView.getRenderView();
+        if (renderView == null || renderView.getRenderView() == null || height == 0 || width == 0) {
+            return;
+        }
+
+        float aspectRation = playerConfig.aspectRatio == 0 ? (float) height / width : playerConfig.aspectRatio;
+
+        int parentWidth = getWidth();
+        int parentHeight = getHeight();
+
+        int w, h;
+
+        if (aspectRation < 1) {
+            w = parentWidth;
+            h = (int) (w * aspectRation);
+        } else {
+            h = parentHeight;
+            w = (int) (h / aspectRation);
+        }
+        renderView.setVideoSize(w, h);
     }
 
     /**
      * 通过获取到Activity的ID_ANDROID_CONTENT根布局，来添加视频控件，并全屏
-     * <p>
-     * 这种模式，为了全屏后，能顺利回到原来的位置，需要在布局时，单独给视频控件添加一层父控件，
-     * <p>
-     * 用于滚动视图，列表视图播放器全屏
      */
-    protected void changeToFullScreenInScrollView() {
+    protected void changeToFullScreen() {
 
         originWidth = getWidth();
         originHeight = getHeight();
 
         viewParent = getParent();
+        positionInParent = ((ViewGroup) viewParent).indexOfChild(this);
 
         ViewGroup vp = getRootViewGroup();
 
         removePlayerFromParent();
 
-        LayoutParams lpParent = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        FrameLayout.LayoutParams lpParent = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         FrameLayout frameLayout = new FrameLayout(getContext());
         frameLayout.setBackgroundColor(Color.BLACK);
 
-        LayoutParams lp = new LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         frameLayout.addView(this, lp);
         vp.addView(frameLayout, lpParent);
     }
 
-    protected ViewGroup getRootViewGroup() {
+    /**
+     * 获取到Activity的ID_ANDROID_CONTENT根布局
+     *
+     * @return
+     */
+    private ViewGroup getRootViewGroup() {
         Activity activity = (Activity) getContext();
         if (activity != null) {
             return (ViewGroup) activity.findViewById(Window.ID_ANDROID_CONTENT);
@@ -252,207 +480,75 @@ public abstract class BaseVideoView extends FrameLayout implements OnStateChange
         return null;
     }
 
-    protected void removePlayerFromParent() {
+    private void removePlayerFromParent() {
         ViewParent parent = getParent();
         if (parent != null) {
             ((ViewGroup) parent).removeView(this);
         }
     }
 
-    protected void exitFullscreen() {
+    public void exitFullscreen() {
+        exitFullscreenWithOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
+    @Override
+    public void exitFullscreenWithOrientation(int orientation) {
 
         isFullScreen = false;
 
         Activity activity = VideoUtils.getActivity(getContext());
 
-        activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        activity.setRequestedOrientation(orientation);
 
-        VideoUtils.showSupportActionBar(activity, true);   //根据需要是否显示actionbar和状态栏
+        VideoUtils.showSupportActionBar(activity, actionBarVisible);
         VideoUtils.clearFullScreenFlag(activity);
 
         activity.getWindow().getDecorView().setSystemUiVisibility(mSystemUiVisibility);
 
-        if (isFullScreenInScrollView()) {
-            changeToNormalScreenInScrollView();
-        } else {
-            changeToNormalScreen();
-        }
+        changeToNormalScreen();
 
         postRunnableToResizeTexture();
 
         if (onFullScreenChangeListener != null) {
-            onFullScreenChangeListener.onFullScreenChange(false);
+            onFullScreenChangeListener.onFullscreenChange(false);
         }
     }
 
-    //正常的回到全屏前状态
-    protected void changeToNormalScreen() {
-        ViewGroup.LayoutParams layoutParams = getLayoutParams();
-        layoutParams.width = originWidth;
-        layoutParams.height = originHeight;
-        setLayoutParams(layoutParams);
-    }
-
     /**
-     * 对应上面的全屏模式，来恢复到全屏之前的样式，需要视频控件外出套了一层父控件，以方便添加回去
+     * 对应上面的全屏模式，来恢复到全屏之前的样式
      */
-    protected void changeToNormalScreenInScrollView() {
+    protected void changeToNormalScreen() {
         ViewGroup vp = getRootViewGroup();
-        vp.removeView((View) this.getParent());
+        vp.removeView((View) getParent());
         removePlayerFromParent();
 
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(originWidth, originHeight);
         setLayoutParams(layoutParams);
 
         if (viewParent != null) {
-            ((ViewGroup) viewParent).addView(this);
+            ((ViewGroup) viewParent).addView(this, positionInParent);
         }
+    }
+
+    @Override
+    public boolean isFullScreen() {
+        return isFullScreen;
+    }
+
+    /**
+     * 视频全屏策略，竖向全屏，横向全屏，还是根据宽高比来智能选择
+     */
+    protected int getFullScreenOrientation() {
+        if (playerConfig.screenMode == PlayerConfig.PORTRAIT_FULLSCREEN_MODE) {
+            return ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        }
+        BasePlayer player = getPlayer();
+        if (playerConfig.screenMode == PlayerConfig.AUTO_FULLSCREEN_MODE && player != null) {
+            return player.getAspectRation() < 1 ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+        }
+        return ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
     }
 
 
     //endregion
-
-    //region 播放控制
-
-    protected boolean isPlaying() {
-        return player != null && player.isPlaying();
-    }
-
-
-    private boolean isLocalVideo() {
-        return !TextUtils.isEmpty(assetFileName) || rawId != 0 || (!TextUtils.isEmpty(url) && url.startsWith("file"));
-    }
-
-    public void start() {
-        if (isLocalVideo() || VideoUtils.isWifiConnected(getContext())) {
-            startVideo();
-        } else {
-            showMobileDataDialog();
-        }
-    }
-
-    public void showMobileDataDialog() {
-        if (isShowMobileDataDialog) {
-            return;
-        }
-        isShowMobileDataDialog = true;
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.Theme_AppCompat_Light_Dialog_Alert);
-        builder.setMessage(getResources().getString(R.string.mobile_data_tips));
-        builder.setPositiveButton(getResources().getString(R.string.continue_playing), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                startVideo();
-            }
-        });
-        builder.setNegativeButton(getResources().getString(R.string.stop_play), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.create().show();
-    }
-
-    public void release() {
-        if (player != null) {
-            player.release();
-        }
-    }
-
-    protected void replay() {
-        if (player != null) {
-            player.seekTo(0);
-            start();
-        }
-    }
-
-    public void destroy() {
-        if (player != null) {
-            player.destroy();
-        }
-    }
-
-    public void pause() {
-        if (player != null) {
-            player.pause();
-        }
-    }
-    //endregion
-
-    protected void postRunnableToResizeTexture() {
-        post(new Runnable() {
-            @Override
-            public void run() {
-                resizeTextureView(player.getVideoWidth(), player.getVideoHeight());
-            }
-        });
-    }
-
-    @Override
-    public void onVideoSizeChanged(int width, int height) {
-        resizeTextureView(width, height);
-    }
-
-    //根据视频内容重新调整视频渲染区域大小
-    protected void resizeTextureView(int width, int height) {
-        if (width == 0 || height == 0 || renderView == null || renderView.getRenderView() == null) {
-            return;
-        }
-        float aspectRation = (float) width / height;
-
-        View surfaceContainer = getSurfaceContainer();
-        int parentWidth = surfaceContainer.getWidth();
-        int parentHeight = surfaceContainer.getHeight();
-
-        int w, h;
-
-        if (aspectRation >= 1) {
-            w = parentWidth;
-            h = (int) (w / aspectRation);
-        } else {
-            h = parentHeight;
-            w = (int) (h * aspectRation);
-        }
-
-        ViewGroup.LayoutParams layoutParams = renderView.getRenderView().getLayoutParams();
-        layoutParams.width = w;
-        layoutParams.height = h;
-        renderView.getRenderView().setLayoutParams(layoutParams);
-    }
-
-    //方便扩展播放器核心
-    protected BasePlayer newPlayerInstance(Context context) {
-        if (playerConfig != null && playerConfig.player != null) {
-            return playerConfig.player;
-        }
-        return new AndroidPlayer(context);
-    }
-
-    //方便扩展播放器渲染界面
-    protected BaseRenderView newRenderViewInstance(Context context) {
-        switch (playerConfig.renderType) {
-            case PlayerConfig.RENDER_TEXTURE_VIEW:
-                return new TextureRenderView(context);
-            case PlayerConfig.RENDER_SURFACE_VIEW:
-                return new SurfaceRenderView(context);
-        }
-        return null;
-    }
-
-    protected abstract ViewGroup getSurfaceContainer();
-
-    protected abstract int getLayoutId();
-
-    public abstract boolean onBackKeyPressed();
-
-    public abstract void setTitle(String titleText);
-
-    @Override
-    public abstract void onStateChange(int state);
-
-    public void setPlayerConfig(PlayerConfig playerConfig) {
-        this.playerConfig = playerConfig;
-    }
 }

@@ -6,24 +6,34 @@
         "title": "http",
         "path": "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4",
         "player": 1,
-        "fileType": "url"
+        "fileType": "url",
+        "fullscreenMode": 1,
+        "renderType": 0,
+        "lockSupport": true,
+        "sensorRotateSupport": true,
+        "rotateWithSystem": true,
+        "aspectRatio": ""
       },
       {
         "title": "https",
         "path": "https://www.w3schools.com/html/mov_bbb.mp4",
         "player": 2,
-        "fileType": "url"
+        "fileType": "url",
+        "rotateWithSystem": true,
+        "aspectRatio": ""
       },
       {
         "title": "rtmp",
         "path": "rtmp://58.200.131.2:1935/livetv/hunantv",
         "player": 2,
-        "fileType": "url"
+        "fileType": "url",
+        "rotateWithSystem": false
       },
       {
         "title": "file",
-        "player": 1,
-        "fileType": "file"
+        "player": 2,
+        "fileType": "file",
+        "aspectRatio": "3:4"
       },
       {
         "title": "raw",
@@ -41,13 +51,13 @@
     "title": "播放器",
     "samples": [
       {
-        "title": "Android MediaPalyer + SurfaceView",
+        "title": "MediaPalyer + SurfaceView",
         "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
         "player": 0,
         "renderType": 1
       },
       {
-        "title": "Android MediaPlayer + TextureView",
+        "title": "MediaPlayer + TextureView",
         "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
         "player": 0,
         "renderType": 0
@@ -75,6 +85,12 @@
         "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
         "player": 2,
         "renderType": 0
+      },
+      {
+        "title": "小窗口播放",
+        "fileType": "raw",
+        "player": 2,
+        "demoType": "float"
       }
     ]
   },
@@ -86,20 +102,12 @@
         "demoType": "list",
         "player": 1,
         "renderType": 0
-
       },
       {
         "title": "RecyclerView 列表视频",
         "demoType": "recycler",
         "player": 2,
         "renderType": 1
-      },
-      {
-        "title": "ScrollView 视频",
-        "demoType": "scroll",
-        "player": 2,
-        "renderType": 1,
-        "path": "http://mirror.aarnet.edu.au/pub/TED-talks/JackHorner_2010X.mp4"
       }
     ]
   }

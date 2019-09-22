@@ -1,5 +1,5 @@
 package com.zt.core.listener;
 
-public interface onVideoSizeChangedListener {
+public interface OnVideoSizeChangedListener {
     void onVideoSizeChanged(int width, int height);
 }

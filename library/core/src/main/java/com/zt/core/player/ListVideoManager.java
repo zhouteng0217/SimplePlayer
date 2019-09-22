@@ -107,7 +107,7 @@ public class ListVideoManager {
         if (containerView != null) {
             containerView.removeAllViews();
             containerView.addView(currentVideoView);
-            currentVideoView.setVideoPath(url);
+            currentVideoView.setVideoUrlPath(url);
             currentVideoView.setTitle(title);
             currentVideoView.invalidate();
             currentVideoView.start();

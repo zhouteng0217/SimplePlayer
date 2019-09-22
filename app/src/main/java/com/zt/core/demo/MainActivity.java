@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements ExpandableListVie
         prepareLocalVideo();
     }
 
+    //复制一份视频文件到文件系统里面，供后面的demo用
     private void prepareLocalVideo() {
         new Thread(new Runnable() {
             @Override
@@ -223,8 +224,8 @@ public class MainActivity extends AppCompatActivity implements ExpandableListVie
             case "recycler":
                 intent = new Intent(this, RecyclerViewVideoActivity.class);
                 break;
-            case "scroll":
-                intent = new Intent(this, ScrollViewVideoActivity.class);
+            case "float":
+                intent = new Intent(this, FloatVideoActivity.class);
                 break;
             default:
                 intent = new Intent(this, NormalVideoActivity.class);

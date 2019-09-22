@@ -50,7 +50,7 @@ public class GoogleExoPlayer extends BasePlayer {
 
     @Override
     protected void initPlayerImpl() {
-        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context);
+        simpleExoPlayer = ExoPlayerFactory.newSimpleInstance(context.getApplicationContext());
         simpleExoPlayer.addListener(playerEventListener);
         simpleExoPlayer.addVideoListener(videoListener);
         simpleExoPlayer.setRepeatMode(isLooping() ? Player.REPEAT_MODE_ALL : Player.REPEAT_MODE_OFF);
@@ -103,9 +103,25 @@ public class GoogleExoPlayer extends BasePlayer {
     }
 
     @Override
+    public void release() {
+        super.release();
+        if (simpleExoPlayer != null) {
+            simpleExoPlayer.removeListener(playerEventListener);
+            simpleExoPlayer.removeVideoListener(videoListener);
+        }
+    }
+
+    @Override
     protected void releaseImpl() {
         if (simpleExoPlayer != null) {
             simpleExoPlayer.release();
+        }
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        if (simpleExoPlayer != null) {
             simpleExoPlayer.removeListener(playerEventListener);
             simpleExoPlayer.removeVideoListener(videoListener);
         }
@@ -119,7 +135,7 @@ public class GoogleExoPlayer extends BasePlayer {
 
     @Override
     public float getAspectRation() {
-        return simpleExoPlayer == null || videoHeight == 0 ? 1.0f : (float) videoWidth / videoHeight;
+        return simpleExoPlayer == null || videoWidth == 0 ? 1.0f : (float) videoHeight / videoWidth;
     }
 
     @Override
