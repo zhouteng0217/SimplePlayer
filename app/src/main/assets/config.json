@@ -51,13 +51,13 @@
     "title": "播放器",
     "samples": [
       {
-        "title": "Android MediaPalyer + SurfaceView",
+        "title": "MediaPalyer + SurfaceView",
         "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
         "player": 0,
         "renderType": 1
       },
       {
-        "title": "Android MediaPlayer + TextureView",
+        "title": "MediaPlayer + TextureView",
         "path": "http://mirror.aarnet.edu.au/pub/TED-talks/BillyCollins_2012.mp4",
         "player": 0,
         "renderType": 0
