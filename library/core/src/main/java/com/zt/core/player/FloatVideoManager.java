@@ -1,6 +1,7 @@
 package com.zt.core.player;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.view.Gravity;
@@ -8,7 +9,7 @@ import android.view.MotionEvent;
 import android.view.WindowManager;
 
 import com.zt.core.base.BasePlayer;
-import com.zt.core.base.ITinyVideoView;
+import com.zt.core.base.IFloatView;
 import com.zt.core.base.RenderContainerView;
 import com.zt.core.util.VideoUtils;
 
@@ -17,16 +18,19 @@ import com.zt.core.util.VideoUtils;
  * <p>
  * 悬浮视频管理
  */
-public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
+public class FloatVideoManager implements IFloatView.FloatViewListener {
 
-    private ITinyVideoView videoView;
+    private IFloatView videoView;
 
     private WindowManager windowManager;
 
-    private ITinyVideoView.LayoutParams layoutParams;
+    private IFloatView.LayoutParams layoutParams;
 
     private static FloatVideoManager instance;
     private WindowManager.LayoutParams wmParams;
+
+    //用于从悬浮小窗口模式，跳回正常的Activity界面的Intent
+    private Intent intent;
 
     public static FloatVideoManager getInstance() {
         if (instance == null) {
@@ -35,8 +39,17 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
         return instance;
     }
 
-    public void startFloatVideo(ITinyVideoView videoView) {
+    public Intent getIntent() {
+        return intent;
+    }
+
+    public void setIntent(Intent intent) {
+        this.intent = intent;
+    }
+
+    public void startFloatVideo(IFloatView videoView, Intent intent) {
         this.videoView = videoView;
+        this.intent = intent;
         layoutParams = videoView.getFloatVideoLayoutParams();
         createFloatVideo();
     }
@@ -45,7 +58,7 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
         if (videoView == null) {
             return;
         }
-        videoView.setTinyVideoViewListener(this);
+        videoView.setFloatVideoViewListener(this);
 
         Context context = videoView.getPlayView().getContext();
 
@@ -78,7 +91,9 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
 
     @Override
     public void backToNormalView() {
-
+        if (videoView != null && intent != null) {
+            videoView.getPlayView().getContext().startActivity(intent);
+        }
     }
 
     public int getCurrentPlayState() {
@@ -92,6 +107,7 @@ public class FloatVideoManager implements ITinyVideoView.TinyVideoViewListenr {
             windowManager.removeViewImmediate(videoView.getPlayView());
             videoView = null;
             windowManager = null;
+            intent = null;
         }
     }
 

@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import com.zt.core.R;
 import com.zt.core.base.BasePlayer;
 import com.zt.core.base.BaseVideoView;
-import com.zt.core.base.ITinyVideoView;
+import com.zt.core.base.IFloatView;
 import com.zt.core.util.VideoUtils;
 
 import java.lang.ref.WeakReference;
@@ -23,10 +23,10 @@ import java.util.TimerTask;
  * <p>
  * 小窗口视频UI界面
  */
-public class FloatVideoView extends BaseVideoView implements ITinyVideoView, View.OnClickListener, View.OnTouchListener {
+public class FloatVideoView extends BaseVideoView implements IFloatView, View.OnClickListener, View.OnTouchListener {
 
-    private ITinyVideoView.LayoutParams videoLayoutParams;
-    private TinyVideoViewListenr listener;
+    private IFloatView.LayoutParams videoLayoutParams;
+    private FloatViewListener listener;
     private ImageView playBtn;
     private View replayLayout;
     private View topLayout;
@@ -48,7 +48,7 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
     }
 
     private void initView(Context context) {
-        videoLayoutParams = new ITinyVideoView.LayoutParams();
+        videoLayoutParams = new IFloatView.LayoutParams();
 
         //默认位置和大小
         videoLayoutParams.x = 0;
@@ -96,19 +96,19 @@ public class FloatVideoView extends BaseVideoView implements ITinyVideoView, Vie
     }
 
     @Override
-    public void setFloatVideoLayoutParams(ITinyVideoView.LayoutParams layoutParams) {
+    public void setFloatVideoLayoutParams(IFloatView.LayoutParams layoutParams) {
         if (layoutParams != null) {
             videoLayoutParams = layoutParams;
         }
     }
 
     @Override
-    public ITinyVideoView.LayoutParams getFloatVideoLayoutParams() {
+    public IFloatView.LayoutParams getFloatVideoLayoutParams() {
         return videoLayoutParams;
     }
 
     @Override
-    public void setTinyVideoViewListener(TinyVideoViewListenr listener) {
+    public void setFloatVideoViewListener(FloatViewListener listener) {
         this.listener = listener;
     }
 

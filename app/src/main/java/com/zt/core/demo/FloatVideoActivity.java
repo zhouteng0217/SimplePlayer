@@ -13,7 +13,7 @@ import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 
 import com.zt.core.base.BasePlayer;
-import com.zt.core.base.ITinyVideoView;
+import com.zt.core.base.IFloatView;
 import com.zt.core.base.RenderContainerView;
 import com.zt.core.player.FloatVideoManager;
 import com.zt.core.view.FloatVideoView;
@@ -133,9 +133,9 @@ public class FloatVideoActivity extends BaseDemoActivity implements CompoundButt
 
     private void startFloatVideoView() {
         //注意使用application的context构建，防止内存泄露
-        FloatVideoView floatVideoView = new FloatVideoView(this.getApplicationContext());
+        FloatVideoView floatVideoView = new FloatVideoView(getApplicationContext());
 
-        ITinyVideoView.LayoutParams layoutParams = new ITinyVideoView.LayoutParams(600, 336);
+        IFloatView.LayoutParams layoutParams = new IFloatView.LayoutParams(600, 336);
         layoutParams.x = 20;
         layoutParams.y = 20;
         floatVideoView.setFloatVideoLayoutParams(layoutParams);
@@ -147,7 +147,12 @@ public class FloatVideoActivity extends BaseDemoActivity implements CompoundButt
 
         floatVideoView.setPlayerStatus(videoView.getCurrentState());
 
-        FloatVideoManager.getInstance().startFloatVideo(floatVideoView);
+        //构建跳回来的intent, 为了防止内存泄漏，注意使用application的context，加上flags
+        Intent intent = new Intent(getApplicationContext(), FloatVideoActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("sample", sample);
+
+        FloatVideoManager.getInstance().startFloatVideo(floatVideoView, intent);
 
         finish();
     }
