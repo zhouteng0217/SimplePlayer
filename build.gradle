@@ -3,14 +3,13 @@
 buildscript {
     repositories {
 
-        //china ，use the repositories below
-        maven {url 'http://maven.aliyun.com/nexus/content/repositories/google'}
-        maven {url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
-        maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+        jcenter()
+        google()
 
-        //outside of china , use the repositories below
-//        jcenter()
-//        google()
+        //如果没有办法访问到google仓库，请使用下面的仓库
+//        maven {url 'http://maven.aliyun.com/nexus/content/repositories/google'}
+//        maven {url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+//        maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
     }
 
     dependencies {
@@ -24,14 +23,13 @@ allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
 
-        //china，use the repositories below
-        maven {url 'http://maven.aliyun.com/nexus/content/repositories/google'}
-        maven {url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
-        maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+        jcenter()
+        google()
 
-        //outside of china , use the repositories below
-//        jcenter()
-//        google()
+        //如果没有办法访问到google仓库，请使用下面的仓库
+//        maven {url 'http://maven.aliyun.com/nexus/content/repositories/google'}
+//        maven {url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
+//        maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
     }
 }
 
