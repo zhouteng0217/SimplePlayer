@@ -2,9 +2,15 @@
 
 buildscript {
     repositories {
+
+        //china ，没有vpn等情况下，使用阿里云的镜像仓库
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/google'}
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
         maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+
+        //outside of china (请把上面镜像地址注释掉，把下方镜像地址注释打开)
+//        jcenter()
+//        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.3.0'
@@ -19,9 +25,15 @@ buildscript {
 allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
+
+        //china，没有vpn等情况下，使用阿里云的镜像仓库
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/google'}
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
         maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+
+        //outside of china (请把上面国内镜像地址注释掉，把下方镜像地址注释打开)
+//        jcenter()
+//        google()
     }
 }
 
