@@ -11,11 +11,13 @@ import android.widget.ListView;
 import com.zt.core.base.BaseVideoView;
 import com.zt.core.view.ListVideoView;
 
+import java.lang.ref.WeakReference;
+
 public class ListVideoManager {
 
     private static ListVideoManager instance;
 
-    protected BaseVideoView currentVideoView;
+    protected WeakReference<BaseVideoView> videoViewWeakReference;
 
     protected int curPos = -1;
 
@@ -26,7 +28,12 @@ public class ListVideoManager {
         return instance;
     }
 
+    private BaseVideoView getCurrentVideoView() {
+        return videoViewWeakReference != null ? videoViewWeakReference.get() : null;
+    }
+
     private void removePlayerFromParent() {
+        BaseVideoView currentVideoView = getCurrentVideoView();
         if (currentVideoView != null && currentVideoView.getParent() != null) {
             ((ViewGroup) currentVideoView.getParent()).removeView(currentVideoView);
         }
@@ -80,7 +87,7 @@ public class ListVideoManager {
     }
 
     protected void initVideoView(Context context, View curPosView, @IdRes int containerId, String url, String title, BaseVideoView customVideoView) {
-
+        BaseVideoView currentVideoView = getCurrentVideoView();
         if (currentVideoView != null) {
             currentVideoView.release();
             removePlayerFromParent();
@@ -90,6 +97,8 @@ public class ListVideoManager {
         if (currentVideoView == null) {
             currentVideoView = newVideoViewInstance(context);
         }
+
+        videoViewWeakReference = new WeakReference<>(currentVideoView);
 
         ViewGroup containerView = null;
         if (curPosView != null) {
@@ -106,13 +115,14 @@ public class ListVideoManager {
     }
 
     public void destroy() {
+        BaseVideoView currentVideoView = getCurrentVideoView();
         if (currentVideoView != null) {
             currentVideoView.release();
-            currentVideoView = null;
         }
     }
 
     public void release() {
+        BaseVideoView currentVideoView = getCurrentVideoView();
         if (currentVideoView != null) {
             currentVideoView.release();
         }
@@ -120,16 +130,19 @@ public class ListVideoManager {
     }
 
     public void pause() {
+        BaseVideoView currentVideoView = getCurrentVideoView();
         if (currentVideoView != null) {
             currentVideoView.pause();
         }
     }
 
     public boolean isFullScreen() {
+        BaseVideoView currentVideoView = getCurrentVideoView();
         return currentVideoView != null && currentVideoView.isFullScreen();
     }
 
     public boolean onBackKeyPressed() {
+        BaseVideoView currentVideoView = getCurrentVideoView();
         if (currentVideoView != null) {
             return currentVideoView.onBackKeyPressed();
         }
