@@ -2,26 +2,36 @@
 
 buildscript {
     repositories {
+
+        //china ，use the repositories below
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/google'}
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
         maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+
+        //outside of china , use the repositories below
+//        jcenter()
+//        google()
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:3.3.0'
         classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4"
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
     }
 }
 
 allprojects {
     repositories {
         maven { url 'https://jitpack.io' }
+
+        //china，use the repositories below
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/google'}
         maven {url 'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
         maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+
+        //outside of china , use the repositories below
+//        jcenter()
+//        google()
     }
 }
 
