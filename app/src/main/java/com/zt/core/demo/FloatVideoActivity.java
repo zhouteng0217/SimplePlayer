@@ -39,8 +39,6 @@ public class FloatVideoActivity extends BaseDemoActivity implements CompoundButt
 
         FrameLayout container = findViewById(R.id.video_view_container);
 
-        initDescView(findViewById(R.id.desc));
-
         checkBox = findViewById(R.id.checkbox);
         initCheckBox();
 
@@ -64,6 +62,8 @@ public class FloatVideoActivity extends BaseDemoActivity implements CompoundButt
         container.addView(videoView, new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         initPlayerView(videoView);
+
+        initDescView(findViewById(R.id.desc));
 
         if (floatRender != null) {
             //有正常播放的小窗口时
