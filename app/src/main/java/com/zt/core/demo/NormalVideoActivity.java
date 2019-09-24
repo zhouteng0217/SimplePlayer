@@ -13,11 +13,11 @@ public class NormalVideoActivity extends BaseDemoActivity {
     protected void initView() {
         setActionBarTitle();
 
-        initDescView(findViewById(R.id.desc));
-
         videoView = findViewById(R.id.video_view);
 
         initPlayerView(videoView);
+
+        initDescView(findViewById(R.id.desc));
 
         videoView.start();
     }
