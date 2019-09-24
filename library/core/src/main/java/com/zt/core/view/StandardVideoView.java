@@ -263,7 +263,6 @@ public class StandardVideoView extends BaseVideoView implements View.OnClickList
         if (isFullScreen()) {
             exitFullscreen();
         } else {
-            release();
             VideoUtils.getActivity(getContext()).finish();
         }
     }
