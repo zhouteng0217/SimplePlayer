@@ -32,8 +32,7 @@
       {
         "title": "file",
         "player": 2,
-        "fileType": "file",
-        "aspectRatio": "3:4"
+        "fileType": "file"
       },
       {
         "title": "raw",

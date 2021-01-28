@@ -3,7 +3,7 @@ package com.zt.exoplayer;
 
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.Surface;
 import android.view.SurfaceHolder;

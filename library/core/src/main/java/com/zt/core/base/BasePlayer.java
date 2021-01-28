@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.support.annotation.RawRes;
+import androidx.annotation.RawRes;
 import android.text.TextUtils;
 
 import com.zt.core.listener.OnStateChangedListener;

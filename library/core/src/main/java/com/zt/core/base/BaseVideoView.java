@@ -6,11 +6,11 @@ import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.IdRes;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.annotation.RawRes;
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RawRes;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,6 +62,8 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
 
     //父视图
     private ViewParent viewParent;
+    //当前view在父视图中的布局参数
+    private ViewGroup.LayoutParams viewLayoutParams;
     //当前view在父视图中的位置
     private int positionInParent;
 
@@ -431,9 +433,11 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         int parentWidth = getWidth();
         int parentHeight = getHeight();
 
+        float parentAspectRation = (float) parentHeight / parentWidth;
+
         int w, h;
 
-        if (aspectRation < 1) {
+        if (aspectRation < parentAspectRation) {
             w = parentWidth;
             h = (int) (w * aspectRation);
         } else {
@@ -452,6 +456,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         originHeight = getHeight();
 
         viewParent = getParent();
+        viewLayoutParams = getLayoutParams();
         positionInParent = ((ViewGroup) viewParent).indexOfChild(this);
 
         ViewGroup vp = getRootViewGroup();
@@ -526,7 +531,7 @@ public abstract class BaseVideoView extends FrameLayout implements IVideoView {
         setLayoutParams(layoutParams);
 
         if (viewParent != null) {
-            ((ViewGroup) viewParent).addView(this, positionInParent);
+            ((ViewGroup) viewParent).addView(this, positionInParent, viewLayoutParams);
         }
     }
 
