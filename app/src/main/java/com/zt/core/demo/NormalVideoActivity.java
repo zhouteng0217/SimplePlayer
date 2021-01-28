@@ -1,6 +1,6 @@
 package com.zt.core.demo;
 
-import android.support.annotation.LayoutRes;
+import androidx.annotation.LayoutRes;
 import android.view.KeyEvent;
 
 import com.zt.core.view.StandardVideoView;
